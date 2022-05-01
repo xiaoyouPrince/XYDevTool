@@ -701,10 +701,10 @@
             </objects>
             <point key="canvasLocation" x="75" y="250"/>
         </scene>
-        <!--View Controller-->
+        <!--XYDevTools-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="XYDevTool" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="XYDevTools" id="XfG-lQ-9wD" customClass="ViewController" customModule="XYDevTool" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -924,7 +924,7 @@
                 </viewController>
                 <customObject id="dpn-eL-OCW" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="762.5" y="678.5"/>
+            <point key="canvasLocation" x="742" y="318"/>
         </scene>
     </scenes>
 </document>
