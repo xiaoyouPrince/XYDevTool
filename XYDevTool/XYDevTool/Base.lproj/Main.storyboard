@@ -749,10 +749,10 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mfq-YU-okf">
-                                <rect key="frame" x="223" y="226" width="38" height="19"/>
+                                <rect key="frame" x="222" y="226" width="39" height="19"/>
                                 <buttonCell key="cell" type="recessed" title="转换" bezelStyle="recessed" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="kCC-xP-11H">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" size="12" name=".PingFangSC-Semibold"/>
+                                    <font key="font" metaFont="cellTitle"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="okBtnClick:" target="UIB-wx-snE" id="iyk-PQ-VJi"/>
@@ -827,7 +827,7 @@
                                         <rect key="frame" x="2" y="8" width="43" height="16"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="类前缀" id="Ok7-Yg-fSc">
-                                            <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                            <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>

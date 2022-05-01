@@ -159,8 +159,21 @@ function parseObject(k, result){
             if (Object.getOwnPropertyNames(value).length == 0) { // dict with zero key
                 c.property.push("var " + key + ": " + "[String: Any]" + "?")
             }else{
-                parseObject(key.firstUpperCase(), value)
-                c.property.push("var " + key + ": " + key.firstUpperCase() + "?")
+                
+                // 属性生成 + 类前缀
+                let newClzName = key
+                if (classPrefix.length > 0){
+                    newClzName = classPrefix + key.firstUpperCase()
+                    
+                    parseObject(newClzName, value)
+                    c.property.push("var " + key + ": " + newClzName + "?")
+                }else
+                {
+                    parseObject(key.firstUpperCase(), value)
+                    c.property.push("var " + key + ": " + key.firstUpperCase() + "?")
+                }
+                
+                
             }
 
             continue
@@ -177,14 +190,26 @@ function parseObject(k, result){
                 }
 
                 if (objType == "Object") {
-                    parseObject(key.firstUpperCase(), obj)
-                    c.property.push("var " + key + ": " + "[" + key.firstUpperCase() + "]" + "?")
+                    
+                    // 属性生成 + 类前缀
+                    let newClzName = key
+                    if (classPrefix.length > 0){
+                        newClzName = classPrefix + key.firstUpperCase()
+                        
+                        parseObject(newClzName, obj)
+                        c.property.push("var " + key + ": " + "[" + newClzName + "]" + "?")
+                    }else{
+                        parseObject(key.firstUpperCase(), obj)
+                        c.property.push("var " + key + ": " + "[" + key.firstUpperCase() + "]" + "?")
+                    }
+                    
                 }else{
+                    // 常规字符串等 数组嵌入数组的暂时没有处理
                     c.property.push("var " + key + ": " + "[" + objType + "]" + "?")
                 }
 
                 continue
-            }
+            }// else {} // 空数组也没有处理
         }
     }
 }
@@ -235,11 +260,6 @@ function getType(obj){
 }
 
 function Class(name){
-    
-    if (classPrefix.length > 0) { // 是否设置类前缀
-        name = classPrefix + name
-    }
-    
     this.name = name
     this.property = new Array()
 }
