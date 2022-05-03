@@ -7,16 +7,26 @@ Contents(){
 setIconImage(){
     echo "开始生成图标······"
     echo "$1"
-    sips -z 16 16     "$1" --out ./AppIcon.appiconset/icon_16x16.png
-    sips -z 32 32     "$1" --out ./AppIcon.appiconset/icon_16x16@2x.png
-    sips -z 32 32     "$1" --out ./AppIcon.appiconset/icon_32x32.png
-    sips -z 64 64     "$1" --out ./AppIcon.appiconset/icon_32x32@2x.png
-    sips -z 128 128   "$1" --out ./AppIcon.appiconset/icon_128x128.png
-    sips -z 256 256   "$1" --out ./AppIcon.appiconset/icon_128x128@2x.png
-    sips -z 256 256   "$1" --out ./AppIcon.appiconset/icon_256x256.png
-    sips -z 512 512   "$1" --out ./AppIcon.appiconset/icon_256x256@2x.png
-    sips -z 512 512   "$1" --out ./AppIcon.appiconset/icon_512x512.png
-    sips -z 1024 1024   "$1" --out ./AppIcon.appiconset/icon_512x512@2x.png
+    sips -z 40 40       "$1" --out ./AppIcon.appiconset/iPhone\ Notification-20@2x.png
+    sips -z 60 60       "$1" --out ./AppIcon.appiconset/iPhone\ Notification-20@3x.png
+    sips -z 58 58       "$1" --out ./AppIcon.appiconset/iPhone\ Settings-29@2x.png
+    sips -z 87 87       "$1" --out ./AppIcon.appiconset/iPhone\ Settings-29@3x.png
+    sips -z 80 80       "$1" --out ./AppIcon.appiconset/iPhone\ Spotlight-40@2x.png
+    sips -z 120 120     "$1" --out ./AppIcon.appiconset/iPhone\ Spotlight-40@3x.png
+    sips -z 120 120     "$1" --out ./AppIcon.appiconset/iPhone\ App-60@2x.png
+    sips -z 180 180     "$1" --out ./AppIcon.appiconset/iPhone\ App-60@3x.png
+    sips -z 20 20       "$1" --out ./AppIcon.appiconset/iPad\ Notifications-20.png
+    sips -z 40 40       "$1" --out ./AppIcon.appiconset/iPad\ Notifications-20@2x.png
+    sips -z 29 29       "$1" --out ./AppIcon.appiconset/iPad\ Settings-29.png
+    sips -z 58 58       "$1" --out ./AppIcon.appiconset/iPad\ Settings-29@2x.png
+    sips -z 40 40       "$1" --out ./AppIcon.appiconset/iPad\ Spotlight-40.png
+    sips -z 80 80       "$1" --out ./AppIcon.appiconset/iPad\ Spotlight-40@2x.png
+    sips -z 76 76       "$1" --out ./AppIcon.appiconset/iPad\ App-76.png
+    sips -z 152 152     "$1" --out ./AppIcon.appiconset/iPad\ App-76@2x.png
+    sips -z 167 167     "$1" --out ./AppIcon.appiconset/iPad\ Pro\ App-83.5@2x.png
+    sips -z 120 120     "$1" --out ./AppIcon.appiconset/CarPlay-60@2x.png
+    sips -z 180 180     "$1" --out ./AppIcon.appiconset/CarPlay-60@3x.png
+    sips -z 1024 1024   "$1" --out ./AppIcon.appiconset/App\ Store-1024.png
     echo "全部图标生成······"
 }
 
