@@ -728,6 +728,17 @@
                                     <segue destination="UIB-wx-snE" kind="modal" id="vzG-WM-6nu"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="G4W-Qu-cWv">
+                                <rect key="frame" x="40" y="149" width="110" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="recessed" title="creatMacIcons" bezelStyle="recessed" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9jJ-cT-1fk">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                    <font key="font" metaFont="systemBold" size="12"/>
+                                </buttonCell>
+                                <connections>
+                                    <segue destination="YRE-Jf-r9L" kind="popover" popoverAnchorView="G4W-Qu-cWv" popoverBehavior="t" preferredEdge="maxY" id="be4-n8-nsC"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="Czg-qd-Iuw" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="16" id="3Oa-EN-cKy"/>
@@ -925,6 +936,19 @@
                 <customObject id="dpn-eL-OCW" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="742" y="318"/>
+        </scene>
+        <!--CreatMacIcons-->
+        <scene sceneID="2Cb-ux-9sP">
+            <objects>
+                <viewController title="CreatMacIcons" id="YRE-Jf-r9L" customClass="CreateMacIcons" customModule="XYDevTool" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="gYz-sb-QKr">
+                        <rect key="frame" x="0.0" y="0.0" width="485" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </view>
+                </viewController>
+                <customObject id="oqs-CJ-R4y" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="740.5" y="740"/>
         </scene>
     </scenes>
 </document>
