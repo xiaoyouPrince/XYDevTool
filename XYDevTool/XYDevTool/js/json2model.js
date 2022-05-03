@@ -109,7 +109,7 @@ var json2model = function getAllResult(){
             
             for (let j = 0; j < clz.property.length; j++) {
                 var element = clz.property[j];
-                if (element.substr(0,6) == "\n\t/// "){
+                if (element.substr(0,6) == "\n\t/** "){
                     element = ""
                     continue;
                 }
