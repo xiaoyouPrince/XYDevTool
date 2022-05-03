@@ -13,6 +13,7 @@
 		B48BC724281D07500093D91F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B48BC723281D07500093D91F /* Assets.xcassets */; };
 		B48BC727281D07500093D91F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B48BC725281D07500093D91F /* Main.storyboard */; };
 		B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC72E281D09790093D91F /* Json2ModelVC.swift */; };
+		B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */; };
 		B4A3B067281D66CB00C34DD8 /* json2model.js in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B066281D66CB00C34DD8 /* json2model.js */; };
 		B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */; };
 		B4A3B06D281EC26500C34DD8 /* script.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06B281EC26500C34DD8 /* script.sh */; };
@@ -31,6 +32,7 @@
 		B48BC726281D07500093D91F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B48BC728281D07500093D91F /* XYDevTool.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XYDevTool.entitlements; sourceTree = "<group>"; };
 		B48BC72E281D09790093D91F /* Json2ModelVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json2ModelVC.swift; sourceTree = "<group>"; };
+		B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYDevFunctions.swift; sourceTree = "<group>"; };
 		B4A3B066281D66CB00C34DD8 /* json2model.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = json2model.js; sourceTree = "<group>"; };
 		B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMacIcons.swift; sourceTree = "<group>"; };
 		B4A3B06B281EC26500C34DD8 /* script.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = script.sh; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				B48BC728281D07500093D91F /* XYDevTool.entitlements */,
 				B48BC72E281D09790093D91F /* Json2ModelVC.swift */,
 				B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */,
+				B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */,
 			);
 			path = XYDevTool;
 			sourceTree = "<group>";
@@ -254,6 +257,7 @@
 			files = (
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
+				B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */,
 				B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */,
 				B48BC722281D074E0093D91F /* ViewController.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
@@ -403,6 +407,7 @@
 				DEVELOPMENT_TEAM = J9CJUEB6H8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -434,6 +439,7 @@
 				DEVELOPMENT_TEAM = J9CJUEB6H8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
