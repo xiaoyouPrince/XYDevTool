@@ -82,7 +82,7 @@ class CreateMacIcons: NSViewController {
         
 //        doWithPrivilegedTask(image: NSImage())
         
-        let info = IconInfo(type: .macOS, path: path)
+        let info = IconInfo(type: IconType(rawValue: type)!, path: path)
         doWithProcess(info)
         
         return;
@@ -180,6 +180,7 @@ class CreateMacIcons: NSViewController {
         case .macOS:
             cmd.append("mac_icon.sh \(ICON_NAME) ")
         case .iOS:
+            
             cmd.append("ios_icon.sh \(ICON_NAME) ")
         }
         

@@ -14,6 +14,16 @@
 		B48BC727281D07500093D91F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B48BC725281D07500093D91F /* Main.storyboard */; };
 		B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC72E281D09790093D91F /* Json2ModelVC.swift */; };
 		B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */; };
+		B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3AD9B28217171001FD2B3 /* ios_icon.sh */; };
+		B4A3AD9F282172DC001FD2B3 /* Contents.json in Resources */ = {isa = PBXBuildFile; fileRef = B4A3AD9E282172DC001FD2B3 /* Contents.json */; };
+		B4A3ADAB28217342001FD2B3 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA228217342001FD2B3 /* Model.swift */; };
+		B4A3ADAC28217342001FD2B3 /* KeyedDecodingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA428217342001FD2B3 /* KeyedDecodingContainer.swift */; };
+		B4A3ADAD28217342001FD2B3 /* Model+Decodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA528217342001FD2B3 /* Model+Decodable.swift */; };
+		B4A3ADAE28217342001FD2B3 /* JSONDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA628217342001FD2B3 /* JSONDecoder.swift */; };
+		B4A3ADAF28217342001FD2B3 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA728217342001FD2B3 /* Box.swift */; };
+		B4A3ADB028217342001FD2B3 /* AnyCodingKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA828217342001FD2B3 /* AnyCodingKey.swift */; };
+		B4A3ADB128217342001FD2B3 /* DefaultValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADA928217342001FD2B3 /* DefaultValue.swift */; };
+		B4A3ADB228217342001FD2B3 /* Transform.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3ADAA28217342001FD2B3 /* Transform.swift */; };
 		B4A3B067281D66CB00C34DD8 /* json2model.js in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B066281D66CB00C34DD8 /* json2model.js */; };
 		B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */; };
 		B4A3B06D281EC26500C34DD8 /* script.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06B281EC26500C34DD8 /* script.sh */; };
@@ -33,6 +43,16 @@
 		B48BC728281D07500093D91F /* XYDevTool.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XYDevTool.entitlements; sourceTree = "<group>"; };
 		B48BC72E281D09790093D91F /* Json2ModelVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json2ModelVC.swift; sourceTree = "<group>"; };
 		B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYDevFunctions.swift; sourceTree = "<group>"; };
+		B4A3AD9B28217171001FD2B3 /* ios_icon.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ios_icon.sh; sourceTree = "<group>"; };
+		B4A3AD9E282172DC001FD2B3 /* Contents.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Contents.json; sourceTree = "<group>"; };
+		B4A3ADA228217342001FD2B3 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		B4A3ADA428217342001FD2B3 /* KeyedDecodingContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyedDecodingContainer.swift; sourceTree = "<group>"; };
+		B4A3ADA528217342001FD2B3 /* Model+Decodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Model+Decodable.swift"; sourceTree = "<group>"; };
+		B4A3ADA628217342001FD2B3 /* JSONDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONDecoder.swift; sourceTree = "<group>"; };
+		B4A3ADA728217342001FD2B3 /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
+		B4A3ADA828217342001FD2B3 /* AnyCodingKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnyCodingKey.swift; sourceTree = "<group>"; };
+		B4A3ADA928217342001FD2B3 /* DefaultValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultValue.swift; sourceTree = "<group>"; };
+		B4A3ADAA28217342001FD2B3 /* Transform.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transform.swift; sourceTree = "<group>"; };
 		B4A3B066281D66CB00C34DD8 /* json2model.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = json2model.js; sourceTree = "<group>"; };
 		B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateMacIcons.swift; sourceTree = "<group>"; };
 		B4A3B06B281EC26500C34DD8 /* script.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = script.sh; sourceTree = "<group>"; };
@@ -94,7 +114,8 @@
 		B48BC71E281D074E0093D91F /* XYDevTool */ = {
 			isa = PBXGroup;
 			children = (
-				B4A3B071281EC72600C34DD8 /* PrivilegedTask */,
+				B4A3ADA028217310001FD2B3 /* Third */,
+				B4A3AD9D28217247001FD2B3 /* json */,
 				B4A3B06A281EC16C00C34DD8 /* sh */,
 				B4A3B065281D66CB00C34DD8 /* js */,
 				B48BC71F281D074E0093D91F /* AppDelegate.swift */,
@@ -110,6 +131,46 @@
 			path = XYDevTool;
 			sourceTree = "<group>";
 		};
+		B4A3AD9D28217247001FD2B3 /* json */ = {
+			isa = PBXGroup;
+			children = (
+				B4A3AD9E282172DC001FD2B3 /* Contents.json */,
+			);
+			path = json;
+			sourceTree = "<group>";
+		};
+		B4A3ADA028217310001FD2B3 /* Third */ = {
+			isa = PBXGroup;
+			children = (
+				B4A3ADA128217342001FD2B3 /* Modelable */,
+				B4A3B071281EC72600C34DD8 /* PrivilegedTask */,
+			);
+			path = Third;
+			sourceTree = "<group>";
+		};
+		B4A3ADA128217342001FD2B3 /* Modelable */ = {
+			isa = PBXGroup;
+			children = (
+				B4A3ADA228217342001FD2B3 /* Model.swift */,
+				B4A3ADA328217342001FD2B3 /* Decoder */,
+				B4A3ADA928217342001FD2B3 /* DefaultValue.swift */,
+				B4A3ADAA28217342001FD2B3 /* Transform.swift */,
+			);
+			path = Modelable;
+			sourceTree = "<group>";
+		};
+		B4A3ADA328217342001FD2B3 /* Decoder */ = {
+			isa = PBXGroup;
+			children = (
+				B4A3ADA428217342001FD2B3 /* KeyedDecodingContainer.swift */,
+				B4A3ADA528217342001FD2B3 /* Model+Decodable.swift */,
+				B4A3ADA628217342001FD2B3 /* JSONDecoder.swift */,
+				B4A3ADA728217342001FD2B3 /* Box.swift */,
+				B4A3ADA828217342001FD2B3 /* AnyCodingKey.swift */,
+			);
+			path = Decoder;
+			sourceTree = "<group>";
+		};
 		B4A3B065281D66CB00C34DD8 /* js */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +182,7 @@
 		B4A3B06A281EC16C00C34DD8 /* sh */ = {
 			isa = PBXGroup;
 			children = (
+				B4A3AD9B28217171001FD2B3 /* ios_icon.sh */,
 				B4A3B06F281EC5D000C34DD8 /* mac_icon.sh */,
 				B4A3B06C281EC26500C34DD8 /* script.pl */,
 				B4A3B06B281EC26500C34DD8 /* script.sh */,
@@ -197,8 +259,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */,
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
+				B4A3AD9F282172DC001FD2B3 /* Contents.json in Resources */,
 				B48BC724281D07500093D91F /* Assets.xcassets in Resources */,
 				B4A3B067281D66CB00C34DD8 /* json2model.js in Resources */,
 				B48BC727281D07500093D91F /* Main.storyboard in Resources */,
@@ -255,11 +319,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4A3ADAB28217342001FD2B3 /* Model.swift in Sources */,
+				B4A3ADAC28217342001FD2B3 /* KeyedDecodingContainer.swift in Sources */,
+				B4A3ADB028217342001FD2B3 /* AnyCodingKey.swift in Sources */,
+				B4A3ADAE28217342001FD2B3 /* JSONDecoder.swift in Sources */,
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
+				B4A3ADB128217342001FD2B3 /* DefaultValue.swift in Sources */,
+				B4A3ADAF28217342001FD2B3 /* Box.swift in Sources */,
 				B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */,
 				B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */,
+				B4A3ADB228217342001FD2B3 /* Transform.swift in Sources */,
 				B48BC722281D074E0093D91F /* ViewController.swift in Sources */,
+				B4A3ADAD28217342001FD2B3 /* Model+Decodable.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
