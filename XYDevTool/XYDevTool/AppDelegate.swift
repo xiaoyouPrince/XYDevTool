@@ -24,6 +24,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         return true
     }
+    
+//https://www.jianshu.com/p/80b2b1c46d3b
+    // 直接干死
+//    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+//        return true
+//    }
+    
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if flag == false {
+            for win in sender.windows {
+                win.makeKeyAndOrderFront(self)
+            }
+        }
+        return true
+    }
 
 
 }
