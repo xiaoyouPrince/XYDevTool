@@ -34,6 +34,9 @@
 		B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */; };
 		B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */; };
 		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
+		B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC3282AA276006FAC35 /* Network.storyboard */; };
+		B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */; };
+		B4F61DC8282ABCAD006FAC35 /* XYNetTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +72,10 @@
 		B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XYDevTool-Bridging-Header.h"; sourceTree = "<group>"; };
 		B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSON2Model.storyboard; sourceTree = "<group>"; };
 		B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateMacIcons.storyboard; sourceTree = "<group>"; };
+		B4F61DC3282AA276006FAC35 /* Network.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Network.storyboard; sourceTree = "<group>"; };
+		B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetRequestVC.swift; sourceTree = "<group>"; };
+		B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XYNetTool.swift; sourceTree = "<group>"; };
+		B4F61DC9282AC4CD006FAC35 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CA6AF161DDDF8C3A49BF6B5E /* Pods-XYDevTool.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.debug.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,6 +129,7 @@
 		B48BC71E281D074E0093D91F /* XYDevTool */ = {
 			isa = PBXGroup;
 			children = (
+				B4F61DC9282AC4CD006FAC35 /* Info.plist */,
 				B4F61DBB282A3C46006FAC35 /* Resource */,
 				B4A3ADA028217310001FD2B3 /* Third */,
 				B4F61DBA282A3C27006FAC35 /* FEATURES */,
@@ -216,6 +224,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
+				B4F61DC2282AA189006FAC35 /* Network */,
 				B4F61DBD282A3DA7006FAC35 /* CreateIcons */,
 				B4F61DBC282A3D73006FAC35 /* JSON2Model */,
 				B4F61DB9282A3C08006FAC35 /* JSONFormatter */,
@@ -249,6 +258,16 @@
 				B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */,
 			);
 			path = CreateIcons;
+			sourceTree = "<group>";
+		};
+		B4F61DC2282AA189006FAC35 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */,
+				B4F61DC3282AA276006FAC35 /* Network.storyboard */,
+				B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -314,6 +333,7 @@
 				B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */,
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
+				B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */,
 				B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */,
 				B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */,
 				B4A3AD9F282172DC001FD2B3 /* Contents.json in Resources */,
@@ -377,9 +397,11 @@
 				B4933E1D28242FF400E7845E /* JsonFormatterVC.swift in Sources */,
 				B4A3ADAB28217342001FD2B3 /* Model.swift in Sources */,
 				B4A3ADAC28217342001FD2B3 /* KeyedDecodingContainer.swift in Sources */,
+				B4F61DC8282ABCAD006FAC35 /* XYNetTool.swift in Sources */,
 				B4A3ADB028217342001FD2B3 /* AnyCodingKey.swift in Sources */,
 				B4A3ADAE28217342001FD2B3 /* JSONDecoder.swift in Sources */,
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
+				B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
 				B4A3ADB128217342001FD2B3 /* DefaultValue.swift in Sources */,
 				B4A3ADAF28217342001FD2B3 /* Box.swift in Sources */,
@@ -535,6 +557,7 @@
 				DEVELOPMENT_TEAM = J9CJUEB6H8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = XYDevTool/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -567,6 +590,7 @@
 				DEVELOPMENT_TEAM = J9CJUEB6H8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = XYDevTool/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;

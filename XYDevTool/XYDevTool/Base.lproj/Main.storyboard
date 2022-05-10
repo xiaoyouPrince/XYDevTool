@@ -751,6 +751,18 @@
                                     <segue destination="nBc-UE-4Je" kind="show" id="T5g-eW-3XO"/>
                                 </connections>
                             </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8Vh-E9-abt">
+                                <rect key="frame" x="191" y="176" width="110" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="recessed" title="网络请求" bezelStyle="recessed" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uAL-DY-24f">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                    <font key="font" size="12" name=".PingFangSC-Semibold"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="jsonFromatterBtnClick:" target="XfG-lQ-9wD" id="BAT-5T-Hc5"/>
+                                    <segue destination="zuc-9c-tvc" kind="show" id="CFL-pu-Gar"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="Czg-qd-Iuw" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="16" id="3Oa-EN-cKy"/>
@@ -778,6 +790,14 @@
                 <customObject id="BuI-6P-cUi" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="562" y="754"/>
+        </scene>
+        <!--Network-->
+        <scene sceneID="UI1-65-sKX">
+            <objects>
+                <controllerPlaceholder storyboardName="Network" id="zuc-9c-tvc" sceneMemberID="viewController"/>
+                <customObject id="Ee4-1k-9ND" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="77" y="1012"/>
         </scene>
         <!--JSON2Model-->
         <scene sceneID="9MF-kT-6BQ">

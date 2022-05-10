@@ -15,3 +15,20 @@ public func showAlert(msg: String){
     a.runModal()
 }
 
+extension Collection {
+    
+    func toData() -> Data? {
+        if let data = try? JSONSerialization.data(withJSONObject: self, options: .prettyPrinted) {
+            return data
+        }
+        return nil
+    }
+    
+    func toString() -> String? {
+        if let data = toData(), let str = String(data: data, encoding: .utf8) {
+            return str
+        }
+        return nil
+    }
+}
+
