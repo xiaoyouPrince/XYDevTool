@@ -718,7 +718,7 @@
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tPo-Xy-8sf">
-                                <rect key="frame" x="40" y="192" width="110" height="17"/>
+                                <rect key="frame" x="39" y="125" width="110" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="recessed" title="Json2Class" bezelStyle="recessed" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3Yn-26-fCw">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
@@ -729,7 +729,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="G4W-Qu-cWv">
-                                <rect key="frame" x="40" y="149" width="110" height="17"/>
+                                <rect key="frame" x="39" y="82" width="110" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="recessed" title="creatMacIcons" bezelStyle="recessed" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9jJ-cT-1fk">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
@@ -737,6 +737,18 @@
                                 </buttonCell>
                                 <connections>
                                     <segue destination="YRE-Jf-r9L" kind="show" id="be4-n8-nsC"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8bK-mx-gye">
+                                <rect key="frame" x="39" y="176" width="110" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="recessed" title="Json格式化" bezelStyle="recessed" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aSo-dg-09L">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                    <font key="font" metaFont="systemBold" size="12"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="jsonFromatterBtnClick:" target="XfG-lQ-9wD" id="R3l-MI-rwU"/>
+                                    <segue destination="nBc-UE-4Je" kind="show" id="T5g-eW-3XO"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -750,6 +762,14 @@
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="75" y="655"/>
+        </scene>
+        <!--JSONFormatter-->
+        <scene sceneID="sed-DG-pW3">
+            <objects>
+                <controllerPlaceholder storyboardName="JSONFormatter" id="nBc-UE-4Je" sceneMemberID="viewController"/>
+                <customObject id="IgN-8M-lcm" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="95" y="980"/>
         </scene>
         <!--Json2Model-->
         <scene sceneID="6IK-Hh-xbb">
@@ -1026,6 +1046,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="icon_bg" width="1000" height="996"/>
+        <image name="icon_bg" width="512" height="512"/>
     </resources>
 </document>

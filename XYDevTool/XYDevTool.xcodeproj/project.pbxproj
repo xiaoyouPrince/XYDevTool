@@ -13,6 +13,8 @@
 		B48BC724281D07500093D91F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B48BC723281D07500093D91F /* Assets.xcassets */; };
 		B48BC727281D07500093D91F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B48BC725281D07500093D91F /* Main.storyboard */; };
 		B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC72E281D09790093D91F /* Json2ModelVC.swift */; };
+		B4933E1D28242FF400E7845E /* JsonFormatterVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4933E1B28242FF400E7845E /* JsonFormatterVC.swift */; };
+		B4933E20282433EC00E7845E /* JSONFormatter.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4933E1F282433EC00E7845E /* JSONFormatter.storyboard */; };
 		B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */; };
 		B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3AD9B28217171001FD2B3 /* ios_icon.sh */; };
 		B4A3AD9F282172DC001FD2B3 /* Contents.json in Resources */ = {isa = PBXBuildFile; fileRef = B4A3AD9E282172DC001FD2B3 /* Contents.json */; };
@@ -42,6 +44,8 @@
 		B48BC726281D07500093D91F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B48BC728281D07500093D91F /* XYDevTool.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XYDevTool.entitlements; sourceTree = "<group>"; };
 		B48BC72E281D09790093D91F /* Json2ModelVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Json2ModelVC.swift; sourceTree = "<group>"; };
+		B4933E1B28242FF400E7845E /* JsonFormatterVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonFormatterVC.swift; sourceTree = "<group>"; };
+		B4933E1F282433EC00E7845E /* JSONFormatter.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSONFormatter.storyboard; sourceTree = "<group>"; };
 		B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYDevFunctions.swift; sourceTree = "<group>"; };
 		B4A3AD9B28217171001FD2B3 /* ios_icon.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ios_icon.sh; sourceTree = "<group>"; };
 		B4A3AD9E282172DC001FD2B3 /* Contents.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Contents.json; sourceTree = "<group>"; };
@@ -119,10 +123,12 @@
 				B4A3B06A281EC16C00C34DD8 /* sh */,
 				B4A3B065281D66CB00C34DD8 /* js */,
 				B48BC71F281D074E0093D91F /* AppDelegate.swift */,
+				B4933E1B28242FF400E7845E /* JsonFormatterVC.swift */,
 				B48BC721281D074E0093D91F /* ViewController.swift */,
 				B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */,
 				B48BC723281D07500093D91F /* Assets.xcassets */,
 				B48BC725281D07500093D91F /* Main.storyboard */,
+				B4933E1F282433EC00E7845E /* JSONFormatter.storyboard */,
 				B48BC728281D07500093D91F /* XYDevTool.entitlements */,
 				B48BC72E281D09790093D91F /* Json2ModelVC.swift */,
 				B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */,
@@ -263,6 +269,7 @@
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
 				B4A3AD9F282172DC001FD2B3 /* Contents.json in Resources */,
+				B4933E20282433EC00E7845E /* JSONFormatter.storyboard in Resources */,
 				B48BC724281D07500093D91F /* Assets.xcassets in Resources */,
 				B4A3B067281D66CB00C34DD8 /* json2model.js in Resources */,
 				B48BC727281D07500093D91F /* Main.storyboard in Resources */,
@@ -319,6 +326,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4933E1D28242FF400E7845E /* JsonFormatterVC.swift in Sources */,
 				B4A3ADAB28217342001FD2B3 /* Model.swift in Sources */,
 				B4A3ADAC28217342001FD2B3 /* KeyedDecodingContainer.swift in Sources */,
 				B4A3ADB028217342001FD2B3 /* AnyCodingKey.swift in Sources */,
