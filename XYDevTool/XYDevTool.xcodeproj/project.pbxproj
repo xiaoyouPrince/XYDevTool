@@ -32,6 +32,8 @@
 		B4A3B06E281EC26500C34DD8 /* script.pl in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06C281EC26500C34DD8 /* script.pl */; };
 		B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06F281EC5D000C34DD8 /* mac_icon.sh */; };
 		B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */; };
+		B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */; };
+		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +67,8 @@
 		B4A3B072281EC72600C34DD8 /* STPrivilegedTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPrivilegedTask.h; sourceTree = "<group>"; };
 		B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPrivilegedTask.m; sourceTree = "<group>"; };
 		B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XYDevTool-Bridging-Header.h"; sourceTree = "<group>"; };
+		B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSON2Model.storyboard; sourceTree = "<group>"; };
+		B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateMacIcons.storyboard; sourceTree = "<group>"; };
 		CA6AF161DDDF8C3A49BF6B5E /* Pods-XYDevTool.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.debug.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,21 +122,16 @@
 		B48BC71E281D074E0093D91F /* XYDevTool */ = {
 			isa = PBXGroup;
 			children = (
+				B4F61DBB282A3C46006FAC35 /* Resource */,
 				B4A3ADA028217310001FD2B3 /* Third */,
-				B4A3AD9D28217247001FD2B3 /* json */,
-				B4A3B06A281EC16C00C34DD8 /* sh */,
-				B4A3B065281D66CB00C34DD8 /* js */,
+				B4F61DBA282A3C27006FAC35 /* FEATURES */,
 				B48BC71F281D074E0093D91F /* AppDelegate.swift */,
-				B4933E1B28242FF400E7845E /* JsonFormatterVC.swift */,
 				B48BC721281D074E0093D91F /* ViewController.swift */,
+				B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */,
 				B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */,
 				B48BC723281D07500093D91F /* Assets.xcassets */,
 				B48BC725281D07500093D91F /* Main.storyboard */,
-				B4933E1F282433EC00E7845E /* JSONFormatter.storyboard */,
 				B48BC728281D07500093D91F /* XYDevTool.entitlements */,
-				B48BC72E281D09790093D91F /* Json2ModelVC.swift */,
-				B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */,
-				B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */,
 			);
 			path = XYDevTool;
 			sourceTree = "<group>";
@@ -205,6 +204,53 @@
 			path = PrivilegedTask;
 			sourceTree = "<group>";
 		};
+		B4F61DB9282A3C08006FAC35 /* JSONFormatter */ = {
+			isa = PBXGroup;
+			children = (
+				B4933E1F282433EC00E7845E /* JSONFormatter.storyboard */,
+				B4933E1B28242FF400E7845E /* JsonFormatterVC.swift */,
+			);
+			path = JSONFormatter;
+			sourceTree = "<group>";
+		};
+		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
+			isa = PBXGroup;
+			children = (
+				B4F61DBD282A3DA7006FAC35 /* CreateIcons */,
+				B4F61DBC282A3D73006FAC35 /* JSON2Model */,
+				B4F61DB9282A3C08006FAC35 /* JSONFormatter */,
+			);
+			path = FEATURES;
+			sourceTree = "<group>";
+		};
+		B4F61DBB282A3C46006FAC35 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				B4A3AD9D28217247001FD2B3 /* json */,
+				B4A3B06A281EC16C00C34DD8 /* sh */,
+				B4A3B065281D66CB00C34DD8 /* js */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
+		B4F61DBC282A3D73006FAC35 /* JSON2Model */ = {
+			isa = PBXGroup;
+			children = (
+				B48BC72E281D09790093D91F /* Json2ModelVC.swift */,
+				B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */,
+			);
+			path = JSON2Model;
+			sourceTree = "<group>";
+		};
+		B4F61DBD282A3DA7006FAC35 /* CreateIcons */ = {
+			isa = PBXGroup;
+			children = (
+				B4A3B068281E682E00C34DD8 /* CreateMacIcons.swift */,
+				B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */,
+			);
+			path = CreateIcons;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -268,6 +314,8 @@
 				B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */,
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
+				B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */,
+				B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */,
 				B4A3AD9F282172DC001FD2B3 /* Contents.json in Resources */,
 				B4933E20282433EC00E7845E /* JSONFormatter.storyboard in Resources */,
 				B48BC724281D07500093D91F /* Assets.xcassets in Resources */,
