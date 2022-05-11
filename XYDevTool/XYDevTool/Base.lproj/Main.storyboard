@@ -756,7 +756,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="recessed" title="网络请求" bezelStyle="recessed" alignment="center" controlSize="small" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uAL-DY-24f">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
-                                    <font key="font" size="12" name=".PingFangSC-Semibold"/>
+                                    <font key="font" metaFont="systemBold" size="12"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="jsonFromatterBtnClick:" target="XfG-lQ-9wD" id="BAT-5T-Hc5"/>
