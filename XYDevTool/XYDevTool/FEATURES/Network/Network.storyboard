@@ -13,13 +13,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="857" height="606"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="24" horizontalPageScroll="10" verticalLineScroll="24" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="icU-Mg-QRv">
+                            <scrollView autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="icU-Mg-QRv">
                                 <rect key="frame" x="16" y="16" width="250" height="574"/>
                                 <clipView key="contentView" id="Hbw-EN-Qja">
                                     <rect key="frame" x="1" y="1" width="248" height="572"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" headerView="Wcx-sL-VEY" viewBased="YES" id="fUF-7V-4Nb">
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="Wcx-sL-VEY" viewBased="YES" id="fUF-7V-4Nb">
                                             <rect key="frame" x="0.0" y="0.0" width="248" height="544"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="17" height="0.0"/>
@@ -45,7 +45,7 @@
                                                                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="m82-Ap-Rqm">
                                                                     <rect key="frame" x="3" y="0.0" width="17" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" catalog="system" id="fuj-dG-GFu"/>
+                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="fuj-dG-GFu"/>
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nfy-BJ-LDa">
                                                                     <rect key="frame" x="25" y="0.0" width="206" height="17"/>
@@ -73,7 +73,7 @@
                                     <constraint firstAttribute="width" constant="250" id="PXy-0i-5Du"/>
                                 </constraints>
                                 <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="kmT-Ue-WfF">
-                                    <rect key="frame" x="1" y="424" width="248" height="16"/>
+                                    <rect key="frame" x="1" y="557" width="248" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="Ygy-Mw-j64">
@@ -148,7 +148,7 @@
                                 </constraints>
                                 <buttonCell key="cell" type="push" title="请求" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NUY-yO-ORb">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                    <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="sendBtnClick:" target="bU7-R8-ocO" id="Tg1-6g-aZJ"/>
@@ -172,9 +172,9 @@
                                 </popUpButtonCell>
                             </popUpButton>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="q6F-qc-zZi">
-                                <rect key="frame" x="296" y="511" width="122" height="16"/>
+                                <rect key="frame" x="296" y="511" width="132" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="请求头(仅支持JSON)" id="ThG-JG-YRF">
-                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                    <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -283,6 +283,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="NSActionTemplate" catalog="system" width="15" height="15"/>
+        <image name="NSActionTemplate" width="15" height="15"/>
     </resources>
 </document>

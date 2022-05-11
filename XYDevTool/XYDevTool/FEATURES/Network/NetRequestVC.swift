@@ -34,6 +34,9 @@ class NetRequestVC: NSViewController {
     
     func getUrl() -> URL? {
         var string = urlTF.stringValue
+        if string.isEmpty {
+            return nil
+        }
         string = string.trimmingCharacters(in: .whitespacesAndNewlines)
         string = string.lowercased()
         
@@ -44,29 +47,110 @@ class NetRequestVC: NSViewController {
         }
     }
     
+    func getDefaultHeaders(with url: URL) -> [String: String] {
+        let headers: [String: String] =
+        [
+            "Content-Type": "application/json"
+        ]
+        
+        return headers
+    }
+    
     
     @IBAction func sendBtnClick(_ sender: Any) {
         
+        // url
+        guard let url = getUrl() else {
+            showAlert(msg: "网址有误，输入正确的网址")
+            return
+        }
+        self.resultTV.string = "请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！"
+        
+        let semaphore = DispatchSemaphore (value: 0)
+
+        let parameters = bodyTV.string
+        let postData = parameters.data(using: .utf8)
+
+        // md: 这不是 Apple 的问题就是接口的问题。
+        // 下面两个创建 request 的方式必须要直接用 string 实例来创建，草。。。浪费大半天时间
+        // md: 必须直接用 urlTF.stringValue 创建 URL，入参数是 上面 url.absoutString 都不行
+        // 实际上都能建立链接，但是接口返回的 下面的方式就是 200，反之就是 404 找不到请求的路径。 fuck！！！
+        
+        //var request = URLRequest(url: URL(string: "http://b-officialaccountresume-officialaccountresume.zpidc.com/adminService/sendRecommendActiveStaffEvent")!,timeoutInterval: Double.infinity)
+        var request = URLRequest(url: URL(string: urlTF.stringValue)!, timeoutInterval: Double.infinity)
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        request.httpMethod = methodBtn.selectedItem?.title
+        request.httpBody = postData
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else {
+
+                let errMsg = String(describing: error)
+                semaphore.signal()
+
+                DispatchQueue.main.async {
+                    self.resultTV.string = String(describing: error)
+                }
+                print(errMsg)
+                return
+            }
+
+            let sucString = String(data: data, encoding: .utf8)!
+            print(sucString)
+            DispatchQueue.main.async {
+                self.resultTV.string = sucString
+            }
+
+            semaphore.signal()
+        }
+
+        task.resume()
+        semaphore.wait()
+        
+        return;
+        
+        // MARK: - 错误大概是apple问题，直接通过 URL 创建 Request 的问题。
+        // url
         guard let url = getUrl() else {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
         
+        // method
+        var method = NetTool.RequestType.GET
         if methodBtn.stringValue == "GET" {
-            NetTool.get(url: url, paramters: [:], headers: [:]) {[weak self] result in
-                self?.resultTV.string = result.toString() ?? ""
-            } failure: { errMsg in
-                showAlert(msg: errMsg)
-            }
+            method = NetTool.RequestType.GET
         }else{
-            NetTool.post(url: url, paramters: [:], headers: [:]) {[weak self] result in
-                self?.resultTV.string = result.toString() ?? ""
-            } failure: { errMsg in
-                showAlert(msg: errMsg)
+            method = NetTool.RequestType.POST
+        }
+        
+        // headers
+        var defaultHeaders: [String: String] = getDefaultHeaders(with: url)
+        if let headerDict = srting2JsonObject(string: headerTCV.string) {
+            // print
+            print("headers - \(headerDict)")
+            for (key, value) in headerDict {
+                if value is String {
+                    defaultHeaders[key] = value as! String
+                }
             }
         }
         
+        // body
+        var body: [String: Any] = [:]
+        if let bodyDict = srting2JsonObject(string: bodyTV.string) {
+            print("bodys - \(bodyDict)")
+            body = bodyDict
+        }
         
+        
+        // 发起请求
+        NetTool.request(url: url, method: method, paramters: body, headers:defaultHeaders) {[weak self] result in
+            self?.resultTV.string = result.toString() ?? ""
+        } failure: { errMsg in
+            showAlert(msg: errMsg)
+        }
         
         
 //        let url = URL(string: "http://b-officialaccountresume-officialaccountresume.zpidc.com/adminService/sendRecommendActiveStaffEvent")!
