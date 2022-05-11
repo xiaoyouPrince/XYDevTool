@@ -48,7 +48,7 @@
                                                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="fuj-dG-GFu"/>
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nfy-BJ-LDa">
-                                                                    <rect key="frame" x="25" y="0.0" width="206" height="17"/>
+                                                                    <rect key="frame" x="25" y="0.0" width="150" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="IO3-T6-MJv">
                                                                         <font key="font" metaFont="system"/>
@@ -56,6 +56,17 @@
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                     </textFieldCell>
                                                                 </textField>
+                                                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CyF-hU-uPB">
+                                                                    <rect key="frame" x="174" y="-9" width="72" height="32"/>
+                                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                    <buttonCell key="cell" type="push" title="delete" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uyb-nm-bo2">
+                                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                        <font key="font" metaFont="system"/>
+                                                                        <connections>
+                                                                            <action selector="deleteClick:" target="bU7-R8-ocO" id="jDY-GB-SqA"/>
+                                                                        </connections>
+                                                                    </buttonCell>
+                                                                </button>
                                                             </subviews>
                                                             <connections>
                                                                 <outlet property="imageView" destination="m82-Ap-Rqm" id="A2h-yd-1t5"/>

@@ -184,6 +184,27 @@ class NetRequestVC: NSViewController {
 
     }
     
+    @IBAction func deleteClick(_ sender: NSButton) {
+        XYAlert.showAlert(on: self.view, msg: "此删除操作不可恢复，确定删除") {
+            if let cell = sender.superview as? NSTableCellView {
+                self.deleteAction(cell: cell)
+            }
+        } cancelCallBack: {
+            //取消，不做事
+        }
+    }
+    
+    func deleteAction(cell: NSTableCellView) {
+        if let title = cell.textField?.stringValue {
+            for (index, item) in dataArray.enumerated() {
+                if title == item.name {
+                    dataArray.remove(at: index)
+                    tableView.reloadData()
+                    break;
+                }
+            }
+        }
+    }
     
     override func viewWillDisappear() {
         super.viewWillDisappear()
@@ -229,6 +250,7 @@ extension NetRequestVC: NSTableViewDelegate {
             cell.textField?.stringValue = item.name!
             //cell.layer?.backgroundColor = NSColor.red.cgColor
             cell.imageView?.image = NSImage(named: "im")
+            
             return cell
         }
         
@@ -244,6 +266,10 @@ extension NetRequestVC: NSTableViewDelegate {
             bodyTV.string = item.request?.body ?? ""
             resultTV.string = item.response ?? ""
         }
+    }
+    
+    func tableView(_ tableView: NSTableView, shouldEdit tableColumn: NSTableColumn?, row: Int) -> Bool {
+        true
     }
 
 }

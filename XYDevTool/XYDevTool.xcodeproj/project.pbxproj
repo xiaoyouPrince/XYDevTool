@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4F8A152D3B3CBE05A2BEF0DD /* Pods_XYDevTool.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */; };
 		B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB91282BAB1F002146A1 /* NetModels.swift */; };
+		B471DB94282BE39E002146A1 /* XYAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB93282BE39E002146A1 /* XYAlert.swift */; };
+		B471DB96282BE3BE002146A1 /* XYAlert.xib in Resources */ = {isa = PBXBuildFile; fileRef = B471DB95282BE3BE002146A1 /* XYAlert.xib */; };
 		B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC71F281D074E0093D91F /* AppDelegate.swift */; };
 		B48BC722281D074E0093D91F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC721281D074E0093D91F /* ViewController.swift */; };
 		B48BC724281D07500093D91F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B48BC723281D07500093D91F /* Assets.xcassets */; };
@@ -44,6 +46,8 @@
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		975D17A7F6E8691978F8836B /* Pods-XYDevTool.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.release.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.release.xcconfig"; sourceTree = "<group>"; };
 		B471DB91282BAB1F002146A1 /* NetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetModels.swift; sourceTree = "<group>"; };
+		B471DB93282BE39E002146A1 /* XYAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYAlert.swift; sourceTree = "<group>"; };
+		B471DB95282BE3BE002146A1 /* XYAlert.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XYAlert.xib; sourceTree = "<group>"; };
 		B48BC71C281D074E0093D91F /* XYDevTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XYDevTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B48BC71F281D074E0093D91F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B48BC721281D074E0093D91F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -138,6 +142,8 @@
 				B48BC71F281D074E0093D91F /* AppDelegate.swift */,
 				B48BC721281D074E0093D91F /* ViewController.swift */,
 				B4A3AD5C28214876001FD2B3 /* XYDevFunctions.swift */,
+				B471DB93282BE39E002146A1 /* XYAlert.swift */,
+				B471DB95282BE3BE002146A1 /* XYAlert.xib */,
 				B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */,
 				B48BC723281D07500093D91F /* Assets.xcassets */,
 				B48BC725281D07500093D91F /* Main.storyboard */,
@@ -336,6 +342,7 @@
 				B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */,
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
+				B471DB96282BE3BE002146A1 /* XYAlert.xib in Resources */,
 				B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */,
 				B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */,
 				B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */,
@@ -406,6 +413,7 @@
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
 				B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
+				B471DB94282BE39E002146A1 /* XYAlert.swift in Sources */,
 				B4A3ADB128217342001FD2B3 /* DefaultValue.swift in Sources */,
 				B4A3ADAF28217342001FD2B3 /* Box.swift in Sources */,
 				B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */,
