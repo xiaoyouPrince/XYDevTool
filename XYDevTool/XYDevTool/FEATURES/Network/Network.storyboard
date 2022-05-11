@@ -276,6 +276,17 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="29I-Go-vNN">
+                                <rect key="frame" x="678" y="580" width="53" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="锁定" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="C9N-ai-vW1">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="lockBtnClick:" target="bU7-R8-ocO" id="Gsh-bn-sNZ"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="nh5-Q0-27Y" firstAttribute="width" secondItem="SwG-bz-ghM" secondAttribute="width" multiplier="0.487713" id="11o-ne-QdP"/>
@@ -311,6 +322,7 @@
                     <connections>
                         <outlet property="bodyTV" destination="z2F-vH-QnV" id="TPr-S1-7lQ"/>
                         <outlet property="headerTCV" destination="Zxz-4G-TZ1" id="t4C-zB-L50"/>
+                        <outlet property="lockBtn" destination="29I-Go-vNN" id="dxY-03-leG"/>
                         <outlet property="methodBtn" destination="VPm-Vh-Pyr" id="HzF-GI-vEJ"/>
                         <outlet property="nameTF" destination="eLa-1z-GPf" id="yIs-ev-Bcx"/>
                         <outlet property="resultTV" destination="SwG-bz-ghM" id="Gvt-mb-QSy"/>

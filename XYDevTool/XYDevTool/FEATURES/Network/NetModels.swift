@@ -45,6 +45,8 @@ class XYItem: Model {
     
     /** New Request */
     var name: String?
+    /// 是否锁定，锁定不能移除，防止误删
+    var isLock: Bool?
     var request: XYRequest?
     var response: String?
 }

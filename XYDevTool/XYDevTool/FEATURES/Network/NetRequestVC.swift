@@ -23,6 +23,7 @@ class NetRequestVC: NSViewController {
     @IBOutlet var headerTCV: NSTextView!
     @IBOutlet var bodyTV: NSTextView!
     @IBOutlet var resultTV: NSTextView!
+    @IBOutlet weak var lockBtn: NSButton!
     
     var lastSelectedRow = -1
     
@@ -66,6 +67,15 @@ class NetRequestVC: NSViewController {
     }
     
     
+    @IBAction func lockBtnClick(_ sender: Any) {
+        if lastSelectedRow >= 0 {
+            // 更新当前选中的 cell。数据并保存历史记录
+            dataArray[lastSelectedRow].isLock = lockBtn.state.rawValue == 1
+            updateHistory()
+        }
+    }
+    
+    
     @IBAction func sendBtnClick(_ sender: Any) {
         
         // url
@@ -93,6 +103,7 @@ class NetRequestVC: NSViewController {
         request.httpBody = postData
         
         let item = XYItem()
+        item.isLock = lockBtn.state.rawValue == 1
         item.name = nameTF.stringValue
         let res = XYRequest()
         res.method = request.httpMethod
@@ -225,8 +236,14 @@ class NetRequestVC: NSViewController {
     
     func deleteAction(cell: NSTableCellView) {
         if let title = cell.textField?.stringValue {
-            for (index, _) in dataArray.enumerated() {
+            for (index, item) in dataArray.enumerated() {
                 if "\(index)" == title.components(separatedBy: ". ").first {
+                    
+                    if item.isLock == true {
+                        showAlert(msg: "您要移除的记录为【" + title + "】它是锁定的记录，不能直接删除，需要先接触锁定")
+                        return;
+                    }
+                    
                     dataArray.remove(at: index)
                     tableView.reloadData()
                     updateHistory()
@@ -235,7 +252,7 @@ class NetRequestVC: NSViewController {
             }
         }
         
-        tableView.selectRowIndexes(IndexSet(integer: lastSelectedRow), byExtendingSelection: false)
+        tableView.selectRowIndexes(IndexSet(integer: min(lastSelectedRow, dataArray.count-1)), byExtendingSelection: false)
     }
     
     func updateHistory() {
@@ -299,6 +316,12 @@ extension NetRequestVC: NSTableViewDelegate {
             urlTF.stringValue = item.request?.url ?? ""
             bodyTV.string = item.request?.body ?? ""
             resultTV.string = item.response ?? ""
+            if item.isLock == true {
+                lockBtn.state = NSControl.StateValue(rawValue: 1)
+            }else{
+                lockBtn.state = NSControl.StateValue(rawValue: 0)
+            }
+            
         }
     }
     

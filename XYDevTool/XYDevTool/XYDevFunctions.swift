@@ -10,7 +10,7 @@ import Cocoa
 public func showAlert(msg: String){
     
     let a = NSAlert()
-    a.icon = NSImage(named: "im")
+    //a.icon = NSImage(named: "im")
     a.messageText = msg
     a.runModal()
 }
