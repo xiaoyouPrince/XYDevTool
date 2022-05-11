@@ -16,12 +16,15 @@ class NetRequestVC: NSViewController {
     @IBOutlet weak var tableView: NSTableView!
     
     @IBOutlet weak var methodBtn: NSPopUpButton!
+    @IBOutlet weak var nameTF: NSTextField!
     @IBOutlet weak var urlTF: NSTextField!
     @IBOutlet weak var sendBtn: NSButton!
     
     @IBOutlet var headerTCV: NSTextView!
     @IBOutlet var bodyTV: NSTextView!
     @IBOutlet var resultTV: NSTextView!
+    
+    var lastSelectedRow = -1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,12 +93,15 @@ class NetRequestVC: NSViewController {
         request.httpBody = postData
         
         let item = XYItem()
-        item.name = "1"
+        item.name = nameTF.stringValue
         let res = XYRequest()
         res.method = request.httpMethod
         res.url = request.url?.absoluteString
         res.body = bodyTV.string
         item.request = res
+        if item.name?.isEmpty == true {
+            item.name = request.url?.host
+        }
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else {
@@ -106,8 +112,19 @@ class NetRequestVC: NSViewController {
                 DispatchQueue.main.async {
                     self.resultTV.string = errMsg
                     item.response = errMsg
-                    self.dataArray.append(item)
-                    self.tableView.reloadData()
+                    
+                    if self.lastSelectedRow < 0 {
+                        // 没有选中的时候，添加记录
+                        self.dataArray.append(item)
+                        self.tableView.reloadData()
+                        self.updateHistory()
+                    }else{
+                        // 已选中就直接更新记录
+                        let row = self.lastSelectedRow
+                        self.dataArray.replaceSubrange(row...row, with: [item])
+                        self.tableView.reloadData()
+                        self.updateHistory()
+                    }
                 }
                 print(errMsg)
                 return
@@ -118,8 +135,19 @@ class NetRequestVC: NSViewController {
             DispatchQueue.main.async {
                 self.resultTV.string = sucString
                 item.response = sucString
-                self.dataArray.append(item)
-                self.tableView.reloadData()
+                
+                if self.lastSelectedRow < 0 {
+                    // 没有选中的时候，添加记录
+                    self.dataArray.append(item)
+                    self.tableView.reloadData()
+                    self.updateHistory()
+                }else{
+                    // 已选中就直接更新记录
+                    let row = self.lastSelectedRow
+                    self.dataArray.replaceSubrange(row...row, with: [item])
+                    self.tableView.reloadData()
+                    self.updateHistory()
+                }
             }
 
             semaphore.signal()
@@ -201,14 +229,14 @@ class NetRequestVC: NSViewController {
                 if title == item.name {
                     dataArray.remove(at: index)
                     tableView.reloadData()
+                    updateHistory()
                     break;
                 }
             }
         }
     }
     
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
+    func updateHistory() {
         
         // 每次关闭，写入最新数据
         let items = self.dataArray.map { item in
@@ -248,7 +276,7 @@ extension NetRequestVC: NSTableViewDelegate {
             
             let item = dataArray[row]
             
-            cell.textField?.stringValue = item.name!
+            cell.textField?.stringValue = "\(row). " + (item.name ?? "")
             //cell.layer?.backgroundColor = NSColor.red.cgColor
             cell.imageView?.image = NSImage(named: "im")
             
@@ -259,10 +287,13 @@ extension NetRequestVC: NSTableViewDelegate {
     }
     
     func tableViewSelectionDidChange(_ notification: Notification) {
+        lastSelectedRow = tableView.selectedRow
+        
         if tableView.selectedRowIndexes.count == 1 {
             let item = dataArray[tableView.selectedRow]
             
             methodBtn.selectItem(withTitle: item.request?.method ?? "GET")
+            nameTF.stringValue = item.name ?? ""
             urlTF.stringValue = item.request?.url ?? ""
             bodyTV.string = item.request?.body ?? ""
             resultTV.string = item.response ?? ""
