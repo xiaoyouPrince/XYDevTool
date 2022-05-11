@@ -18,7 +18,8 @@ class NetRequestVC: NSViewController {
     @IBOutlet weak var urlTF: NSTextField!
     @IBOutlet weak var sendBtn: NSButton!
     
-    
+    @IBOutlet var headerTCV: NSTextView!
+    @IBOutlet var bodyTV: NSTextView!
     @IBOutlet var resultTV: NSTextView!
     
     override func viewDidLoad() {
@@ -51,17 +52,27 @@ class NetRequestVC: NSViewController {
             return
         }
         
+        if methodBtn.stringValue == "GET" {
+            NetTool.get(url: url, paramters: [:], headers: [:]) {[weak self] result in
+                self?.resultTV.string = result.toString() ?? ""
+            } failure: { errMsg in
+                showAlert(msg: errMsg)
+            }
+        }else{
+            NetTool.post(url: url, paramters: [:], headers: [:]) {[weak self] result in
+                self?.resultTV.string = result.toString() ?? ""
+            } failure: { errMsg in
+                showAlert(msg: errMsg)
+            }
+        }
+        
+        
+        
+        
 //        let url = URL(string: "http://b-officialaccountresume-officialaccountresume.zpidc.com/adminService/sendRecommendActiveStaffEvent")!
         
 //        let url = URL(string: "http://127.0.0.1/json")!
-        NetTool.post(url: url, paramters: [:], headers: [:]) {[weak self] result in
-            
-//            showAlert(msg: result.description)
-            self?.resultTV.string = result.toString() ?? ""
-            
-        } failure: { errMsg in
-            showAlert(msg: errMsg)
-        }
+        
 
     }
     
