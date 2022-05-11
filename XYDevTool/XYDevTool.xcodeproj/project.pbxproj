@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F8A152D3B3CBE05A2BEF0DD /* Pods_XYDevTool.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */; };
+		B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB91282BAB1F002146A1 /* NetModels.swift */; };
 		B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC71F281D074E0093D91F /* AppDelegate.swift */; };
 		B48BC722281D074E0093D91F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48BC721281D074E0093D91F /* ViewController.swift */; };
 		B48BC724281D07500093D91F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B48BC723281D07500093D91F /* Assets.xcassets */; };
@@ -42,6 +43,7 @@
 /* Begin PBXFileReference section */
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		975D17A7F6E8691978F8836B /* Pods-XYDevTool.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.release.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.release.xcconfig"; sourceTree = "<group>"; };
+		B471DB91282BAB1F002146A1 /* NetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetModels.swift; sourceTree = "<group>"; };
 		B48BC71C281D074E0093D91F /* XYDevTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XYDevTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B48BC71F281D074E0093D91F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B48BC721281D074E0093D91F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 				B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */,
 				B4F61DC3282AA276006FAC35 /* Network.storyboard */,
 				B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */,
+				B471DB91282BAB1F002146A1 /* NetModels.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -405,6 +408,7 @@
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
 				B4A3ADB128217342001FD2B3 /* DefaultValue.swift in Sources */,
 				B4A3ADAF28217342001FD2B3 /* Box.swift in Sources */,
+				B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */,
 				B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */,
 				B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */,
 				B4A3ADB228217342001FD2B3 /* Transform.swift in Sources */,

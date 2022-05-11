@@ -11,7 +11,8 @@ import Cocoa
 
 class NetRequestVC: NSViewController {
     
-    
+    let history_path = Bundle.main.resourcePath! + "/history.json"
+    var dataArray: [XYItem] = []
     @IBOutlet weak var tableView: NSTableView!
     
     @IBOutlet weak var methodBtn: NSPopUpButton!
@@ -29,7 +30,12 @@ class NetRequestVC: NSViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
+        // 读取历史数据
         
+        if let data = NSData(contentsOfFile: history_path), let historys = MyObj.mapping(jsonData: data as Data) {
+            dataArray = historys.item ?? []
+            tableView.reloadData()
+        }
     }
     
     func getUrl() -> URL? {
@@ -82,6 +88,14 @@ class NetRequestVC: NSViewController {
 
         request.httpMethod = methodBtn.selectedItem?.title
         request.httpBody = postData
+        
+        let item = XYItem()
+        item.name = "1"
+        let res = XYRequest()
+        res.method = request.httpMethod
+        res.url = request.url?.absoluteString
+        res.body = bodyTV.string
+        item.request = res
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else {
@@ -90,7 +104,10 @@ class NetRequestVC: NSViewController {
                 semaphore.signal()
 
                 DispatchQueue.main.async {
-                    self.resultTV.string = String(describing: error)
+                    self.resultTV.string = errMsg
+                    item.response = errMsg
+                    self.dataArray.append(item)
+                    self.tableView.reloadData()
                 }
                 print(errMsg)
                 return
@@ -100,6 +117,9 @@ class NetRequestVC: NSViewController {
             print(sucString)
             DispatchQueue.main.async {
                 self.resultTV.string = sucString
+                item.response = sucString
+                self.dataArray.append(item)
+                self.tableView.reloadData()
             }
 
             semaphore.signal()
@@ -107,6 +127,10 @@ class NetRequestVC: NSViewController {
 
         task.resume()
         semaphore.wait()
+        
+        // 每次请求之后保存到本地。 暂时以 URL 做key，去重，后续扩展一个用户自定义名称来做 key
+        
+        
         
         return;
         
@@ -161,12 +185,32 @@ class NetRequestVC: NSViewController {
     }
     
     
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+        
+        // 每次关闭，写入最新数据
+        let items = self.dataArray.map { item in
+            item.toDictionary()
+        }
+        let dict = ["item": items]
+        do {
+            let data = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+            let jsonStr = String(data: data, encoding: .utf8)
+            try jsonStr?.write(toFile: history_path, atomically: true, encoding: .utf8)
+            
+            // showAlert(msg: jsonStr!)
+            
+        }catch{
+            // 出错了，以后再说
+            print(error)
+        }
+    }
 }
 
 extension NetRequestVC: NSTableViewDataSource {
   
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return 5 // directoryItems?.count ?? 0
+        return dataArray.count
     }
 }
 
@@ -180,48 +224,26 @@ extension NetRequestVC: NSTableViewDelegate {
         
         if let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: CellIdentifiers.CellID), owner: nil) as? NSTableCellView {
             
-            cell.textField?.stringValue = "nihao"
-            cell.layer?.backgroundColor = NSColor.red.cgColor
+            let item = dataArray[row]
+            
+            cell.textField?.stringValue = item.name!
+            //cell.layer?.backgroundColor = NSColor.red.cgColor
             cell.imageView?.image = NSImage(named: "im")
             return cell
         }
         
         return nil
-      
-      
-
-//    var image: NSImage?
-//    var text: String = ""
-//    var cellIdentifier: String = ""
-//
-//    let dateFormatter = DateFormatter()
-//    dateFormatter.dateStyle = .long
-//    dateFormatter.timeStyle = .long
-//    // 1
-//    guard let item = directoryItems?[row] else {
-//      return nil
-//    }
-//
-//    // 2
-//    if tableColumn == tableView.tableColumns[0] {
-//      image = item.icon
-//      text = item.name
-//      cellIdentifier = CellIdentifiers.NameCell
-//    } else if tableColumn == tableView.tableColumns[1] {
-//      text = dateFormatter.string(from: item.date)
-//      cellIdentifier = CellIdentifiers.DateCell
-//    } else if tableColumn == tableView.tableColumns[2] {
-//      text = item.isFolder ? "--" : sizeFormatter.string(fromByteCount: item.size)
-//      cellIdentifier = CellIdentifiers.SizeCell
-//    }
-//
-//    // 3
-//    if let cell = tableView.make(withIdentifier: cellIdentifier, owner: nil) as? NSTableCellView {
-//      cell.textField?.stringValue = text
-//      cell.imageView?.image = image ?? nil
-//      return cell
-//    }
-//    return nil
-  }
+    }
+    
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        if tableView.selectedRowIndexes.count == 1 {
+            let item = dataArray[tableView.selectedRow]
+            
+            methodBtn.selectItem(withTitle: item.request?.method ?? "GET")
+            urlTF.stringValue = item.request?.url ?? ""
+            bodyTV.string = item.request?.body ?? ""
+            resultTV.string = item.response ?? ""
+        }
+    }
 
 }
