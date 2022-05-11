@@ -214,19 +214,19 @@ class NetRequestVC: NSViewController {
     
     @IBAction func deleteClick(_ sender: NSButton) {
         
-        XYAlert.showAlert(on: self.view, msg: "此删除操作不可恢复，确定删除") {
+//        XYAlert.showAlert(on: self.view, msg: "此删除操作不可恢复，确定删除") {
             if let cell = sender.superview as? NSTableCellView {
                 self.deleteAction(cell: cell)
             }
-        } cancelCallBack: {
-            //取消，不做事
-        }
+//        } cancelCallBack: {
+//            //取消，不做事
+//        }
     }
     
     func deleteAction(cell: NSTableCellView) {
         if let title = cell.textField?.stringValue {
-            for (index, item) in dataArray.enumerated() {
-                if title == item.name {
+            for (index, _) in dataArray.enumerated() {
+                if "\(index)" == title.components(separatedBy: ". ").first {
                     dataArray.remove(at: index)
                     tableView.reloadData()
                     updateHistory()
@@ -234,6 +234,8 @@ class NetRequestVC: NSViewController {
                 }
             }
         }
+        
+        tableView.selectRowIndexes(IndexSet(integer: lastSelectedRow), byExtendingSelection: false)
     }
     
     func updateHistory() {
