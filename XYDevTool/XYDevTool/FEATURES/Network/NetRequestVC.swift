@@ -185,6 +185,7 @@ class NetRequestVC: NSViewController {
     }
     
     @IBAction func deleteClick(_ sender: NSButton) {
+        
         XYAlert.showAlert(on: self.view, msg: "此删除操作不可恢复，确定删除") {
             if let cell = sender.superview as? NSTableCellView {
                 self.deleteAction(cell: cell)
