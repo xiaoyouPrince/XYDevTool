@@ -116,7 +116,7 @@ class NetRequestVC: NSViewController {
             if urlTF.stringValue.contains(where: {$0 == "?"}), let index = urlTF.stringValue.firstIndex(of: "?") {
                 
                 if params.isEmpty == false { // GET 请求， URL有参数且也输入了 JOSN 参数，按JSON 参数取值
-                    urlTF.stringValue = urlTF.stringValue.substring(to: index)
+                    urlTF.stringValue = String(urlTF.stringValue[urlTF.stringValue.startIndex..<index])
                 }
             }
             
