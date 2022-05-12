@@ -149,18 +149,7 @@ class NetRequestVC: NSViewController {
                     self.resultTV.string = errMsg
                     item.response = errMsg
                     
-                    if self.lastSelectedRow < 0 {
-                        // 没有选中的时候，添加记录
-                        self.dataArray.append(item)
-                        self.tableView.reloadData()
-                        self.updateHistory()
-                    }else{
-                        // 已选中就直接更新记录
-                        let row = self.lastSelectedRow
-                        self.dataArray.replaceSubrange(row...row, with: [item])
-                        self.tableView.reloadData()
-                        self.updateHistory()
-                    }
+                    self.refreshUIAndDataBase(item: item)
                 }
                 print(errMsg)
                 return
@@ -175,18 +164,7 @@ class NetRequestVC: NSViewController {
                 self.resultTV.string = sucString
                 item.response = sucString
                 
-                if self.lastSelectedRow < 0 {
-                    // 没有选中的时候，添加记录
-                    self.dataArray.append(item)
-                    self.tableView.reloadData()
-                    self.updateHistory()
-                }else{
-                    // 已选中就直接更新记录
-                    let row = self.lastSelectedRow
-                    self.dataArray.replaceSubrange(row...row, with: [item])
-                    self.tableView.reloadData()
-                    self.updateHistory()
-                }
+                self.refreshUIAndDataBase(item: item)
             }
 
             semaphore.signal()
@@ -249,6 +227,27 @@ class NetRequestVC: NSViewController {
 //        let url = URL(string: "http://127.0.0.1/json")!
         
 
+    }
+    
+    func refreshUIAndDataBase(item: XYItem) {
+        if self.lastSelectedRow < 0 {
+            // 没有选中的时候，添加记录,如果有相同的请求地址，指定名称，自动去重
+            if let index = dataArray.firstIndex(where: { ite in ite.name == item.name }) {
+                self.dataArray.replaceSubrange(index...index, with: [item])
+                self.tableView.reloadData()
+                self.updateHistory()
+            }else{
+                self.dataArray.append(item)
+                self.tableView.reloadData()
+                self.updateHistory()
+            }
+        }else{
+            // 已选中就直接更新记录
+            let row = self.lastSelectedRow
+            self.dataArray.replaceSubrange(row...row, with: [item])
+            self.tableView.reloadData()
+            self.updateHistory()
+        }
     }
     
     @IBAction func deleteClick(_ sender: NSButton) {
