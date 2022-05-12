@@ -232,8 +232,8 @@ class NetRequestVC: NSViewController {
     func refreshUIAndDataBase(item: XYItem) {
         if self.lastSelectedRow < 0 {
             // 没有选中的时候，添加记录,如果有相同的请求地址，指定名称，自动去重
-            if let index = dataArray.firstIndex(where: { ite in ite.name == item.name }) {
-                self.dataArray.replaceSubrange(index...index, with: [item])
+            if dataArray.last?.name == item.name {
+                self.dataArray.replaceSubrange(dataArray.index(before: dataArray.endIndex)..<dataArray.endIndex, with: [item])
                 self.tableView.reloadData()
                 self.updateHistory()
             }else{
