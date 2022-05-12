@@ -96,11 +96,36 @@ class NetRequestVC: NSViewController {
         // 实际上都能建立链接，但是接口返回的 下面的方式就是 200，反之就是 404 找不到请求的路径。 fuck！！！
         
         //var request = URLRequest(url: URL(string: "http://b-officialaccountresume-officialaccountresume.zpidc.com/adminService/sendRecommendActiveStaffEvent")!,timeoutInterval: Double.infinity)
-        var request = URLRequest(url: URL(string: urlTF.stringValue)!, timeoutInterval: Double.infinity)
+        
+        var request: URLRequest! = nil
+        if methodBtn.selectedItem?.title == "POST" {
+            request = URLRequest(url: URL(string: urlTF.stringValue)!, timeoutInterval: Double.infinity)
+            request.httpBody = postData
+        }else{// GET
+            var params = ""
+            if let bodyDict = srting2JsonObject(string: bodyTV.string) {
+                for (index, kv) in bodyDict.enumerated() {
+                    if index == 0 {
+                        params += "?" + "\(kv.key)=\(kv.value)"
+                    }else{
+                        params += "&" + "\(kv.key)=\(kv.value)"
+                    }
+                }
+            }
+            
+            if urlTF.stringValue.contains(where: {$0 == "?"}), let index = urlTF.stringValue.firstIndex(of: "?") {
+                
+                if params.isEmpty == false { // GET 请求， URL有参数且也输入了 JOSN 参数，按JSON 参数取值
+                    urlTF.stringValue = urlTF.stringValue.substring(to: index)
+                }
+            }
+            
+            request = URLRequest(url: URL(string: urlTF.stringValue + params)!, timeoutInterval: Double.infinity)
+        }
+        
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         request.httpMethod = methodBtn.selectedItem?.title
-        request.httpBody = postData
         
         let item = XYItem()
         item.isLock = lockBtn.state.rawValue == 1
@@ -141,7 +166,10 @@ class NetRequestVC: NSViewController {
                 return
             }
 
-            let sucString = String(data: data, encoding: .utf8)!
+            var sucString = String(data: data, encoding: .utf8)!
+            if sucString.isEmpty {
+                sucString = response?.description ?? "请求完成，返回数据为空"
+            }
             print(sucString)
             DispatchQueue.main.async {
                 self.resultTV.string = sucString

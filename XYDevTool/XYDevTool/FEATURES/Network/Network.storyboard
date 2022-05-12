@@ -15,11 +15,11 @@
                         <subviews>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="icU-Mg-QRv">
                                 <rect key="frame" x="16" y="16" width="250" height="589"/>
-                                <clipView key="contentView" id="Hbw-EN-Qja">
+                                <clipView key="contentView" ambiguous="YES" id="Hbw-EN-Qja">
                                     <rect key="frame" x="1" y="1" width="248" height="587"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="Wcx-sL-VEY" viewBased="YES" id="fUF-7V-4Nb">
+                                        <tableView verticalHuggingPriority="750" ambiguous="YES" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="Wcx-sL-VEY" viewBased="YES" id="fUF-7V-4Nb">
                                             <rect key="frame" x="0.0" y="0.0" width="248" height="559"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="17" height="0.0"/>
@@ -99,7 +99,7 @@
                                     <constraint firstAttribute="width" constant="250" id="PXy-0i-5Du"/>
                                 </constraints>
                                 <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="kmT-Ue-WfF">
-                                    <rect key="frame" x="1" y="557" width="248" height="16"/>
+                                    <rect key="frame" x="1" y="572" width="248" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="Ygy-Mw-j64">
@@ -146,7 +146,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="258" height="113"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" spellingCorrection="YES" smartInsertDelete="YES" id="z2F-vH-QnV">
+                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" allowsUndo="YES" spellingCorrection="YES" smartInsertDelete="YES" id="z2F-vH-QnV">
                                             <rect key="frame" x="0.0" y="0.0" width="242" height="113"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -154,6 +154,9 @@
                                             <size key="minSize" width="242" height="113"/>
                                             <size key="maxSize" width="535" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <allowedInputSourceLocales>
+                                                <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                                            </allowedInputSourceLocales>
                                         </textView>
                                     </subviews>
                                 </clipView>
@@ -239,9 +242,9 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TPz-RI-bY8">
-                                <rect key="frame" x="295" y="348" width="135" height="16"/>
+                                <rect key="frame" x="295" y="348" width="406" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="请求结果" id="eWw-Dp-mcH">
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="请求结果【如果报网关错误 502 可能和使用代理有关，移除代理试试】" id="eWw-Dp-mcH">
                                     <font key="font" size="13" name="STSongti-SC-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -281,7 +284,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="锁定" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="C9N-ai-vW1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                    <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="lockBtnClick:" target="bU7-R8-ocO" id="Gsh-bn-sNZ"/>
