@@ -2,3 +2,9 @@
 XYDevTool/XYDevTool.xcworkspace/xcuserdata/quxiaoyou.xcuserdatad/UserInterfaceState.xcuserstate
 *.xcuserstate
 .DS_Store
+XYDevTool/.DS_Store
+*.xcworkspacedata
+*.xcuserstate
+*.xcbkptlist
+*.plist
+XYDevTool/.DS_Store
