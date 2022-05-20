@@ -13,6 +13,12 @@ class ViewController: NSViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        UpgradeUtils.newestVersion { version in
+            if let version = version {
+                showAlert(msg: "有新版本 \n\(version.body!)")
+            }
+        }
     }
 
     override var representedObject: Any? {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F8A152D3B3CBE05A2BEF0DD /* Pods_XYDevTool.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */; };
+		B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B454C7892837DF30008F07B7 /* UpgradeUtils.swift */; };
 		B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB91282BAB1F002146A1 /* NetModels.swift */; };
 		B471DB94282BE39E002146A1 /* XYAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB93282BE39E002146A1 /* XYAlert.swift */; };
 		B471DB96282BE3BE002146A1 /* XYAlert.xib in Resources */ = {isa = PBXBuildFile; fileRef = B471DB95282BE3BE002146A1 /* XYAlert.xib */; };
@@ -45,6 +46,7 @@
 /* Begin PBXFileReference section */
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		975D17A7F6E8691978F8836B /* Pods-XYDevTool.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.release.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.release.xcconfig"; sourceTree = "<group>"; };
+		B454C7892837DF30008F07B7 /* UpgradeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeUtils.swift; sourceTree = "<group>"; };
 		B471DB91282BAB1F002146A1 /* NetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetModels.swift; sourceTree = "<group>"; };
 		B471DB93282BE39E002146A1 /* XYAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYAlert.swift; sourceTree = "<group>"; };
 		B471DB95282BE3BE002146A1 /* XYAlert.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XYAlert.xib; sourceTree = "<group>"; };
@@ -112,6 +114,14 @@
 				392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B454C7882837DF04008F07B7 /* Upgrage */ = {
+			isa = PBXGroup;
+			children = (
+				B454C7892837DF30008F07B7 /* UpgradeUtils.swift */,
+			);
+			path = Upgrage;
 			sourceTree = "<group>";
 		};
 		B48BC713281D074E0093D91F = {
@@ -232,6 +242,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
+				B454C7882837DF04008F07B7 /* Upgrage */,
 				B4F61DC2282AA189006FAC35 /* Network */,
 				B4F61DBD282A3DA7006FAC35 /* CreateIcons */,
 				B4F61DBC282A3D73006FAC35 /* JSON2Model */,
@@ -310,6 +321,7 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1320;
+				ORGANIZATIONNAME = XIAOYOU;
 				TargetAttributes = {
 					B48BC71B281D074E0093D91F = {
 						CreatedOnToolsVersion = 13.2.1;
@@ -422,6 +434,7 @@
 				B4A3ADB228217342001FD2B3 /* Transform.swift in Sources */,
 				B48BC722281D074E0093D91F /* ViewController.swift in Sources */,
 				B4A3ADAD28217342001FD2B3 /* Model+Decodable.swift in Sources */,
+				B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
