@@ -44,7 +44,7 @@ let needCodingKeys = params.codingKeys;
 var gettype = Object.prototype.toString;
 
 String.prototype.firstUpperCase = function titleCase() {
-    let newStr = this.slice(0,1).toUpperCase() + this.slice(1).toLowerCase()
+    let newStr = this.slice(0,1).toUpperCase() + this.slice(1)
     return newStr;
 }
 
