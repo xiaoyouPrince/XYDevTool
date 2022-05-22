@@ -32,6 +32,8 @@ class Version: Codable {
     
     /** https://api.github.com/repos/xiaoyouPrince/XYDevTool/releases/66602654 */
     var url: String?
+    /** https://github.com/xiaoyouPrince/XYDevTool/releases/tag/1.1.0 */
+    var html_url: String?
     
     /** 1.1.0 */
     var tag_name: String?

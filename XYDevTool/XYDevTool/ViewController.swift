@@ -11,12 +11,24 @@ class ViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
         
-        UpgradeUtils.newestVersion { version in
-            if let version = version {
-                showAlert(msg: "有新版本 \n\(version.body!)")
+        checkVersion()
+    }
+    
+    private func checkVersion() {
+        UpgradeUtils.newestVersion { (version) in
+            guard let tagName = version?.tag_name,
+                  let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+                  let newVersion = Int(tagName.replacingOccurrences(of: ".", with: "")),
+                  let currentVeriosn = Int(bundleVersion.replacingOccurrences(of: ".", with: "")) else {
+                return
+            }
+            
+            if newVersion > currentVeriosn {
+                let upgradeVc = UpgradeViewController()
+                upgradeVc.versionInfo = version
+                upgradeVc.currentVer = bundleVersion
+                self.presentAsModalWindow(upgradeVc)
             }
         }
     }

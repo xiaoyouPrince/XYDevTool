@@ -47,7 +47,7 @@
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="17" id="Sno-uc-ah7"/>
                                                                     </constraints>
-                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="fuj-dG-GFu"/>
+                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="fuj-dG-GFu"/>
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" misplaced="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nfy-BJ-LDa">
                                                                     <rect key="frame" x="25" y="0.0" width="150" height="17"/>
@@ -58,11 +58,11 @@
                                                                     </textFieldCell>
                                                                 </textField>
                                                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="CyF-hU-uPB">
-                                                                    <rect key="frame" x="174" y="-9" width="72" height="32"/>
+                                                                    <rect key="frame" x="202" y="-9" width="44" height="32"/>
                                                                     <constraints>
-                                                                        <constraint firstAttribute="width" constant="58" id="hm1-93-eUC"/>
+                                                                        <constraint firstAttribute="width" constant="30" id="hm1-93-eUC"/>
                                                                     </constraints>
-                                                                    <buttonCell key="cell" type="push" title="delete" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uyb-nm-bo2">
+                                                                    <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSTouchBarDeleteTemplate" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uyb-nm-bo2">
                                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                         <font key="font" metaFont="system"/>
                                                                         <connections>
@@ -81,6 +81,7 @@
                                                                 <constraint firstItem="nfy-BJ-LDa" firstAttribute="leading" secondItem="m82-Ap-Rqm" secondAttribute="trailing" constant="7" id="Wdf-Np-vsW"/>
                                                                 <constraint firstItem="nfy-BJ-LDa" firstAttribute="firstBaseline" secondItem="CyF-hU-uPB" secondAttribute="firstBaseline" id="Xml-aY-mAw"/>
                                                                 <constraint firstItem="CyF-hU-uPB" firstAttribute="leading" secondItem="nfy-BJ-LDa" secondAttribute="trailing" constant="8" symbolic="YES" id="gHY-1w-K7Y"/>
+                                                                <constraint firstAttribute="trailing" secondItem="CyF-hU-uPB" secondAttribute="trailing" id="kiB-kf-J8U"/>
                                                                 <constraint firstAttribute="trailing" secondItem="CyF-hU-uPB" secondAttribute="trailing" constant="-8" id="qVU-iG-Wvz"/>
                                                             </constraints>
                                                             <connections>
@@ -336,10 +337,10 @@
                 </viewController>
                 <customObject id="9uD-mB-xHs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="57.5" y="157"/>
+            <point key="canvasLocation" x="57.5" y="156.5"/>
         </scene>
     </scenes>
     <resources>
-        <image name="NSActionTemplate" width="15" height="15"/>
+        <image name="NSTouchBarDeleteTemplate" width="15" height="17"/>
     </resources>
 </document>
