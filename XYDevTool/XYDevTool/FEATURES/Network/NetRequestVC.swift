@@ -85,7 +85,7 @@ class NetRequestVC: NSViewController {
         }
         self.resultTV.string = "请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！"
         
-        let semaphore = DispatchSemaphore (value: 0)
+//        let semaphore = DispatchSemaphore (value: 0)
 
         let parameters = bodyTV.string
         let postData = parameters.data(using: .utf8)
@@ -140,10 +140,13 @@ class NetRequestVC: NSViewController {
         }
 
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            
+            print("请求结果线程 - ", Thread.current)
+            
             guard let data = data else {
 
                 let errMsg = String(describing: error)
-                semaphore.signal()
+//                semaphore.signal()
 
                 DispatchQueue.main.async {
                     self.resultTV.string = errMsg
@@ -167,11 +170,16 @@ class NetRequestVC: NSViewController {
                 self.refreshUIAndDataBase(item: item)
             }
 
-            semaphore.signal()
+//            semaphore.signal()
         }
 
-        task.resume()
-        semaphore.wait()
+        print("准备发起请求线程 - ", Thread.current)
+        DispatchQueue.global().async {
+            print("发起请求线程 - ", Thread.current)
+            task.resume()
+        }
+        
+//        semaphore.wait()
         
         // 每次请求之后保存到本地。 暂时以 URL 做key，去重，后续扩展一个用户自定义名称来做 key
         

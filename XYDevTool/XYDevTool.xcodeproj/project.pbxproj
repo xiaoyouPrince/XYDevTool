@@ -120,14 +120,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		B454C7882837DF04008F07B7 /* Upgrage */ = {
+		B454C7882837DF04008F07B7 /* Upgrade */ = {
 			isa = PBXGroup;
 			children = (
 				B454C7892837DF30008F07B7 /* UpgradeUtils.swift */,
 				B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */,
 				B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */,
 			);
-			path = Upgrage;
+			path = Upgrade;
 			sourceTree = "<group>";
 		};
 		B48BC713281D074E0093D91F = {
@@ -248,7 +248,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
-				B454C7882837DF04008F07B7 /* Upgrage */,
+				B454C7882837DF04008F07B7 /* Upgrade */,
 				B4F61DC2282AA189006FAC35 /* Network */,
 				B4F61DBD282A3DA7006FAC35 /* CreateIcons */,
 				B4F61DBC282A3D73006FAC35 /* JSON2Model */,
@@ -599,7 +599,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xiaoyou.XYDevTool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -632,7 +632,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xiaoyou.XYDevTool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
