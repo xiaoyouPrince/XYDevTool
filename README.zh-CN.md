@@ -74,7 +74,8 @@ Others
 
 这些功能是我经常使用的，所以我在我的应用程序中编写了它们。如果您有更好的建议，如更多功能，请提交 MR/issues，谢谢！如果你喜欢，请点击一颗星星来鼓励我😁
 
-![https://github.com/xiaoyouPrince/XYDevTool/stargazers](https://github.com/xiaoyouPrince/XYDevTool/stargazers)
+
+
 
 
 

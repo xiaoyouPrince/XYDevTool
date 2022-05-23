@@ -73,9 +73,6 @@ Others
 ======
 Those functions are frequently used by me, so I wrote them in my App. If you have better suggestions, such as some more functions, please submit PR/Issues, thank you! If you like it, please click a star to encourage me！ 😁
 
-![https://github.com/xiaoyouPrince/XYDevTool/stargazers](https://github.com/xiaoyouPrince/XYDevTool/stargazers)
-
-
 
 
 
