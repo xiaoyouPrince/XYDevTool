@@ -31,6 +31,7 @@ class JsonFormatterVC: NSViewController {
             self.tv1 = tv1
         }
         
+        tv1.setup()
         tv1.delegate = self
         
     }
@@ -72,28 +73,12 @@ class JsonFormatterVC: NSViewController {
 
 extension JsonFormatterVC: NSTextViewDelegate {
     
-    func textViewDidChangeTypingAttributes(_ notification: Notification) {
-//        print(notification)
-    }
-    
-    func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
-        
-        defer{
-            
-            let total = textView.string.reduce(0) { partialResult, char in
-                if char == "\n" {
-                    return partialResult + 1
-                }
-                else {
-                    return partialResult
-                }
-            }
-            
-            self.lines = total
-            print("-------\(total)-------")
+    func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
+        if let value = link as? String,
+           let url = URL(string: value) {
+            NSWorkspace.shared.open(url)
         }
         
-        print(replacementString)
         return true
     }
 }

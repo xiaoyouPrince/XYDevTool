@@ -70,7 +70,15 @@ func srting2JsonObject(string: String) -> [String: Any]? {
     return nil
 }
 
-
+extension NSTextView {
+    
+    // 统一配置
+    func setup() {
+        self.isAutomaticQuoteSubstitutionEnabled = false
+        self.isContinuousSpellCheckingEnabled = false
+        self.setUpLineNumberView()
+    }
+}
 
 
 #if os(iOS)
