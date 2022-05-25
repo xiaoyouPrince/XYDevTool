@@ -11,16 +11,25 @@
 
 
 import Cocoa
+import Highlightr
 
 class JsonFormatterVC: NSViewController {
     
     @IBOutlet weak var textV: NSScrollView!
     var tv1: NSTextView!
     
+    @IBOutlet weak var themeBtn: NSComboBox!
+    
     @IBOutlet weak var statusLabel: NSTextField!
     
-    var lines = 0
-    
+    private let highlightr = Highlightr()!
+    private lazy var JSONStorage: CodeAttributedString = {
+        let storage = CodeAttributedString()
+        storage.highlightr.setTheme(to: "tomorrow-night-bright")
+        storage.highlightr.theme.codeFont = NSFont(name: "Menlo", size: 14)
+        storage.language = "json"
+        return storage
+    }()
     
 
     override func viewDidLoad() {
@@ -33,30 +42,33 @@ class JsonFormatterVC: NSViewController {
         
         tv1.setup()
         tv1.delegate = self
+        JSONStorage.addLayoutManager(tv1.layoutManager!)
         
+        themeBtn.removeAllItems()
+        themeBtn.addItems(withObjectValues: highlightr.availableThemes())
+        themeBtn.delegate = self
+        themeBtn.isEditable = false
+//        themeBtn.isSelectable = false
     }
     
     @IBAction func okClick(_ sender: Any) {
-        // 1. 字符串无法直接转换成json egg:"{\n    \"code\": 200,  =》 需要先保存文件，直接从file读取，然后转JSON
-        // 2. 直接将完整的 JSON 转换为可读数据
         
         // 去掉空格和换行先
-        var str = tv1.string.trimmingCharacters(in: .whitespacesAndNewlines)
-        // 去掉里面的转义字符
-        str = str.replacingOccurrences(of: "\\", with: "")
+        let str = tv1.string.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // 写入文件， Dict 读取文件
-        let path = Bundle.main.resourcePath! + "/dict.json"
-        try? str.write(toFile: path, atomically: true, encoding: .utf8)
+        // 字符串无法直接转换成json egg:"{\n    \"code\": 200 }
+        if str.first == "\"" { // 字符串开头，不支持格式化
+            statusLabel.stringValue = "纯字符串无法转换"
+            return
+        }
         
-        if let data = NSData(contentsOfFile: path){
-            
+        if let data = str.data(using: .utf8) {
             do {
                 let dict =  try JSONSerialization.jsonObject(with: (data as Data), options: .fragmentsAllowed)
-                let preData = try! JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+                let preData = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
                 let resultStr = String(data: preData, encoding: .utf8)
-                tv1.string = resultStr!
                 
+                tv1.string = resultStr!
                 statusLabel.stringValue = "转换完成"
             }catch{
                 
@@ -69,6 +81,16 @@ class JsonFormatterVC: NSViewController {
 }
 
 
+extension JsonFormatterVC: NSComboBoxDelegate {
+    
+    func comboBoxSelectionDidChange(_ notification: Notification) {
+        
+        let theme = highlightr.availableThemes()[themeBtn.indexOfSelectedItem]
+
+        JSONStorage.highlightr.setTheme(to: theme)
+        JSONStorage.highlightr.theme.codeFont = NSFont(name: "Menlo", size: 14)
+    }
+}
 
 
 extension JsonFormatterVC: NSTextViewDelegate {

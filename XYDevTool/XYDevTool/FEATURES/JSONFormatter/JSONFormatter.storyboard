@@ -40,7 +40,7 @@
                                 </scroller>
                             </scrollView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Sdz-Rw-YQJ">
-                                <rect key="frame" x="578" y="400" width="111" height="32"/>
+                                <rect key="frame" x="578" y="342" width="111" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="J3L-qZ-5Ni"/>
                                 </constraints>
@@ -53,18 +53,32 @@
                                 </connections>
                             </button>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="diP-iH-IZJ">
-                                <rect key="frame" x="573" y="351" width="116" height="16"/>
+                                <rect key="frame" x="573" y="293" width="116" height="16"/>
                                 <textFieldCell key="cell" selectable="YES" id="ArL-bI-OwO">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" red="0.90196078430000004" green="0.14117647059999999" blue="0.074509803920000006" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <comboBox verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XqE-aL-QVE">
+                                <rect key="frame" x="589" y="406" width="99" height="25"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="DRe-GA-eJm">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <objectValues>
+                                        <string>Item 1</string>
+                                        <string>Item 2</string>
+                                        <string>Item 3</string>
+                                    </objectValues>
+                                </comboBoxCell>
+                            </comboBox>
                         </subviews>
                         <constraints>
                             <constraint firstItem="diP-iH-IZJ" firstAttribute="leading" secondItem="6AH-y8-PoI" secondAttribute="trailing" constant="20" id="6qe-14-HY8"/>
                             <constraint firstItem="Sdz-Rw-YQJ" firstAttribute="leading" secondItem="6AH-y8-PoI" secondAttribute="trailing" constant="30" id="9di-tJ-gTj"/>
-                            <constraint firstItem="Sdz-Rw-YQJ" firstAttribute="top" secondItem="tOy-S4-hL0" secondAttribute="top" constant="42" id="Aem-8E-SGh"/>
+                            <constraint firstItem="Sdz-Rw-YQJ" firstAttribute="top" secondItem="tOy-S4-hL0" secondAttribute="top" constant="100" id="Aem-8E-SGh"/>
                             <constraint firstAttribute="trailing" secondItem="diP-iH-IZJ" secondAttribute="trailing" constant="20" id="S6w-2L-Qgl"/>
                             <constraint firstItem="6AH-y8-PoI" firstAttribute="top" secondItem="tOy-S4-hL0" secondAttribute="top" constant="20" symbolic="YES" id="VJK-Pe-8LZ"/>
                             <constraint firstAttribute="trailing" secondItem="Sdz-Rw-YQJ" secondAttribute="trailing" constant="25" id="VMa-WQ-4KY"/>
@@ -76,6 +90,7 @@
                     <connections>
                         <outlet property="statusLabel" destination="diP-iH-IZJ" id="bCH-dd-Xod"/>
                         <outlet property="textV" destination="6AH-y8-PoI" id="HeY-On-CMN"/>
+                        <outlet property="themeBtn" destination="XqE-aL-QVE" id="noc-l8-fnf"/>
                     </connections>
                 </viewController>
                 <customObject id="9uD-mB-xHs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
