@@ -81,8 +81,8 @@
                                     </objectValues>
                                 </comboBoxCell>
                             </comboBox>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="diP-iH-IZJ">
-                                <rect key="frame" x="547" y="277" width="142" height="16"/>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="diP-iH-IZJ">
+                                <rect key="frame" x="547" y="296" width="142" height="16"/>
                                 <textFieldCell key="cell" selectable="YES" id="ArL-bI-OwO">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" red="0.90196078430000004" green="0.14117647059999999" blue="0.074509803920000006" alpha="1" colorSpace="calibratedRGB"/>
@@ -93,6 +93,7 @@
                         <constraints>
                             <constraint firstItem="Sdz-Rw-YQJ" firstAttribute="top" secondItem="XqE-aL-QVE" secondAttribute="bottom" constant="20" symbolic="YES" id="6k2-5K-vT3"/>
                             <constraint firstItem="diP-iH-IZJ" firstAttribute="leading" secondItem="6AH-y8-PoI" secondAttribute="trailing" constant="20" id="6qe-14-HY8"/>
+                            <constraint firstItem="diP-iH-IZJ" firstAttribute="top" secondItem="ufH-6f-v6j" secondAttribute="bottom" constant="40" id="F26-k9-r4y"/>
                             <constraint firstAttribute="trailing" secondItem="diP-iH-IZJ" secondAttribute="trailing" constant="20" id="S6w-2L-Qgl"/>
                             <constraint firstItem="ufH-6f-v6j" firstAttribute="top" secondItem="Sdz-Rw-YQJ" secondAttribute="bottom" constant="18" id="Tkf-oy-m71"/>
                             <constraint firstItem="6AH-y8-PoI" firstAttribute="top" secondItem="tOy-S4-hL0" secondAttribute="top" constant="20" symbolic="YES" id="VJK-Pe-8LZ"/>
