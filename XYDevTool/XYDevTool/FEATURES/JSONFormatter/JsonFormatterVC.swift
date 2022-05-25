@@ -5,9 +5,34 @@
 //  Created by 渠晓友 on 2022/5/6.
 //
 
-//  功能
-// 格式化 JSON
-// 压缩 JSON 就是变成一行
+// 参考博客
+// https://blog.csdn.net/weixin_41483813/article/details/82622742
+
+//按下按键
+func keyboardKeyDown(key: CGKeyCode) {
+
+    let source = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
+    let event = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: true)
+    event?.post(tap: CGEventTapLocation.cghidEventTap)
+    print("key \(key) is down")
+}
+
+//松开按键
+func keyboardKeyUp(key: CGKeyCode) {
+    let source = CGEventSource(stateID: CGEventSourceStateID.hidSystemState)
+    let event = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: false)
+    event?.post(tap: CGEventTapLocation.cghidEventTap)
+    print("key \(key) is released")
+}
+
+func spaceKeyDownAndDelete() {
+    keyboardKeyDown(key: 0x31)
+    keyboardKeyUp(key: 0x31)
+    keyboardKeyDown(key: 0x33)
+    keyboardKeyUp(key: 0x33)
+}
+
+
 
 
 import Cocoa
@@ -15,8 +40,7 @@ import Highlightr
 
 class JsonFormatterVC: NSViewController {
     
-    @IBOutlet weak var textV: NSScrollView!
-    var tv1: NSTextView!
+    @IBOutlet var tv1: NSTextView!
     
     @IBOutlet weak var themeBtn: NSComboBox!
     
@@ -34,11 +58,6 @@ class JsonFormatterVC: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
-        
-        if let tv1 = textV.documentView as? NSTextView {
-            self.tv1 = tv1
-        }
         
         tv1.setup()
         tv1.delegate = self
@@ -70,6 +89,8 @@ class JsonFormatterVC: NSViewController {
                 
                 tv1.string = resultStr!
                 statusLabel.stringValue = "转换完成"
+                spaceKeyDownAndDelete()
+                
             }catch{
                 
                 print(error)

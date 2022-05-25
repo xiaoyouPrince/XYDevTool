@@ -91,6 +91,7 @@
                         <outlet property="statusLabel" destination="diP-iH-IZJ" id="bCH-dd-Xod"/>
                         <outlet property="textV" destination="6AH-y8-PoI" id="HeY-On-CMN"/>
                         <outlet property="themeBtn" destination="XqE-aL-QVE" id="noc-l8-fnf"/>
+                        <outlet property="tv1" destination="aUs-sY-cVq" id="iHX-5c-5AQ"/>
                     </connections>
                 </viewController>
                 <customObject id="9uD-mB-xHs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
