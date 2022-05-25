@@ -25,15 +25,13 @@ func keyboardKeyUp(key: CGKeyCode) {
     print("key \(key) is released")
 }
 
+/// 空格和删除空格，模拟一次键盘事件
 func spaceKeyDownAndDelete() {
     keyboardKeyDown(key: 0x31)
     keyboardKeyUp(key: 0x31)
     keyboardKeyDown(key: 0x33)
     keyboardKeyUp(key: 0x33)
 }
-
-
-
 
 import Cocoa
 import Highlightr
@@ -67,10 +65,19 @@ class JsonFormatterVC: NSViewController {
         themeBtn.addItems(withObjectValues: highlightr.availableThemes())
         themeBtn.delegate = self
         themeBtn.isEditable = false
-//        themeBtn.isSelectable = false
+        themeBtn.isSelectable = true
+        
+        // 设置默认主题，这个后面可以考虑放到用户偏好设置中,这里触发代理设置主题
+        themeBtn.selectItem(at: 9)
     }
     
-    @IBAction func okClick(_ sender: Any) {
+    func setResult(string: String, desc: String) {
+        tv1.string = string
+        spaceKeyDownAndDelete()
+        statusLabel.stringValue = desc + "完成"
+    }
+    
+    @IBAction func okClick(_ sender: NSButton) {
         
         // 去掉空格和换行先
         let str = tv1.string.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -87,9 +94,7 @@ class JsonFormatterVC: NSViewController {
                 let preData = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
                 let resultStr = String(data: preData, encoding: .utf8)
                 
-                tv1.string = resultStr!
-                statusLabel.stringValue = "转换完成"
-                spaceKeyDownAndDelete()
+                setResult(string: resultStr!, desc: sender.title)
                 
             }catch{
                 
@@ -99,6 +104,16 @@ class JsonFormatterVC: NSViewController {
             }
         }
     }
+    
+    
+    @IBAction func compressionAction(_ sender: NSButton) {
+        
+        let str = tv1.string.components(separatedBy: CharacterSet.whitespacesAndNewlines).joined(separator: "")
+        
+        setResult(string: str, desc: sender.title)
+    }
+    
+    
 }
 
 
