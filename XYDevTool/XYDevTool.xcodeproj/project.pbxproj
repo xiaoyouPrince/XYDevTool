@@ -36,7 +36,6 @@
 		B4A3B06E281EC26500C34DD8 /* script.pl in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06C281EC26500C34DD8 /* script.pl */; };
 		B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06F281EC5D000C34DD8 /* mac_icon.sh */; };
 		B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */; };
-		B4AD7761283FB333003FE01D /* autoupdate.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4AD7760283FB333003FE01D /* autoupdate.sh */; };
 		B4D23BC9283D1A620081F400 /* NSTextView+LineNumberRulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */; };
 		B4DB4BA1283936AC00AF654D /* UpgradeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */; };
 		B4DB4BA2283936AC00AF654D /* UpgradeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */; };
@@ -82,7 +81,6 @@
 		B4A3B072281EC72600C34DD8 /* STPrivilegedTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPrivilegedTask.h; sourceTree = "<group>"; };
 		B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPrivilegedTask.m; sourceTree = "<group>"; };
 		B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XYDevTool-Bridging-Header.h"; sourceTree = "<group>"; };
-		B4AD7760283FB333003FE01D /* autoupdate.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = autoupdate.sh; sourceTree = "<group>"; };
 		B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSTextView+LineNumberRulerView.swift"; sourceTree = "<group>"; };
 		B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeViewController.swift; sourceTree = "<group>"; };
 		B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UpgradeViewController.xib; sourceTree = "<group>"; };
@@ -224,7 +222,6 @@
 		B4A3B06A281EC16C00C34DD8 /* sh */ = {
 			isa = PBXGroup;
 			children = (
-				B4AD7760283FB333003FE01D /* autoupdate.sh */,
 				B4A3AD9B28217171001FD2B3 /* ios_icon.sh */,
 				B4A3B06F281EC5D000C34DD8 /* mac_icon.sh */,
 				B4A3B06C281EC26500C34DD8 /* script.pl */,
@@ -385,7 +382,6 @@
 				B4A3B067281D66CB00C34DD8 /* json2model.js in Resources */,
 				B48BC727281D07500093D91F /* Main.storyboard in Resources */,
 				B4A3B06D281EC26500C34DD8 /* script.sh in Resources */,
-				B4AD7761283FB333003FE01D /* autoupdate.sh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,7 +611,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.3.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xiaoyou.XYDevTool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -648,7 +644,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.3.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.xiaoyou.XYDevTool;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

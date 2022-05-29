@@ -55,7 +55,7 @@
                     </constraints>
                     <buttonCell key="cell" type="bevel" title="手动更新" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ioY-oC-Cs5">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" size="13" name=".PingFangSC-Regular"/>
+                        <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
                         <action selector="upgradeBtnAction:" target="-2" id="ars-Bl-RTj"/>
