@@ -59,7 +59,7 @@
                                 </constraints>
                                 <buttonCell key="cell" type="push" title="压缩" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mJq-FT-YQm">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                    <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="compressionAction:" target="bU7-R8-ocO" id="JxY-9J-5Za"/>

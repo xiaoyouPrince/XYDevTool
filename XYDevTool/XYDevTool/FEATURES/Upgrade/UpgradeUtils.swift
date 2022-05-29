@@ -28,6 +28,14 @@ class UpgradeUtils {
     }
 }
 
+class Assets: Codable {
+    /** https://github.com/xiaoyouPrince/XYDevTool/releases/download/1.3.0/XYDevTool.app.zip */
+    var browser_download_url: String?
+    
+    /** XYDevTool.app.zip */
+    var name: String?
+}
+
 class Version: Codable {
     
     /** https://api.github.com/repos/xiaoyouPrince/XYDevTool/releases/66602654 */
@@ -52,4 +60,10 @@ class Version: Codable {
     
     /** 新增 JSON 格式化功能 ... */
     var body: String?
+    
+    var assets: [Assets]?
+    
+    func app_zip_url() -> URL {
+        URL(string: assets!.first!.browser_download_url!)!
+    }
 }

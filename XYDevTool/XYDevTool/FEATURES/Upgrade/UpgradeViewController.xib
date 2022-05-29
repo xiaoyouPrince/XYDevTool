@@ -48,17 +48,31 @@
                     </textFieldCell>
                 </textField>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kvZ-am-lSo">
-                    <rect key="frame" x="372" y="21" width="66" height="37"/>
+                    <rect key="frame" x="352" y="21" width="86" height="37"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="30" id="QnU-Nm-JnD"/>
-                        <constraint firstAttribute="width" constant="60" id="gfm-Bl-FOG"/>
+                        <constraint firstAttribute="width" constant="80" id="gfm-Bl-FOG"/>
                     </constraints>
-                    <buttonCell key="cell" type="bevel" title="更新" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ioY-oC-Cs5">
+                    <buttonCell key="cell" type="bevel" title="手动更新" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ioY-oC-Cs5">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
+                        <font key="font" size="13" name=".PingFangSC-Regular"/>
                     </buttonCell>
                     <connections>
                         <action selector="upgradeBtnAction:" target="-2" id="ars-Bl-RTj"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LXt-Fh-S8G">
+                    <rect key="frame" x="253" y="21" width="86" height="37"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="80" id="68k-EY-Pog"/>
+                        <constraint firstAttribute="height" constant="30" id="U9i-Yg-CUb"/>
+                    </constraints>
+                    <buttonCell key="cell" type="bevel" title="一键更新" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="jcc-fc-USy">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" size="13" name="STSongti-SC-Regular"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="oneKeyUpgrade:" target="-2" id="shr-XE-kXr"/>
                     </connections>
                 </button>
             </subviews>
@@ -67,14 +81,16 @@
                 <constraint firstAttribute="trailing" secondItem="kvZ-am-lSo" secondAttribute="trailing" constant="35" id="Cme-EF-zff"/>
                 <constraint firstItem="JJw-ki-yrg" firstAttribute="centerX" secondItem="aRn-4n-Alr" secondAttribute="centerX" id="N7F-zi-5sX"/>
                 <constraint firstItem="kvZ-am-lSo" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Kcw-gQ-ohQ" secondAttribute="bottom" constant="30" id="NN2-7D-mkl"/>
+                <constraint firstItem="LXt-Fh-S8G" firstAttribute="centerY" secondItem="kvZ-am-lSo" secondAttribute="centerY" id="PPc-Jo-o0n"/>
                 <constraint firstItem="Kcw-gQ-ohQ" firstAttribute="top" secondItem="bng-d5-Ffn" secondAttribute="bottom" constant="40" id="RC5-JL-QVO"/>
+                <constraint firstItem="kvZ-am-lSo" firstAttribute="leading" secondItem="LXt-Fh-S8G" secondAttribute="trailing" constant="19" id="Vp5-Xl-H81"/>
                 <constraint firstItem="Kcw-gQ-ohQ" firstAttribute="trailing" secondItem="aRn-4n-Alr" secondAttribute="trailing" constant="-35" id="X3i-Bx-tEG"/>
                 <constraint firstItem="bng-d5-Ffn" firstAttribute="top" secondItem="JJw-ki-yrg" secondAttribute="bottom" constant="10" id="Y6c-Vt-iSI"/>
                 <constraint firstItem="bng-d5-Ffn" firstAttribute="centerX" secondItem="JJw-ki-yrg" secondAttribute="centerX" id="biK-ST-LdQ"/>
                 <constraint firstAttribute="bottom" secondItem="kvZ-am-lSo" secondAttribute="bottom" constant="25" id="gnr-h2-XwU"/>
                 <constraint firstItem="Kcw-gQ-ohQ" firstAttribute="leading" secondItem="aRn-4n-Alr" secondAttribute="leading" constant="35" id="j6r-gX-OG8"/>
             </constraints>
-            <point key="canvasLocation" x="139" y="156"/>
+            <point key="canvasLocation" x="46" y="122"/>
         </customView>
     </objects>
 </document>
