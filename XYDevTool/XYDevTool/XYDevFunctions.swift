@@ -76,6 +76,7 @@ extension NSTextView {
     func setup() {
         self.isAutomaticQuoteSubstitutionEnabled = false
         self.isContinuousSpellCheckingEnabled = false
+        self.allowsUndo = true
         self.setUpLineNumberView()
     }
 }
