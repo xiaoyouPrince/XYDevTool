@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F8A152D3B3CBE05A2BEF0DD /* Pods_XYDevTool.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */; };
+		B40376D1284DFB1E00284AE0 /* String+XYDev.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40376D0284DFB1E00284AE0 /* String+XYDev.swift */; };
 		B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B454C7892837DF30008F07B7 /* UpgradeUtils.swift */; };
 		B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB91282BAB1F002146A1 /* NetModels.swift */; };
 		B471DB94282BE39E002146A1 /* XYAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB93282BE39E002146A1 /* XYAlert.swift */; };
@@ -49,6 +50,7 @@
 /* Begin PBXFileReference section */
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		975D17A7F6E8691978F8836B /* Pods-XYDevTool.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.release.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.release.xcconfig"; sourceTree = "<group>"; };
+		B40376D0284DFB1E00284AE0 /* String+XYDev.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+XYDev.swift"; sourceTree = "<group>"; };
 		B454C7892837DF30008F07B7 /* UpgradeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeUtils.swift; sourceTree = "<group>"; };
 		B471DB91282BAB1F002146A1 /* NetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetModels.swift; sourceTree = "<group>"; };
 		B471DB93282BE39E002146A1 /* XYAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYAlert.swift; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */,
+				B40376D0284DFB1E00284AE0 /* String+XYDev.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -440,6 +443,7 @@
 				B4F61DC8282ABCAD006FAC35 /* XYNetTool.swift in Sources */,
 				B4A3ADB028217342001FD2B3 /* AnyCodingKey.swift in Sources */,
 				B4A3ADAE28217342001FD2B3 /* JSONDecoder.swift in Sources */,
+				B40376D1284DFB1E00284AE0 /* String+XYDev.swift in Sources */,
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
 				B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,

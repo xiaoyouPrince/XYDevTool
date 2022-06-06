@@ -114,6 +114,18 @@ class JsonFormatterVC: NSViewController {
     }
     
     
+    @IBAction func addEscape(_ sender: NSButton) {
+        let result = tv1.string.addEscape()
+        setResult(string: result, desc: sender.title)
+    }
+    
+    
+    @IBAction func removeEscape(_ sender: NSButton) {
+        let result = tv1.string.removeEscape()
+        setResult(string: result, desc: sender.title)
+    }
+    
+    
 }
 
 
