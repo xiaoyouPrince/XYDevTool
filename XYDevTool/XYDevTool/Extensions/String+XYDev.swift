@@ -37,7 +37,10 @@ extension String {
             result = result.replacingCharacters(in: firstIndex, with: "")
         }
         
-        // 1. 去除 \
+        // 1. 去除换行 \n
+        result = result.replacingOccurrences(of: "\\n", with: "")
+        
+        // 2. 去除 \
         result = result.replacingOccurrences(of: "\\", with: "")
         return result
     }
