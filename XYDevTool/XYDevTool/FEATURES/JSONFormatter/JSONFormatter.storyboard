@@ -42,11 +42,11 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
-                                    <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="30" horizontalStackHuggingPriority="250.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ssF-Mr-8fG">
-                                        <rect key="frame" x="617" y="74" width="160" height="385"/>
+                                    <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="16" horizontalStackHuggingPriority="250.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ssF-Mr-8fG">
+                                        <rect key="frame" x="617" y="172" width="160" height="287"/>
                                         <subviews>
                                             <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XqE-aL-QVE">
-                                                <rect key="frame" x="10" y="352" width="153" height="25"/>
+                                                <rect key="frame" x="10" y="254" width="153" height="25"/>
                                                 <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="DRe-GA-eJm">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -59,7 +59,7 @@
                                                 </comboBoxCell>
                                             </comboBox>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Sdz-Rw-YQJ">
-                                                <rect key="frame" x="3" y="299" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="215" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="JSON格式化" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Qdi-xv-D2u">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -69,7 +69,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ufH-6f-v6j">
-                                                <rect key="frame" x="3" y="249" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="179" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="压缩" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mJq-FT-YQm">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -79,7 +79,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1br-fe-NV5">
-                                                <rect key="frame" x="3" y="199" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="143" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="转义" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zeY-fD-q78">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -89,7 +89,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rd9-sp-fl5">
-                                                <rect key="frame" x="3" y="149" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="107" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="去除转义" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="E7d-S4-edv">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" size="13" name="STSongti-SC-Regular"/>
@@ -99,18 +99,24 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XjQ-5r-fZy">
-                                                <rect key="frame" x="3" y="99" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="71" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="汉字转Unicode" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZUI-d2-n20">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" size="13" name=".PingFangSC-Regular"/>
                                                 </buttonCell>
+                                                <connections>
+                                                    <action selector="Chinese2Unicode:" target="bU7-R8-ocO" id="THm-nO-KXg"/>
+                                                </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EYa-wd-BGs">
-                                                <rect key="frame" x="3" y="49" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="35" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="Unicode转汉字" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pge-SH-LhY">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
                                                 </buttonCell>
+                                                <connections>
+                                                    <action selector="Unicode2Chinese:" target="bU7-R8-ocO" id="yo5-Ab-WyA"/>
+                                                </connections>
                                             </button>
                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="diP-iH-IZJ">
                                                 <rect key="frame" x="8" y="10" width="144" height="16"/>

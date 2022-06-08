@@ -126,7 +126,17 @@ class JsonFormatterVC: NSViewController {
     }
     
     
+    @IBAction func Chinese2Unicode(_ sender: NSButton) {
+        
+        let result = tv1.string.chinese2Unicode()
+        setResult(string: result, desc: sender.title)
+    }
     
+    @IBAction func Unicode2Chinese(_ sender: NSButton) {
+        
+        let result = tv1.string.unicode2Chinese()
+        setResult(string: result, desc: sender.title)
+    }
     
 }
 
