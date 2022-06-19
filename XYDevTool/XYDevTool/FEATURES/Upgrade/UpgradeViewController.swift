@@ -38,18 +38,27 @@ class UpgradeViewController: NSViewController {
     @IBAction func oneKeyUpgrade(_ sender: Any) {
         
         let url = versionInfo?.app_zip_url().absoluteString ?? ""
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let date = fmt.string(from: Date())
         
         let updateSH = """
         
         #!/bin/sh
 
         # feature: 自动更新脚本
-        # date：2022/05/26 20:08
-        # authre： xiaoyou
+        # date：\(date)
+        # auther： xiaoyou
 
         S_PATH="\(url)"
 
         # download
+        type wget >> /dev/null
+        if [[ $? != 0 ]]; then
+            echo "检测到设备缺少相关下载工具，请手动下载"
+            open $S_PATH
+        fi
+        
         wget $S_PATH
         tar xf XYDevTool.zip
         rm XYDevTool.zip
