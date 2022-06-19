@@ -138,6 +138,13 @@ class JsonFormatterVC: NSViewController {
         setResult(string: result, desc: sender.title)
     }
     
+    @IBAction func createRandomJSON(_ sender: NSButton) {
+        
+        let result = getRandomJSON(maxLayer: 8, maxElementsPerLayer: 8)
+        setResult(string: result, desc: sender.title)
+    }
+    
+    
 }
 
 
