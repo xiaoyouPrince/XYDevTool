@@ -29,6 +29,8 @@ class XYRequest: Model {
     /** POST */
     var method: String?
     
+    var header: String?
+    
     /** {
     "staffId": 1098943659,
     "rootOrgId": 130300385,

@@ -122,7 +122,7 @@
                                                 <rect key="frame" x="3" y="35" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="生成随机JSON 串" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oks-u6-HG0">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                    <font key="font" size="13" name=".PingFangSC-Regular"/>
+                                                    <font key="font" metaFont="system"/>
                                                 </buttonCell>
                                                 <connections>
                                                     <action selector="createRandomJSON:" target="bU7-R8-ocO" id="zbW-kV-dSs"/>

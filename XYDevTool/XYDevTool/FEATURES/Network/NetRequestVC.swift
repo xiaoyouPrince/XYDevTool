@@ -87,6 +87,11 @@ class NetRequestVC: NSViewController {
         
 //        let semaphore = DispatchSemaphore (value: 0)
 
+        var headerDict: [String: String] = [:]
+        if let headers = headerTCV.string.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: String]{
+            headerDict = dict
+        }
+        
         let parameters = bodyTV.string
         let postData = parameters.data(using: .utf8)
 
@@ -124,6 +129,9 @@ class NetRequestVC: NSViewController {
         }
         
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        for (key,value) in headerDict {
+            request.addValue(value, forHTTPHeaderField: key)
+        }
 
         request.httpMethod = methodBtn.selectedItem?.title
         
@@ -133,6 +141,7 @@ class NetRequestVC: NSViewController {
         let res = XYRequest()
         res.method = request.httpMethod
         res.url = request.url?.absoluteString
+        res.header = headerDict.toString() ?? ""
         res.body = bodyTV.string
         item.request = res
         if item.name?.isEmpty == true {
@@ -349,6 +358,7 @@ extension NetRequestVC: NSTableViewDelegate {
             methodBtn.selectItem(withTitle: item.request?.method ?? "GET")
             nameTF.stringValue = item.name ?? ""
             urlTF.stringValue = item.request?.url ?? ""
+            headerTCV.string = item.request?.header ?? ""
             bodyTV.string = item.request?.body ?? ""
             resultTV.string = item.response ?? ""
             if item.isLock == true {
