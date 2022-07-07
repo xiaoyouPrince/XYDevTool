@@ -146,6 +146,14 @@ function parseObject(k, result){
         if (type == "null") {
             continue
         }
+        
+        if (type == "Any") {
+            if (needComent) { // 是否需要注释
+                c.property.push("\n\t" + "/** " + "value 为 null/undefine，类型未知" + " */")
+            }
+            c.property.push("var " + key + ": " + "<#type#>" + "?")
+            continue
+        }
 
         if (type == "String" || type == "Int" || type == "Double" || type == "Bool") {
             if (needComent) { // 是否需要注释
@@ -209,7 +217,14 @@ function parseObject(k, result){
                 }
 
                 continue
-            }// else {} // 空数组也没有处理
+            } else {
+                // 空数组处理
+                if (needComent) { // 是否需要注释
+                    c.property.push("\n\t" + "/** " + "数组内部元素为空，元素类型未知" + " */")
+                }
+                c.property.push("var " + key + ": [" + "<#type#>" + "]?")
+                continue
+            }
         }
     }
 }
