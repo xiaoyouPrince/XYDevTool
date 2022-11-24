@@ -42,9 +42,9 @@ class XYAlert: NSView, NibLoadable {
         
         let view = NSView(frame: .zero)
         self.addSubview(view)
-        view.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+//        view.snp.makeConstraints { make in
+//            make.edges.equalToSuperview()
+//        }
         view.layer?.backgroundColor = NSColor.red.cgColor
         
     }

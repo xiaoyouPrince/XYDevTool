@@ -14,7 +14,7 @@
 
 
 import Cocoa
-import SnapKit
+//import SnapKit
 
 class CreateMacIcons: NSViewController {
     

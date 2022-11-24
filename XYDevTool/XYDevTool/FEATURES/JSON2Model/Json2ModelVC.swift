@@ -7,7 +7,7 @@
 
 import Foundation
 import AppKit
-import SnapKit
+//import SnapKit
 import JavaScriptCore
 
 class Json2ModelVC: NSViewController {

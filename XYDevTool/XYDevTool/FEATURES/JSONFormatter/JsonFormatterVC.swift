@@ -34,7 +34,7 @@ func spaceKeyDownAndDelete() {
 }
 
 import Cocoa
-import Highlightr
+//import Highlightr
 
 class JsonFormatterVC: NSViewController {
     
@@ -44,14 +44,14 @@ class JsonFormatterVC: NSViewController {
     
     @IBOutlet weak var statusLabel: NSTextField!
     
-    private let highlightr = Highlightr()!
-    private lazy var JSONStorage: CodeAttributedString = {
-        let storage = CodeAttributedString()
-        storage.highlightr.setTheme(to: "tomorrow-night-bright")
-        storage.highlightr.theme.codeFont = NSFont(name: "Menlo", size: 14)
-        storage.language = "json"
-        return storage
-    }()
+//    private let highlightr = Highlightr()!
+//    private lazy var JSONStorage: CodeAttributedString = {
+//        let storage = CodeAttributedString()
+//        storage.highlightr.setTheme(to: "tomorrow-night-bright")
+//        storage.highlightr.theme.codeFont = NSFont(name: "Menlo", size: 14)
+//        storage.language = "json"
+//        return storage
+//    }()
     
 
     override func viewDidLoad() {
@@ -59,16 +59,16 @@ class JsonFormatterVC: NSViewController {
         
         tv1.setup()
         tv1.delegate = self
-        JSONStorage.addLayoutManager(tv1.layoutManager!)
+//        JSONStorage.addLayoutManager(tv1.layoutManager!)
         
         themeBtn.removeAllItems()
-        themeBtn.addItems(withObjectValues: highlightr.availableThemes())
+        //themeBtn.addItems(withObjectValues: highlightr.availableThemes())
         themeBtn.delegate = self
         themeBtn.isEditable = false
         themeBtn.isSelectable = true
         
         // 设置默认主题，这个后面可以考虑放到用户偏好设置中,这里触发代理设置主题
-        themeBtn.selectItem(at: 9)
+//        themeBtn.selectItem(at: 9)
     }
     
     func setResult(string: String, desc: String) {
@@ -152,10 +152,10 @@ extension JsonFormatterVC: NSComboBoxDelegate {
     
     func comboBoxSelectionDidChange(_ notification: Notification) {
         
-        let theme = highlightr.availableThemes()[themeBtn.indexOfSelectedItem]
-
-        JSONStorage.highlightr.setTheme(to: theme)
-        JSONStorage.highlightr.theme.codeFont = NSFont(name: "Menlo", size: 14)
+//        let theme = highlightr.availableThemes()[themeBtn.indexOfSelectedItem]
+//
+//        JSONStorage.highlightr.setTheme(to: theme)
+//        JSONStorage.highlightr.theme.codeFont = NSFont(name: "Menlo", size: 14)
     }
 }
 
