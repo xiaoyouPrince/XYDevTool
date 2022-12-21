@@ -22,8 +22,11 @@ class NetRequestVC: NSViewController {
     
     @IBOutlet var headerTCV: NSTextView!
     @IBOutlet var bodyTV: NSTextView!
-    @IBOutlet var resultTV: NSTextView!
+    //@IBOutlet var resultTV: NSTextView!
     @IBOutlet weak var lockBtn: NSButton!
+    
+    
+    @IBOutlet weak var resultView: ACEView!
     
     var lastSelectedRow = -1
     
@@ -33,6 +36,10 @@ class NetRequestVC: NSViewController {
         
         tableView.delegate = self
         tableView.dataSource = self
+        
+        self.resultView.setMode(.JSON)
+        self.resultView.setTheme(.xcode)
+        
         
         // 读取历史数据
         
@@ -83,7 +90,8 @@ class NetRequestVC: NSViewController {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
-        self.resultTV.string = "请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！"
+//        self.resultTV.string = "请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！"
+        self.resultView.setString("请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！")
         
 //        let semaphore = DispatchSemaphore (value: 0)
 
@@ -158,7 +166,9 @@ class NetRequestVC: NSViewController {
 //                semaphore.signal()
 
                 DispatchQueue.main.async {
-                    self.resultTV.string = errMsg
+//                    self.resultTV.string = errMsg
+                    self.resultView.setString(errMsg)
+                    
                     item.response = errMsg
                     
                     self.refreshUIAndDataBase(item: item)
@@ -171,9 +181,11 @@ class NetRequestVC: NSViewController {
             if sucString.isEmpty {
                 sucString = response?.description ?? "请求完成，返回数据为空"
             }
-            print(sucString)
+            print("请求成功,结果如下:\n",sucString)
             DispatchQueue.main.async {
-                self.resultTV.string = sucString
+//                self.resultTV.string = sucString
+                self.resultView.setString(sucString)
+                
                 item.response = sucString
                 
                 self.refreshUIAndDataBase(item: item)
@@ -233,7 +245,9 @@ class NetRequestVC: NSViewController {
         
         // 发起请求
         NetTool.request(url: url, method: method, paramters: body, headers:defaultHeaders) {[weak self] result in
-            self?.resultTV.string = result.toString() ?? ""
+//            self?.resultTV.string = result.toString() ?? ""
+            self?.resultView.setString(result.toString() ?? "")
+            
         } failure: { errMsg in
             showAlert(msg: errMsg)
         }
@@ -360,7 +374,8 @@ extension NetRequestVC: NSTableViewDelegate {
             urlTF.stringValue = item.request?.url ?? ""
             headerTCV.string = item.request?.header ?? ""
             bodyTV.string = item.request?.body ?? ""
-            resultTV.string = item.response ?? ""
+//            resultTV.string = item.response ?? ""
+            resultView.setString(item.response ?? "")
             if item.isLock == true {
                 lockBtn.state = NSControl.StateValue(rawValue: 1)
             }else{

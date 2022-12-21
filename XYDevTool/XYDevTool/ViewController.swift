@@ -39,6 +39,19 @@ class ViewController: NSViewController {
         }
     }
 
-
+    @IBAction func networkClick(_ sender: Any) {
+        
+        let settingVC = NetResquestController()
+//        settingVC.fileConfigChangedClosure = { [weak self] in
+//            self?.generateClasses()
+//        }
+        
+        presentAsModalWindow(settingVC)
+        
+        
+        
+        
+    }
+    
 }
 

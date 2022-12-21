@@ -410,6 +410,8 @@
 		B4D23BC9283D1A620081F400 /* NSTextView+LineNumberRulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */; };
 		B4DB4BA1283936AC00AF654D /* UpgradeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */; };
 		B4DB4BA2283936AC00AF654D /* UpgradeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */; };
+		B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92CB29533F66005FC62E /* NetResquestController.swift */; };
+		B4EC92CE29533F66005FC62E /* NetResquestController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4EC92CC29533F66005FC62E /* NetResquestController.xib */; };
 		B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */; };
 		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
 		B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC3282AA276006FAC35 /* Network.storyboard */; };
@@ -843,6 +845,8 @@
 		B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSTextView+LineNumberRulerView.swift"; sourceTree = "<group>"; };
 		B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeViewController.swift; sourceTree = "<group>"; };
 		B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UpgradeViewController.xib; sourceTree = "<group>"; };
+		B4EC92CB29533F66005FC62E /* NetResquestController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetResquestController.swift; sourceTree = "<group>"; };
+		B4EC92CC29533F66005FC62E /* NetResquestController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NetResquestController.xib; sourceTree = "<group>"; };
 		B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSON2Model.storyboard; sourceTree = "<group>"; };
 		B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateMacIcons.storyboard; sourceTree = "<group>"; };
 		B4F61DC3282AA276006FAC35 /* Network.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Network.storyboard; sourceTree = "<group>"; };
@@ -1569,6 +1573,8 @@
 				B4F61DC3282AA276006FAC35 /* Network.storyboard */,
 				B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */,
 				B471DB91282BAB1F002146A1 /* NetModels.swift */,
+				B4EC92CB29533F66005FC62E /* NetResquestController.swift */,
+				B4EC92CC29533F66005FC62E /* NetResquestController.xib */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -1734,6 +1740,7 @@
 				B439DEB0293366A200E1CD02 /* ext-error_marker.js in Resources */,
 				B439DEA6293366A200E1CD02 /* theme-solarized_light.js in Resources */,
 				B439DEFE293366A200E1CD02 /* mode-javascript.js in Resources */,
+				B4EC92CE29533F66005FC62E /* NetResquestController.xib in Resources */,
 				B439DEA2293366A200E1CD02 /* mode-elixir.js in Resources */,
 				B439DE6D293366A100E1CD02 /* scad.js in Resources */,
 				B439DF05293366A200E1CD02 /* mode-autohotkey.js in Resources */,
@@ -2065,6 +2072,7 @@
 				B48A9A72292FB96500DD7333 /* ConstraintMakerEditable.swift in Sources */,
 				B439DE09293366A100E1CD02 /* NSInvocation+MainThread.m in Sources */,
 				B4A3ADB228217342001FD2B3 /* Transform.swift in Sources */,
+				B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */,
 				B48A9A77292FB96500DD7333 /* ConstraintItem.swift in Sources */,
 				B48A9A70292FB96500DD7333 /* ConstraintConstantTarget.swift in Sources */,
 				B439DE0A293366A100E1CD02 /* NSString+EscapeForJavaScript.m in Sources */,
