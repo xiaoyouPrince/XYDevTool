@@ -68,7 +68,7 @@ class LineNumberRulerView: NSRulerView {
         return (self.clientView! as! NSTextView).font
     }
     
-    var backgroundColor: NSColor {
+    var bgColor: NSColor {
         didSet {
             self.needsDisplay = true
         }
@@ -85,7 +85,7 @@ class LineNumberRulerView: NSRulerView {
     }
     
     init(textView: NSTextView) {
-        self.backgroundColor = textView.backgroundColor
+        self.bgColor = textView.lineNumberView.bgColor
         
         super.init(
             scrollView: textView.enclosingScrollView!,
@@ -127,7 +127,7 @@ class LineNumberRulerView: NSRulerView {
         }
                 
         // Draw background
-        backgroundColor.setFill()
+        bgColor.setFill()
         rect.fill()
         
         let visibleGlyphRange = layoutManager.glyphRange(

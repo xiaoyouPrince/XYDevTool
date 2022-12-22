@@ -412,6 +412,7 @@
 		B4DB4BA2283936AC00AF654D /* UpgradeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */; };
 		B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92CB29533F66005FC62E /* NetResquestController.swift */; };
 		B4EC92CE29533F66005FC62E /* NetResquestController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4EC92CC29533F66005FC62E /* NetResquestController.xib */; };
+		B4EC92D02954A526005FC62E /* NSView+XYDev.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92CF2954A526005FC62E /* NSView+XYDev.swift */; };
 		B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */; };
 		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
 		B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC3282AA276006FAC35 /* Network.storyboard */; };
@@ -847,6 +848,7 @@
 		B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UpgradeViewController.xib; sourceTree = "<group>"; };
 		B4EC92CB29533F66005FC62E /* NetResquestController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetResquestController.swift; sourceTree = "<group>"; };
 		B4EC92CC29533F66005FC62E /* NetResquestController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NetResquestController.xib; sourceTree = "<group>"; };
+		B4EC92CF2954A526005FC62E /* NSView+XYDev.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSView+XYDev.swift"; sourceTree = "<group>"; };
 		B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSON2Model.storyboard; sourceTree = "<group>"; };
 		B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateMacIcons.storyboard; sourceTree = "<group>"; };
 		B4F61DC3282AA276006FAC35 /* Network.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Network.storyboard; sourceTree = "<group>"; };
@@ -1513,6 +1515,7 @@
 				B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */,
 				B40376D0284DFB1E00284AE0 /* String+XYDev.swift */,
 				B4C374E0285F688400266440 /* Tools.swift */,
+				B4EC92CF2954A526005FC62E /* NSView+XYDev.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2081,6 +2084,7 @@
 				B48BC722281D074E0093D91F /* ViewController.swift in Sources */,
 				B4A3ADAD28217342001FD2B3 /* Model+Decodable.swift in Sources */,
 				B48A9A6A292FB96500DD7333 /* ConstraintConfig.swift in Sources */,
+				B4EC92D02954A526005FC62E /* NSView+XYDev.swift in Sources */,
 				B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
 				B48A9A5B292FB96500DD7333 /* ConstraintMultiplierTarget.swift in Sources */,
