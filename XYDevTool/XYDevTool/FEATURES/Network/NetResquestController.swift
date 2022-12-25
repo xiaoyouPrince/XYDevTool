@@ -12,22 +12,154 @@ class NetResquestController: NSViewController {
 
     @IBOutlet var topView: NSView!
     
+    @IBOutlet weak var leftView: LeftView!
+    @IBOutlet weak var outlineView: NSOutlineView!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
         
-        view.layer?.backgroundColor = .black
+        
+        
+        
+        view.xy_backgroundColor = .clear
         
         view.snp.makeConstraints { make in
             make.size.greaterThanOrEqualTo(CGSize(width: 800, height: 600))
         }
         
         view.addSubview(topView)
-        topView.backgroundColor = .init(r: 123, g: 161, b: 208)//.random
+        topView.xy_backgroundColor = .init(r: 123, g: 161, b: 208)//.random
         topView.snp.makeConstraints { make in
             make.left.right.top.equalToSuperview()
             //make.height.equalTo(90)
         }
+        
+        leftView.snp.makeConstraints { make in
+            make.width.greaterThanOrEqualTo(200)
+        }
+        
+        let dataSource = OutLineViewDataSource()
+        outlineView.backgroundColor = .yellow
+        outlineView.delegate = dataSource
+        outlineView.dataSource = dataSource
+        outlineView.reloadData()
     }
+    
+}
+
+
+protocol BaseDataProtocol {
+    
+    /// 存储请求记录的路径
+    var requestRecordPath: String { get }
+    var history_path: String { get }
+    /// App代理
+    var appDelegate: AppDelegate { get }
+}
+
+extension BaseDataProtocol {
+    
+    var requestRecordPath: String {
+        return Bundle.main.resourcePath! + "/history.json"
+    }
+    
+    var history_path: String {
+        requestRecordPath
+    }
+
+    var appDelegate: AppDelegate {
+        return NSApplication.shared.delegate as! AppDelegate
+    }
+}
+
+
+
+class OutLineViewDataSource: NSObject, BaseDataProtocol, NSOutlineViewDelegate, NSOutlineViewDataSource {
+    
+    var dataArray: [XYItem] = []
+    
+    override init() {
+        super.init()
+        
+        if let data = NSData(contentsOfFile: history_path), let historys = MyObj.mapping(jsonData: data as Data) {
+            dataArray = historys.item ?? []
+//            tableView.reloadData()
+            
+            print("----- dataArray.count = \(dataArray.count)")
+        }
+        
+    }
+    
+    func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
+        if item == nil {
+            return dataArray.count
+        }else{
+            return (item as? Array<Any>)?.count ?? 0
+        }
+    }
+
+    func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
+            return false
+    }
+    
+    func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
+        if item == nil {
+            return dataArray[index]
+        }else{
+            return "item 下的内容"
+        }
+    }
+    
+    func outlineView(_ outlineView: NSOutlineView, objectValueFor tableColumn: NSTableColumn?, byItem item: Any?) -> Any? {
+        if item == nil {
+            return nil
+        }else{
+            print("--------- item = \(item)")
+            return (item as! XYItem).name
+        }
+    }
+    
+    fileprivate enum CellIdentifiers {
+        static let CellID = "cellID"
+    }
+    
+    func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
+        
+        print("----view for----- item = \(item)")
+        
+//        if let xyitem = item as? XYItem {
+//            
+//        }
+        
+        if let cell = outlineView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: CellIdentifiers.CellID), owner: nil) as? NSTableCellView {
+            
+//            let item = dataArray[row]
+            if let xyitem = item as? XYItem {
+                cell.textField?.stringValue =  (xyitem.name ?? "")
+            }else {
+                cell.textField?.stringValue =  "100"//(item.name ?? "")
+            }
+            
+            
+            //cell.layer?.backgroundColor = NSColor.red.cgColor
+            cell.imageView?.image = NSImage(named: "AppIcon")
+            cell.xy_backgroundColor = .random
+            return cell
+        }
+        
+        
+        let v = NSView()
+        v.xy_backgroundColor = .red
+        
+        return v
+    }
+    
+//    func outlineView(_ outlineView: NSOutlineView, rowViewForItem item: Any) -> NSTableRowView? {
+//        <#code#>
+//    }
+    
+    
     
 }

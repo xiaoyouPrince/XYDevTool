@@ -10,7 +10,7 @@ import Foundation
 
 public extension NSView {
 
-    var backgroundColor: NSColor {
+    var xy_backgroundColor: NSColor {
         set{
             wantsLayer = true
             layer?.backgroundColor = newValue.cgColor

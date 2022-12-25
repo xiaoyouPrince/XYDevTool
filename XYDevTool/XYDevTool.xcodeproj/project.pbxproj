@@ -413,6 +413,8 @@
 		B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92CB29533F66005FC62E /* NetResquestController.swift */; };
 		B4EC92CE29533F66005FC62E /* NetResquestController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4EC92CC29533F66005FC62E /* NetResquestController.xib */; };
 		B4EC92D02954A526005FC62E /* NSView+XYDev.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92CF2954A526005FC62E /* NSView+XYDev.swift */; };
+		B4EC92D329560361005FC62E /* TopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92D229560361005FC62E /* TopView.swift */; };
+		B4EC92D529560392005FC62E /* LeftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92D429560392005FC62E /* LeftView.swift */; };
 		B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */; };
 		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
 		B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC3282AA276006FAC35 /* Network.storyboard */; };
@@ -849,6 +851,8 @@
 		B4EC92CB29533F66005FC62E /* NetResquestController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetResquestController.swift; sourceTree = "<group>"; };
 		B4EC92CC29533F66005FC62E /* NetResquestController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NetResquestController.xib; sourceTree = "<group>"; };
 		B4EC92CF2954A526005FC62E /* NSView+XYDev.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSView+XYDev.swift"; sourceTree = "<group>"; };
+		B4EC92D229560361005FC62E /* TopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopView.swift; sourceTree = "<group>"; };
+		B4EC92D429560392005FC62E /* LeftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftView.swift; sourceTree = "<group>"; };
 		B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSON2Model.storyboard; sourceTree = "<group>"; };
 		B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateMacIcons.storyboard; sourceTree = "<group>"; };
 		B4F61DC3282AA276006FAC35 /* Network.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Network.storyboard; sourceTree = "<group>"; };
@@ -1520,6 +1524,15 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		B4EC92D1295602F9005FC62E /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B4EC92D229560361005FC62E /* TopView.swift */,
+				B4EC92D429560392005FC62E /* LeftView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		B4F61DB9282A3C08006FAC35 /* JSONFormatter */ = {
 			isa = PBXGroup;
 			children = (
@@ -1572,6 +1585,7 @@
 		B4F61DC2282AA189006FAC35 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				B4EC92D1295602F9005FC62E /* View */,
 				B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */,
 				B4F61DC3282AA276006FAC35 /* Network.storyboard */,
 				B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */,
@@ -2061,6 +2075,7 @@
 				B4DB4BA1283936AC00AF654D /* UpgradeViewController.swift in Sources */,
 				B48A9A5E292FB96500DD7333 /* ConstraintDescription.swift in Sources */,
 				B48A9A71292FB96500DD7333 /* ConstraintOffsetTarget.swift in Sources */,
+				B4EC92D529560392005FC62E /* LeftView.swift in Sources */,
 				B48A9A79292FB96500DD7333 /* Debugging.swift in Sources */,
 				B48A9A6F292FB96500DD7333 /* Typealiases.swift in Sources */,
 				B439DE07293366A100E1CD02 /* ACEModeNames.m in Sources */,
@@ -2068,6 +2083,7 @@
 				B48A9A66292FB96500DD7333 /* ConstraintPriority.swift in Sources */,
 				B48A9A7E292FB96500DD7333 /* ConstraintLayoutSupportDSL.swift in Sources */,
 				B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */,
+				B4EC92D329560361005FC62E /* TopView.swift in Sources */,
 				B48BC72F281D09790093D91F /* Json2ModelVC.swift in Sources */,
 				B48A9A76292FB96500DD7333 /* ConstraintView+Extensions.swift in Sources */,
 				B48A9A61292FB96500DD7333 /* ConstraintPriorityTarget.swift in Sources */,
