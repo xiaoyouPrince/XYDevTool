@@ -21,6 +21,15 @@ class NetResquestController: NSViewController {
         // Do view setup here.
         
         
+        let t = pthread_self()
+        print(t)
+        print(t.self)
+        
+        let t2 = Thread.current
+        print(t2)
+        print(t2.self)
+        
+        
         
         
         view.xy_backgroundColor = .clear
@@ -41,37 +50,12 @@ class NetResquestController: NSViewController {
         }
         
         let dataSource = OutLineViewDataSource()
-        outlineView.backgroundColor = .yellow
-        outlineView.delegate = dataSource
-        outlineView.dataSource = dataSource
+//        outlineView.backgroundColor = .yellow
+//        outlineView.delegate = dataSource
+//        outlineView.dataSource = dataSource
         outlineView.reloadData()
     }
     
-}
-
-
-protocol BaseDataProtocol {
-    
-    /// 存储请求记录的路径
-    var requestRecordPath: String { get }
-    var history_path: String { get }
-    /// App代理
-    var appDelegate: AppDelegate { get }
-}
-
-extension BaseDataProtocol {
-    
-    var requestRecordPath: String {
-        return Bundle.main.resourcePath! + "/history.json"
-    }
-    
-    var history_path: String {
-        requestRecordPath
-    }
-
-    var appDelegate: AppDelegate {
-        return NSApplication.shared.delegate as! AppDelegate
-    }
 }
 
 
@@ -155,11 +139,5 @@ class OutLineViewDataSource: NSObject, BaseDataProtocol, NSOutlineViewDelegate, 
         
         return v
     }
-    
-//    func outlineView(_ outlineView: NSOutlineView, rowViewForItem item: Any) -> NSTableRowView? {
-//        <#code#>
-//    }
-    
-    
-    
+
 }

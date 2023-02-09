@@ -9,8 +9,8 @@
             <connections>
                 <outlet property="leftView" destination="qHQ-Wh-yi9" id="J00-D3-ccd"/>
                 <outlet property="outlineView" destination="MPk-IX-O14" id="GfD-Ri-mzv"/>
-                <outlet property="topView" destination="lxI-xm-aEf" id="fP2-JM-6bU"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="xiu-W7-dpO"/>
+                <outlet property="topView" destination="lxI-xm-aEf" id="4Eg-Mg-8hA"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="sTA-bH-Epc"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -201,7 +201,7 @@
                                                                                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lkq-ZI-FAG">
                                                                                                 <rect key="frame" x="3" y="0.0" width="17" height="17"/>
                                                                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                                                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" catalog="system" id="V7d-gH-oFz"/>
+                                                                                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="V7d-gH-oFz"/>
                                                                                             </imageView>
                                                                                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yPj-MZ-hXJ">
                                                                                                 <rect key="frame" x="25" y="0.0" width="121" height="17"/>
@@ -226,7 +226,7 @@
                                                                 <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                                             </clipView>
                                                             <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="Boe-PU-Vm8">
-                                                                <rect key="frame" x="0.0" y="361" width="23" height="16"/>
+                                                                <rect key="frame" x="0.0" y="361" width="169" height="16"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                             <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="TFw-E2-OAU">
@@ -327,11 +327,11 @@
                 <constraint firstItem="DEx-5g-jgm" firstAttribute="top" secondItem="lxI-xm-aEf" secondAttribute="bottom" id="gdE-Ia-oKF"/>
                 <constraint firstItem="1MJ-Od-dy2" firstAttribute="top" secondItem="DEx-5g-jgm" secondAttribute="bottom" id="rus-tJ-2fe"/>
             </constraints>
-            <point key="canvasLocation" x="208" y="198.5"/>
+            <point key="canvasLocation" x="-354" y="1164"/>
         </customView>
     </objects>
     <resources>
-        <image name="NSActionTemplate" catalog="system" width="15" height="15"/>
+        <image name="NSActionTemplate" width="15" height="15"/>
         <image name="NSAddTemplate" width="14" height="13"/>
         <image name="NSRemoveTemplate" width="14" height="4"/>
     </resources>

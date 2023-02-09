@@ -19,7 +19,7 @@ class LeftView: NSVisualEffectView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         
-        self.xy_backgroundColor = .yellow
+        self.xy_backgroundColor = .purple
         
         outlineView?.backgroundColor = .red
     }
@@ -29,6 +29,8 @@ class LeftView: NSVisualEffectView {
         super.draw(dirtyRect)
 
         // Drawing code here.
+        
+        outlineView?.backgroundColor = .red
     }
     
     
