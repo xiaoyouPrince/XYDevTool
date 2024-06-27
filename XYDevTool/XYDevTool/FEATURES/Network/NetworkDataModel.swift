@@ -10,6 +10,12 @@ import Foundation
 
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
+    @Published var requesName: String = ""
+    @Published var isLock: Bool = true {
+        didSet {
+            currentHistory?.isLock = isLock
+        }
+    }
     @Published var urlString: String = ""
     @Published var httpMethod: String = "GET"
     @Published var httpHeaders: String = ""
@@ -40,6 +46,8 @@ extension NetworkDataModel {
             if item.name == name {
                 self.currentHistory = item
                 
+                self.requesName = item.name ?? ""
+                self.isLock = item.isLock ?? true
                 self.urlString = item.request?.url ?? ""
                 self.httpHeaders = item.request?.header ?? ""
                 self.httpParameters = item.request?.body ?? ""
@@ -130,8 +138,8 @@ extension NetworkDataModel {
         request.httpMethod = httpMethod//methodBtn.selectedItem?.title
         
         let item = XYItem()
-        item.isLock = true//lockBtn.state.rawValue == 1
-        item.name = urlString//nameTF.stringValue
+        item.isLock = isLock
+        item.name = requesName
         let res = XYRequest()
         res.method = request.httpMethod
         res.url = request.url?.absoluteString
@@ -144,23 +152,37 @@ extension NetworkDataModel {
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
-            self.historyArray.append(item)
+            // 如果当前是选中的那个,就直接更新历史记录,否则添加一个新纪录
+            if (self.currentHistory?.name ?? "") == item.name {
+                for item_his in self.historyArray {
+                    if item.name == item_his.name {
+                        item_his.update(with: item)
+                        break
+                    }
+                }
+            } else {
+                self.historyArray.append(item)
+            }
+            
+            
             
             print("请求结果线程 - ", Thread.current)
             
             guard let data = data else {
                 
-                let errMsg = String(describing: error)
+                let errMsg = String(describing: error.debugDescription)
                 //                semaphore.signal()
                 
                 DispatchQueue.main.async {
                     //                    self.resultTV.string = errMsg
                     //self.resultView.setString(errMsg)
-                    self.status = errMsg
-                    
+                    self.status = "Failed"
+                    self.httpResponse = errMsg
                     item.response = errMsg
                     
                     //self.refreshUIAndDataBase(item: item)
+                    
+                    self.updateHistory()
                 }
                 print(errMsg)
                 return
@@ -174,13 +196,15 @@ extension NetworkDataModel {
             DispatchQueue.main.async {
                 //                self.resultTV.string = sucString
 //                self.resultView.setString(sucString)
-                self.status = sucString
+                self.status = "complete"
                 
-                item.response = "complete"
+                item.response = sucString
                 self.httpResponse = sucString
                 
                 
                 //self.refreshUIAndDataBase(item: item)
+                
+                self.updateHistory()
             }
             
             //            semaphore.signal()

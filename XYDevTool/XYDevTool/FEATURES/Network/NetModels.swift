@@ -43,7 +43,14 @@ class XYRequest: Model {
     var url: String?
 }
 
-class XYItem: Model {
+class XYItem: Model, Hashable {
+    static func == (lhs: XYItem, rhs: XYItem) -> Bool {
+        lhs.name != nil && lhs.name == rhs.name
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+    
     
     /** New Request */
     var name: String?
@@ -51,6 +58,13 @@ class XYItem: Model {
     var isLock: Bool?
     var request: XYRequest?
     var response: String?
+    
+    func update(with item: XYItem) {
+        name = item.name
+        isLock = item.isLock
+        request = item.request
+        response = item.response
+    }
 }
 
 class MyObj: Model {

@@ -20,21 +20,32 @@ struct PanelTopView: View {
     @State private var selectedFlavor: Flavor = .chocolate
     
     var body: some View {
-        HStack {
-            Text("URL:")
-            TextField("输入请求地址", text: $dataModel.urlString)
-                .textFieldStyle(.roundedBorder)
+        VStack {
+            HStack {
+                Text("Name:")
+                TextField("输入请求名称, 后续作为请求标记(默认使用 url 地址)", text: $dataModel.requesName)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.trailing, 25)
+                
+                Toggle("🔒", isOn: $dataModel.isLock)
+            }
             
-            Picker("Method:", selection: $selectedFlavor) {
-                ForEach(Flavor.allCases) { flavor in
-                    Text(flavor.rawValue.capitalized)
-                        .tag(flavor)
+            HStack {
+                Text("URL:")
+                TextField("输入请求地址", text: $dataModel.urlString)
+                    .textFieldStyle(.roundedBorder)
+                
+                Picker("Method:", selection: $selectedFlavor) {
+                    ForEach(Flavor.allCases) { flavor in
+                        Text(flavor.rawValue.capitalized)
+                            .tag(flavor)
+                    }
+                }.frame(width: 170)
+                
+                Button("Submit") {
+                    print("action")
+                    dataModel.makeRequest()
                 }
-            }.frame(width: 170)
-            
-            Button("Submit") {
-                print("action")
-                dataModel.makeRequest()
             }
         }.frame(height: 60)
             .padding()
