@@ -9,8 +9,18 @@
 import SwiftUI
 
 struct PanelResponceView: View {
+    @EnvironmentObject var dataModel: NetworkDataModel
+    
     var body: some View {
-        Text("响应")
+        ZStack {
+            Color.blue
+            HStack {
+                VStack {
+                    Text("请求结果")
+                    TextEditor(text: $dataModel.httpResponse)
+                }
+            }
+        }
     }
 }
 

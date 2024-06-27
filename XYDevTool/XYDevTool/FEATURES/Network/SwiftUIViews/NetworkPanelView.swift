@@ -24,6 +24,7 @@ struct NetworkPanelView: View {
         }
             .frame(minWidth: 350, idealWidth: 700, maxWidth: NSScreen.main?.frame.size.width,
             minHeight: 200, idealHeight: 450, maxHeight: NSScreen.main?.frame.size.height)
+            
     }
 }
 

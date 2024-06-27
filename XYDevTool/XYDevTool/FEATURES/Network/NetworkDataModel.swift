@@ -12,6 +12,9 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     @Published var urlString: String = ""
     @Published var httpMethod: String = "GET"
+    @Published var httpHeaders: String = ""
+    @Published var httpParameters: String = ""
+    @Published var httpResponse: String = ""
     @Published var historyArray: [XYItem] = [] {
         didSet {
             print("didset")
@@ -19,6 +22,8 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
         }
     }
     @Published var status: String = "Ready"
+    
+    @Published private(set) var currentHistory: XYItem?
     
     init() {
         // init history
@@ -29,6 +34,20 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
 }
 
 extension NetworkDataModel {
+    
+    func setCurrentHistory(with name: String) {
+        for item in historyArray {
+            if item.name == name {
+                self.currentHistory = item
+                
+                self.urlString = item.request?.url ?? ""
+                self.httpHeaders = item.request?.header ?? ""
+                self.httpParameters = item.request?.body ?? ""
+                self.httpResponse = item.response ?? ""
+                break
+            }
+        }
+    }
     
     func updateHistory() {
         
@@ -157,7 +176,8 @@ extension NetworkDataModel {
 //                self.resultView.setString(sucString)
                 self.status = sucString
                 
-                item.response = sucString
+                item.response = "complete"
+                self.httpResponse = sucString
                 
                 
                 //self.refreshUIAndDataBase(item: item)

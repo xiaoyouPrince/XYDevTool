@@ -11,14 +11,26 @@ import SwiftUI
 struct PanelHistoryView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
     
+    @State private var selectedItem: String? = nil
+    
     var body: some View {
         List {
             Section {
                 ForEach(dataModel.historyArray.indices, id: \.self) { idx in
-                    Text("\(dataModel.historyArray[idx].name ?? "")")
-                        .onTapGesture {
-                            print(dataModel.historyArray[idx].name ?? "")
+                    
+                    let hisName = dataModel.historyArray[idx].name ?? ""
+                    ZStack {
+                        self.selectedItem == hisName ? Color.blue.opacity(0.5) : Color.blue.opacity(0.1)
+                        HStack {
+                            Text(hisName)
+                                .font(.body)
+                            Spacer()
                         }
+                    }.onTapGesture {
+                        selectedItem = hisName
+                        dataModel.setCurrentHistory(with: hisName)
+                        print(hisName)
+                    }
                 }
             } header: {
                 HStack {

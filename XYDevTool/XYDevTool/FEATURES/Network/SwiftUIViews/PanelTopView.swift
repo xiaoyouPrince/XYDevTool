@@ -28,6 +28,7 @@ struct PanelTopView: View {
             Picker("Method:", selection: $selectedFlavor) {
                 ForEach(Flavor.allCases) { flavor in
                     Text(flavor.rawValue.capitalized)
+                        .tag(flavor)
                 }
             }.frame(width: 170)
             
@@ -44,9 +45,9 @@ struct PanelTopView: View {
     
     var bgColor: Color {
         if colorScheme == .dark {
-            return .black
+            return .cyan.opacity(0.25)
         } else {
-            return .white
+            return .blue.opacity(0.25)
         }
     }
 }
