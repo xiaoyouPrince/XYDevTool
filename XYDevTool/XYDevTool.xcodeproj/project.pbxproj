@@ -409,6 +409,13 @@
 		B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */; };
 		B4C374E1285F688400266440 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C374E0285F688400266440 /* Tools.swift */; };
 		B4D23BC9283D1A620081F400 /* NSTextView+LineNumberRulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */; };
+		B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA90762C2C2805000A6667 /* NetworkPanelView.swift */; };
+		B4DA907A2C2C2D3C000A6667 /* PanelTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA90792C2C2D3C000A6667 /* PanelTopView.swift */; };
+		B4DA907C2C2C4375000A6667 /* NetworkDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA907B2C2C4375000A6667 /* NetworkDataModel.swift */; };
+		B4DA907E2C2C4BDE000A6667 /* PanelHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA907D2C2C4BDE000A6667 /* PanelHistoryView.swift */; };
+		B4DA90802C2C4C1C000A6667 /* PanelRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA907F2C2C4C1C000A6667 /* PanelRequestView.swift */; };
+		B4DA90822C2C4C31000A6667 /* PanelResponceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA90812C2C4C31000A6667 /* PanelResponceView.swift */; };
+		B4DA90842C2C4C46000A6667 /* PanelStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA90832C2C4C46000A6667 /* PanelStatusView.swift */; };
 		B4DB4BA1283936AC00AF654D /* UpgradeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */; };
 		B4DB4BA2283936AC00AF654D /* UpgradeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */; };
 		B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC92CB29533F66005FC62E /* NetResquestController.swift */; };
@@ -848,6 +855,13 @@
 		B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XYDevTool-Bridging-Header.h"; sourceTree = "<group>"; };
 		B4C374E0285F688400266440 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSTextView+LineNumberRulerView.swift"; sourceTree = "<group>"; };
+		B4DA90762C2C2805000A6667 /* NetworkPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPanelView.swift; sourceTree = "<group>"; };
+		B4DA90792C2C2D3C000A6667 /* PanelTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTopView.swift; sourceTree = "<group>"; };
+		B4DA907B2C2C4375000A6667 /* NetworkDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDataModel.swift; sourceTree = "<group>"; };
+		B4DA907D2C2C4BDE000A6667 /* PanelHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelHistoryView.swift; sourceTree = "<group>"; };
+		B4DA907F2C2C4C1C000A6667 /* PanelRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelRequestView.swift; sourceTree = "<group>"; };
+		B4DA90812C2C4C31000A6667 /* PanelResponceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelResponceView.swift; sourceTree = "<group>"; };
+		B4DA90832C2C4C46000A6667 /* PanelStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelStatusView.swift; sourceTree = "<group>"; };
 		B4DB4B9F283936AC00AF654D /* UpgradeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeViewController.swift; sourceTree = "<group>"; };
 		B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UpgradeViewController.xib; sourceTree = "<group>"; };
 		B4EC92CB29533F66005FC62E /* NetResquestController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetResquestController.swift; sourceTree = "<group>"; };
@@ -1535,6 +1549,19 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		B4DA90782C2C2CF7000A6667 /* SwiftUIViews */ = {
+			isa = PBXGroup;
+			children = (
+				B4DA90762C2C2805000A6667 /* NetworkPanelView.swift */,
+				B4DA90792C2C2D3C000A6667 /* PanelTopView.swift */,
+				B4DA907D2C2C4BDE000A6667 /* PanelHistoryView.swift */,
+				B4DA907F2C2C4C1C000A6667 /* PanelRequestView.swift */,
+				B4DA90812C2C4C31000A6667 /* PanelResponceView.swift */,
+				B4DA90832C2C4C46000A6667 /* PanelStatusView.swift */,
+			);
+			path = SwiftUIViews;
+			sourceTree = "<group>";
+		};
 		B4EC92D1295602F9005FC62E /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -1596,6 +1623,8 @@
 		B4F61DC2282AA189006FAC35 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				B4DA907B2C2C4375000A6667 /* NetworkDataModel.swift */,
+				B4DA90782C2C2CF7000A6667 /* SwiftUIViews */,
 				B4EC92D1295602F9005FC62E /* View */,
 				B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */,
 				B4F61DC3282AA276006FAC35 /* Network.storyboard */,
@@ -2066,8 +2095,10 @@
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
 				B48A9A5D292FB96500DD7333 /* ConstraintMakerPrioritizable.swift in Sources */,
 				B48A9A78292FB96500DD7333 /* Constraint.swift in Sources */,
+				B4DA907E2C2C4BDE000A6667 /* PanelHistoryView.swift in Sources */,
 				B48A9A6D292FB96500DD7333 /* ConstraintLayoutGuide.swift in Sources */,
 				B48A9A60292FB96500DD7333 /* ConstraintViewDSL.swift in Sources */,
+				B4DA907A2C2C2D3C000A6667 /* PanelTopView.swift in Sources */,
 				B439DE04293366A100E1CD02 /* ACEThemeNames.m in Sources */,
 				B48A9A62292FB96500DD7333 /* ConstraintInsets.swift in Sources */,
 				B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */,
@@ -2087,10 +2118,13 @@
 				B48A9A5E292FB96500DD7333 /* ConstraintDescription.swift in Sources */,
 				B48A9A71292FB96500DD7333 /* ConstraintOffsetTarget.swift in Sources */,
 				B4EC92D529560392005FC62E /* LeftView.swift in Sources */,
+				B4DA90822C2C4C31000A6667 /* PanelResponceView.swift in Sources */,
 				B48A9A79292FB96500DD7333 /* Debugging.swift in Sources */,
 				B48A9A6F292FB96500DD7333 /* Typealiases.swift in Sources */,
+				B4DA907C2C2C4375000A6667 /* NetworkDataModel.swift in Sources */,
 				B439DE07293366A100E1CD02 /* ACEModeNames.m in Sources */,
 				B48A9A67292FB96500DD7333 /* ConstraintInsetTarget.swift in Sources */,
+				B4DA90802C2C4C1C000A6667 /* PanelRequestView.swift in Sources */,
 				B48A9A66292FB96500DD7333 /* ConstraintPriority.swift in Sources */,
 				B48A9A7E292FB96500DD7333 /* ConstraintLayoutSupportDSL.swift in Sources */,
 				B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */,
@@ -2113,8 +2147,10 @@
 				B48A9A6A292FB96500DD7333 /* ConstraintConfig.swift in Sources */,
 				B4EC92D02954A526005FC62E /* NSView+XYDev.swift in Sources */,
 				B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */,
+				B4DA90842C2C4C46000A6667 /* PanelStatusView.swift in Sources */,
 				B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
+				B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */,
 				B48A9A5B292FB96500DD7333 /* ConstraintMultiplierTarget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2279,6 +2315,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13;
 				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.xiaoyou.XYDevTool.no-team";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2312,6 +2349,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13;
 				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.xiaoyou.XYDevTool.no-team";
 				PRODUCT_NAME = "$(TARGET_NAME)";

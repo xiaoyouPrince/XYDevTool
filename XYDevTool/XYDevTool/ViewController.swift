@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import SwiftUI
 
 class ViewController: NSViewController {
 
@@ -41,16 +42,44 @@ class ViewController: NSViewController {
 
     @IBAction func networkClick(_ sender: Any) {
         
-        let settingVC = NetResquestController()
-//        settingVC.fileConfigChangedClosure = { [weak self] in
-//            self?.generateClasses()
-//        }
+//        let settingVC = NetResquestController()
+////        settingVC.fileConfigChangedClosure = { [weak self] in
+////            self?.generateClasses()
+////        }
+//        
+//        presentAsModalWindow(settingVC)
         
-        presentAsModalWindow(settingVC)
+        print("net work click")
         
         
+//        let networkVC = NSHostingController(rootView: NetworkPanelView())
+//        presentAsModalWindow(networkVC)
+        
+        openNewWindow()
         
         
+    }
+    
+    func openNewWindow() {
+        let newWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 300),
+            styleMask: [.titled, .closable, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false)
+        
+        newWindow.center()
+        newWindow.title = "网络请求"
+        newWindow.isReleasedWhenClosed = false
+        
+        let hostingController = NSHostingController(rootView: 
+                                                        NetworkPanelView()
+            .environmentObject(NetworkDataModel())
+            
+        )
+        newWindow.contentView = hostingController.view
+        
+        let windowController = NSWindowController(window: newWindow)
+        windowController.showWindow(self)
     }
     
 }

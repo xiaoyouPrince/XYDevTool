@@ -18,19 +18,6 @@ class NetResquestController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
-        
-        
-        let t = pthread_self()
-        print(t)
-        print(t.self)
-        
-        let t2 = Thread.current
-        print(t2)
-        print(t2.self)
-        
-        
-        
         
         view.xy_backgroundColor = .clear
         
