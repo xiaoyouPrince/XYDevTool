@@ -8,16 +8,14 @@
 
 import SwiftUI
 
+enum HttpMethod: String, CaseIterable, Identifiable {
+    case get, post
+    var id: Self { self }
+}
+
 struct PanelTopView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
     @Environment(\.colorScheme) var colorScheme
-    
-    enum Flavor: String, CaseIterable, Identifiable {
-        case chocolate, vanilla, strawberry
-        var id: Self { self }
-    }
-    
-    @State private var selectedFlavor: Flavor = .chocolate
     
     var body: some View {
         VStack {
@@ -35,10 +33,10 @@ struct PanelTopView: View {
                 TextField("输入请求地址", text: $dataModel.urlString)
                     .textFieldStyle(.roundedBorder)
                 
-                Picker("Method:", selection: $selectedFlavor) {
-                    ForEach(Flavor.allCases) { flavor in
-                        Text(flavor.rawValue.capitalized)
-                            .tag(flavor)
+                Picker("Method:", selection: $dataModel.httpMethod) {
+                    ForEach(HttpMethod.allCases) { method in
+                        Text(method.rawValue.uppercased())
+                            .tag(method)
                     }
                 }.frame(width: 170)
                 

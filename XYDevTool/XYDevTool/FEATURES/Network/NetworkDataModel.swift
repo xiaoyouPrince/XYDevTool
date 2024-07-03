@@ -17,7 +17,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
         }
     }
     @Published var urlString: String = ""
-    @Published var httpMethod: String = "GET"
+    @Published var httpMethod: HttpMethod = .get
     @Published var httpHeaders: String = ""
     @Published var httpParameters: String = ""
     @Published var httpResponse: String = ""
@@ -135,7 +135,7 @@ extension NetworkDataModel {
             request.addValue(value, forHTTPHeaderField: key)
         }
         
-        request.httpMethod = httpMethod//methodBtn.selectedItem?.title
+        request.httpMethod = httpMethod.rawValue.uppercased()//methodBtn.selectedItem?.title
         
         let item = XYItem()
         item.isLock = isLock
