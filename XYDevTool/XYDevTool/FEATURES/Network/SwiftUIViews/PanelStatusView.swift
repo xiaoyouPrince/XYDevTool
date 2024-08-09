@@ -17,7 +17,8 @@ struct PanelStatusView: View {
             Spacer()
         }).frame(height: 30)
             .padding(.horizontal)
-            .background(Color.black.opacity(0.3))
+            .background(.windowBackground)
+            .border(.background)
         
     }
 }

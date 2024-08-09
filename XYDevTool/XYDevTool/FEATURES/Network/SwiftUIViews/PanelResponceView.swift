@@ -13,11 +13,15 @@ struct PanelResponceView: View {
     
     var body: some View {
         ZStack {
-            Color.blue
             HStack {
                 VStack {
-                    Text("请求结果")
-                    TextEditor(text: $dataModel.httpResponse)
+                    HStack {
+                        Text("请求结果")
+                        Spacer()
+                    }
+                    CustomTextEditor(text: $dataModel.httpResponse)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .border(.background, width: 1)
                 }
             }
         }

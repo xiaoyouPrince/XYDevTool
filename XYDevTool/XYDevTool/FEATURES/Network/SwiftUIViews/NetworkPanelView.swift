@@ -12,13 +12,12 @@ struct NetworkPanelView: View {
     var body: some View {
         VStack {
             PanelTopView()
-            Spacer()
             HStack {
                 PanelHistoryView()
                 VStack {
                     PanelRequestView()
                     PanelResponceView()
-                }
+                }.padding(.trailing, 8)
             }
             PanelStatusView()
         }
