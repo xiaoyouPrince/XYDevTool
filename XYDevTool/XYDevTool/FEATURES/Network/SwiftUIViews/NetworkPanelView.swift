@@ -12,6 +12,8 @@ struct NetworkPanelView: View {
     @State private var leftWidth: CGFloat = 250 // 初始左侧视图宽度
     @State private var dividerWidth: CGFloat = 10 // 分隔线宽度
     
+    @State private var topHeight: CGFloat = 200 // 初始上侧视图高度
+    @State private var dividerHeight: CGFloat = 10 // 分隔线高度
     
     var body: some View {
         GeometryReader { geometry in
@@ -22,11 +24,15 @@ struct NetworkPanelView: View {
                         .frame(width: leftWidth)
                     
                     // 可拖拽的分隔线
-                    //DividerView(leftWidth: $leftWidth, dividerWidth: $dividerWidth)
-                    DividerView(leftWidth: self.$leftWidth, dividerWidth: self.$dividerWidth, totalWidth: geometry.size.width)
+                    HDividerView(leftWidth: self.$leftWidth, dividerWidth: self.$dividerWidth, totalWidth: geometry.size.width)
                     
                     VStack {
                         PanelRequestView()
+                            .frame(height: min(max(self.topHeight, 50), 200))
+                        
+                        // 可拖拽的分隔线
+                        VDividerView(topHeight: self.$topHeight, dividerHeight: self.$dividerHeight, totalHeight: geometry.size.height)
+                        
                         PanelResponceView()
                     }.padding(.trailing, 8)
                 }
@@ -40,33 +46,5 @@ struct NetworkPanelView: View {
 
 #Preview {
     NetworkPanelView()
-}
-
-struct DividerView: View {
-    @Binding var leftWidth: CGFloat
-    @Binding var dividerWidth: CGFloat
-    var totalWidth: CGFloat
-    @State private var lastLocation: CGPoint = .zero
-    
-    var body: some View {
-        Rectangle()
-            .fill(Color.gray)
-            .frame(width: dividerWidth)
-            .gesture(
-                DragGesture()
-                    .onChanged { value in
-                        let newWidth = self.leftWidth + value.translation.width
-                        if newWidth >= 0 && newWidth <= self.totalWidth - self.dividerWidth {
-                            self.leftWidth = newWidth
-                        }
-                    }
-            )
-            .onAppear {
-                self.lastLocation = CGPoint(x: self.leftWidth + self.dividerWidth / 2, y: 0)
-            }
-            .transaction { transaction in
-                transaction.animation = nil // 禁用动画
-            }
-    }
 }
 
