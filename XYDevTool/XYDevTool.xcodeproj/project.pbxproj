@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B40376D1284DFB1E00284AE0 /* String+XYDev.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40376D0284DFB1E00284AE0 /* String+XYDev.swift */; };
+		B41895402C66742100C8CC86 /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B418953F2C66742100C8CC86 /* CustomTextEditor.swift */; };
 		B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43606232957F381005A06A9 /* BaseDataProtocol.swift */; };
 		B439DE01293366A100E1CD02 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B439DC98293366A000E1CD02 /* InfoPlist.strings */; };
 		B439DE02293366A100E1CD02 /* ACEView.m in Sources */ = {isa = PBXBuildFile; fileRef = B439DC9B293366A000E1CD02 /* ACEView.m */; };
@@ -435,6 +436,7 @@
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		975D17A7F6E8691978F8836B /* Pods-XYDevTool.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.release.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.release.xcconfig"; sourceTree = "<group>"; };
 		B40376D0284DFB1E00284AE0 /* String+XYDev.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+XYDev.swift"; sourceTree = "<group>"; };
+		B418953F2C66742100C8CC86 /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		B43606232957F381005A06A9 /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
 		B439DC99293366A000E1CD02 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B439DC9B293366A000E1CD02 /* ACEView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEView.m; sourceTree = "<group>"; };
@@ -1558,6 +1560,7 @@
 				B4DA907F2C2C4C1C000A6667 /* PanelRequestView.swift */,
 				B4DA90812C2C4C31000A6667 /* PanelResponceView.swift */,
 				B4DA90832C2C4C46000A6667 /* PanelStatusView.swift */,
+				B418953F2C66742100C8CC86 /* CustomTextEditor.swift */,
 			);
 			path = SwiftUIViews;
 			sourceTree = "<group>";
@@ -2126,6 +2129,7 @@
 				B48A9A67292FB96500DD7333 /* ConstraintInsetTarget.swift in Sources */,
 				B4DA90802C2C4C1C000A6667 /* PanelRequestView.swift in Sources */,
 				B48A9A66292FB96500DD7333 /* ConstraintPriority.swift in Sources */,
+				B41895402C66742100C8CC86 /* CustomTextEditor.swift in Sources */,
 				B48A9A7E292FB96500DD7333 /* ConstraintLayoutSupportDSL.swift in Sources */,
 				B4A3AD5E28214876001FD2B3 /* XYDevFunctions.swift in Sources */,
 				B4EC92D329560361005FC62E /* TopView.swift in Sources */,
@@ -2315,7 +2319,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.xiaoyou.XYDevTool.no-team";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2349,7 +2353,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.xiaoyou.XYDevTool.no-team";
 				PRODUCT_NAME = "$(TARGET_NAME)";

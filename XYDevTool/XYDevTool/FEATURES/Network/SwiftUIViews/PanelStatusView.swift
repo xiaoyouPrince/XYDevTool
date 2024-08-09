@@ -17,7 +17,7 @@ struct PanelStatusView: View {
             Spacer()
         }).frame(height: 30)
             .padding(.horizontal)
-            .background(.windowBackground)
+            .background(Color(nsColor: .windowBackgroundColor))
             .border(.background)
         
     }
