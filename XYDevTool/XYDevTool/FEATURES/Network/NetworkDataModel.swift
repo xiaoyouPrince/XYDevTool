@@ -84,15 +84,12 @@ extension NetworkDataModel {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
-        //        self.resultTV.string = "请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！"
         status = ("请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！")
         
-        //        let semaphore = DispatchSemaphore (value: 0)
-        
         var headerDict: [String: String] = [:]
-//        if let headers = headerTCV.string.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: String]{
-//            headerDict = dict
-//        }
+        if let headers = self.httpHeaders.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: String]{
+            headerDict = dict
+        }
         
         let parameters = ""//bodyTV.string
         let postData = parameters.data(using: .utf8)
@@ -153,35 +150,33 @@ extension NetworkDataModel {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             // 如果当前是选中的那个,就直接更新历史记录,否则添加一个新纪录
+            var updateItem: XYItem? = nil
             if (self.currentHistory?.name ?? "") == item.name {
                 for item_his in self.historyArray {
                     if item.name == item_his.name {
                         item_his.update(with: item)
+                        updateItem = item_his
                         break
                     }
                 }
             } else {
                 self.historyArray.append(item)
             }
-            
-            
-            
             print("请求结果线程 - ", Thread.current)
             
             guard let data = data else {
-                
                 let errMsg = String(describing: error.debugDescription)
-                //                semaphore.signal()
-                
                 DispatchQueue.main.async {
-                    //                    self.resultTV.string = errMsg
-                    //self.resultView.setString(errMsg)
                     self.status = "Failed"
                     self.httpResponse = errMsg
                     item.response = errMsg
-                    
-                    //self.refreshUIAndDataBase(item: item)
-                    
+                    if let updateItem = updateItem,
+                       let index = self.historyArray.firstIndex(where: { item in
+                           item.name == updateItem.name})
+                    {
+                        updateItem.response = errMsg
+                        self.historyArray.replaceSubrange(index...index, with: [updateItem])
+                    }
                     self.updateHistory()
                 }
                 print(errMsg)
@@ -194,20 +189,19 @@ extension NetworkDataModel {
             }
             print("请求成功,结果如下:\n",sucString)
             DispatchQueue.main.async {
-                //                self.resultTV.string = sucString
-//                self.resultView.setString(sucString)
                 self.status = "complete"
                 
                 item.response = sucString
                 self.httpResponse = sucString
-                
-                
-                //self.refreshUIAndDataBase(item: item)
-                
+                if let updateItem = updateItem,
+                   let index = self.historyArray.firstIndex(where: { item in
+                       item.name == updateItem.name})
+                {
+                    updateItem.response = sucString
+                    self.historyArray.replaceSubrange(index...index, with: [updateItem])
+                }
                 self.updateHistory()
             }
-            
-            //            semaphore.signal()
         }
         
         print("准备发起请求线程 - ", Thread.current)
@@ -215,8 +209,6 @@ extension NetworkDataModel {
             print("发起请求线程 - ", Thread.current)
             task.resume()
         }
-        
-        //        semaphore.wait()
         
         // 每次请求之后保存到本地。 暂时以 URL 做key，去重，后续扩展一个用户自定义名称来做 key
         
