@@ -48,8 +48,6 @@ struct PanelTopView: View {
         }.frame(height: 60)
             .padding()
             .background(bgColor)
-        
-        Text(dataModel.urlString)
     }
     
     var bgColor: Color {

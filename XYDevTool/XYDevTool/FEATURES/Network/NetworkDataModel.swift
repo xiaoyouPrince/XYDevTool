@@ -91,7 +91,7 @@ extension NetworkDataModel {
             headerDict = dict
         }
         
-        let parameters = ""//bodyTV.string
+        let parameters = httpParameters
         let postData = parameters.data(using: .utf8)
         
         // md: 这不是 Apple 的问题就是接口的问题。
@@ -102,30 +102,33 @@ extension NetworkDataModel {
         //var request = URLRequest(url: URL(string: "http://b-officialaccountresume-officialaccountresume.zpidc.com/adminService/sendRecommendActiveStaffEvent")!,timeoutInterval: Double.infinity)
         
         var request: URLRequest! = nil
-//        if methodBtn.selectedItem?.title == "POST" {
-//            request = URLRequest(url: URL(string: urlTF.stringValue)!, timeoutInterval: Double.infinity)
-//            request.httpBody = postData
-//        }else{// GET
-            var params = ""
-//            if let bodyDict = srting2JsonObject(string: bodyTV.string) {
-//                for (index, kv) in bodyDict.enumerated() {
-//                    if index == 0 {
-//                        params += "?" + "\(kv.key)=\(kv.value)"
-//                    }else{
-//                        params += "&" + "\(kv.key)=\(kv.value)"
-//                    }
-//                }
-//            }
-//            
-//            if urlTF.stringValue.contains(where: {$0 == "?"}), let index = urlTF.stringValue.firstIndex(of: "?") {
-//                
-//                if params.isEmpty == false { // GET 请求， URL有参数且也输入了 JOSN 参数，按JSON 参数取值
-//                    urlTF.stringValue = String(urlTF.stringValue[urlTF.stringValue.startIndex..<index])
-//                }
-//            }
-//            
+        if httpMethod == .post {
             request = URLRequest(url: URL(string: urlString)!, timeoutInterval: Double.infinity)
-//        }
+            request.httpBody = postData
+        } else {// GET
+            var params = ""
+            if let bodyDict = srting2JsonObject(string: httpParameters) {
+                for (index, kv) in bodyDict.enumerated() {
+                    if index == 0 {
+                        params += "?" + "\(kv.key)=\(kv.value)"
+                    } else {
+                        params += "&" + "\(kv.key)=\(kv.value)"
+                    }
+                }
+            }
+            
+            if urlString.contains(where: {$0 == "?"}), let index = urlString.firstIndex(of: "?") {
+                
+                if params.isEmpty == false { // GET 请求， URL有参数且也输入了 JOSN 参数，按JSON 参数取值
+                    urlString = String(urlString[urlString.startIndex..<index])
+                    
+                }
+            }
+            
+            urlString += params
+            
+            request = URLRequest(url: URL(string: urlString)!, timeoutInterval: Double.infinity)
+        }
         
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         for (key,value) in headerDict {
@@ -139,9 +142,9 @@ extension NetworkDataModel {
         item.name = requesName
         let res = XYRequest()
         res.method = request.httpMethod
-        res.url = request.url?.absoluteString
-        res.header = headerDict.toString() ?? ""
-        //res.body = bodyTV.string
+        res.url = urlString
+        res.header = httpHeaders
+        res.body = httpParameters
         item.request = res
         if item.name?.isEmpty == true {
             item.name = request.url?.host
