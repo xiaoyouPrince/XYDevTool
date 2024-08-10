@@ -411,6 +411,7 @@
 		B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06F281EC5D000C34DD8 /* mac_icon.sh */; };
 		B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */; };
 		B4C374E1285F688400266440 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C374E0285F688400266440 /* Tools.swift */; };
+		B4CC2CBB2C67D5BA000F4F16 /* Dictionary+XYAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CC2CBA2C67D5BA000F4F16 /* Dictionary+XYAdd.swift */; };
 		B4D23BC9283D1A620081F400 /* NSTextView+LineNumberRulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */; };
 		B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA90762C2C2805000A6667 /* NetworkPanelView.swift */; };
 		B4DA907A2C2C2D3C000A6667 /* PanelTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DA90792C2C2D3C000A6667 /* PanelTopView.swift */; };
@@ -429,7 +430,6 @@
 		B4F61DBF282A3E18006FAC35 /* JSON2Model.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */; };
 		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
 		B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC3282AA276006FAC35 /* Network.storyboard */; };
-		B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */; };
 		B4F61DC8282ABCAD006FAC35 /* XYNetTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */; };
 		C40F6CEA7546C13C8E23D087 /* Pods_XYDevTool.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */; };
 /* End PBXBuildFile section */
@@ -860,6 +860,7 @@
 		B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPrivilegedTask.m; sourceTree = "<group>"; };
 		B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XYDevTool-Bridging-Header.h"; sourceTree = "<group>"; };
 		B4C374E0285F688400266440 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
+		B4CC2CBA2C67D5BA000F4F16 /* Dictionary+XYAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+XYAdd.swift"; sourceTree = "<group>"; };
 		B4D23BC8283D1A620081F400 /* NSTextView+LineNumberRulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSTextView+LineNumberRulerView.swift"; sourceTree = "<group>"; };
 		B4DA90762C2C2805000A6667 /* NetworkPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPanelView.swift; sourceTree = "<group>"; };
 		B4DA90792C2C2D3C000A6667 /* PanelTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelTopView.swift; sourceTree = "<group>"; };
@@ -878,7 +879,6 @@
 		B4F61DBE282A3E18006FAC35 /* JSON2Model.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = JSON2Model.storyboard; sourceTree = "<group>"; };
 		B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateMacIcons.storyboard; sourceTree = "<group>"; };
 		B4F61DC3282AA276006FAC35 /* Network.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Network.storyboard; sourceTree = "<group>"; };
-		B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetRequestVC.swift; sourceTree = "<group>"; };
 		B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XYNetTool.swift; sourceTree = "<group>"; };
 		B4F61DC9282AC4CD006FAC35 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CA6AF161DDDF8C3A49BF6B5E /* Pods-XYDevTool.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.debug.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1551,6 +1551,7 @@
 				B40376D0284DFB1E00284AE0 /* String+XYDev.swift */,
 				B4C374E0285F688400266440 /* Tools.swift */,
 				B4EC92CF2954A526005FC62E /* NSView+XYDev.swift */,
+				B4CC2CBA2C67D5BA000F4F16 /* Dictionary+XYAdd.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1637,7 +1638,6 @@
 				B4EC92D1295602F9005FC62E /* View */,
 				B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */,
 				B4F61DC3282AA276006FAC35 /* Network.storyboard */,
-				B4F61DC5282AA297006FAC35 /* NetRequestVC.swift */,
 				B471DB91282BAB1F002146A1 /* NetModels.swift */,
 				B4EC92CB29533F66005FC62E /* NetResquestController.swift */,
 				B4EC92CC29533F66005FC62E /* NetResquestController.xib */,
@@ -2111,7 +2111,6 @@
 				B4DA907A2C2C2D3C000A6667 /* PanelTopView.swift in Sources */,
 				B439DE04293366A100E1CD02 /* ACEThemeNames.m in Sources */,
 				B48A9A62292FB96500DD7333 /* ConstraintInsets.swift in Sources */,
-				B4F61DC6282AA297006FAC35 /* NetRequestVC.swift in Sources */,
 				B48A9A6E292FB96500DD7333 /* ConstraintLayoutSupport.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
 				B48A9A64292FB96500DD7333 /* ConstraintDSL.swift in Sources */,
@@ -2161,6 +2160,7 @@
 				B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */,
 				B4DA90842C2C4C46000A6667 /* PanelStatusView.swift in Sources */,
 				B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */,
+				B4CC2CBB2C67D5BA000F4F16 /* Dictionary+XYAdd.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
 				B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */,
 				B48A9A5B292FB96500DD7333 /* ConstraintMultiplierTarget.swift in Sources */,

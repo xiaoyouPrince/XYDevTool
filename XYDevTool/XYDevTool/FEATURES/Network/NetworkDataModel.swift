@@ -87,24 +87,30 @@ extension NetworkDataModel {
         status = ("请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！")
         
         var headerDict: [String: String] = [:]
-        if let headers = self.httpHeaders.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: String]{
-            headerDict = dict
+        if let headers = self.httpHeaders.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: Any]{
+            headerDict = dict.reduce([:], { partialResult, new in
+                var partialResult = partialResult
+                partialResult[new.key] = "\(new.value)"
+                return partialResult
+            })
         }
         
-        let parameters = httpParameters
-        let postData = parameters.data(using: .utf8)
+        var parameters: [String: Any] = [:]
+        if let params = httpParameters.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: params, options: .fragmentsAllowed) as? [String: Any] {
+            parameters = dict
+        }
         
-        // md: 这不是 Apple 的问题就是接口的问题。
-        // 下面两个创建 request 的方式必须要直接用 string 实例来创建，草。。。浪费大半天时间
-        // md: 必须直接用 urlTF.stringValue 创建 URL，入参数是 上面 url.absoutString 都不行
-        // 实际上都能建立链接，但是接口返回的 下面的方式就是 200，反之就是 404 找不到请求的路径。 fuck！！！
+        // 这里确保使用脚本签名更正过的值
+        // 先写死
+        let hp = correct(headers: headerDict, params: parameters)
+        headerDict = hp.headers
+        parameters = hp.params
         
-        //var request = URLRequest(url: URL(string: "http://b-officialaccountresume-officialaccountresume.zpidc.com/adminService/sendRecommendActiveStaffEvent")!,timeoutInterval: Double.infinity)
-        
+    
         var request: URLRequest! = nil
         if httpMethod == .post {
             request = URLRequest(url: URL(string: urlString)!, timeoutInterval: Double.infinity)
-            request.httpBody = postData
+            request.httpBody = parameters.toData()
         } else {// GET
             var params = ""
             if let bodyDict = srting2JsonObject(string: httpParameters) {
@@ -213,9 +219,73 @@ extension NetworkDataModel {
             task.resume()
         }
         
-        // 每次请求之后保存到本地。 暂时以 URL 做key，去重，后续扩展一个用户自定义名称来做 key
         
-        
-        
+        //-------
+        XYNetTool.post(url: URL(string: urlString)!, paramters: parameters, headers: headerDict) { result in
+            print("请求成功 - \n\(result)")
+        } failure: { errMsg in
+            print("请求失败 - \n\(errMsg)")
+        }
+
     }
 }
+
+extension NetworkDataModel {
+
+    /// 这里做更正 header 和 parameters, 为之后抽取出公用脚本准备
+    /// - Parameters:
+    ///   - headers: 用户直接设置的头
+    ///   - params: 用户直接设置的请求参数
+    /// - Returns: 处理之后的请求头和参数
+    func correct(headers: [String: String], params: [String: Any]) -> (headers: [String: String], params: [String: Any]) {
+        
+        var headers = headers
+        var parameters = params
+        
+        parameters.updateValue([
+            "platform": "iPhone",
+            "platformVersion": "18",
+            "versionName": "1.17.0",
+            "versionCode": "1",
+            "timezone": TimeZone.current.identifier,
+            "width": "375",
+            "height": "667",
+        ], forKey: "client")
+        
+        let SECRETKEY = "b2zf3etid4beca121xasi9cwkfdc29p"
+        
+        let time = String(Int(Date().timeIntervalSince1970 * 1000))
+        let string = parameters.toJsonString() + SECRETKEY + time
+        let sign = string.md5
+        let token = "Ak+LXVNQVAMDUndoYHsK.Ak8NUEBQVBAoMHJgYWxFSExBRlRMAkwbKzl0bWdqQkNAWEgTVh0KAyUjOQVwKxIWEB4QVEYmB0x6XWBjY25GQUBeUQMNR1sRKC0eeycqEgMwCTgTDkBfF2IjPw==.z4UJm3rdQiKDc9onU9FC8XkhelqnmltT/LediF6hcsrAbCr1kdhBVpuN5BIV3cwEmPnMAivOrKw0c1tXr++U6w=="
+        
+        headers.updateValue(time, forKey: "Time")
+        headers.updateValue(sign.uppercased(), forKey: "Sign")
+        headers.updateValue(token, forKey: "Token")
+        headers.updateValue("application/json", forKey: "Content-Type")
+//        headers.updateValue(userAgent, forKey: "User-Agent")
+        
+        return (headers, parameters)
+    }
+    
+    /// User-Agent
+    private var userAgent: String {
+        if _userAgent == nil {
+            let versionName = "1.17.0"
+            let modelName = "iPhone"
+            let sys = "iOS 18"
+            let scale = String(format: "%.2f", 2.0)
+            
+            let customUserAgent = "WidgetOn/\(versionName) (\(modelName); \(sys); Scale/\(scale))"
+            _userAgent = customUserAgent
+        }
+        return _userAgent!
+    }
+}
+
+var _userAgent: String?
+
+/*
+ 创建配置<请求地址> -- 生成配置列表
+ 每个请求可以设置当前使用的配置
+ */

@@ -6,101 +6,187 @@
 //
 
 /*
-    一个简单的 网络工具，用于开发过程中的网络请求/网络连接状态判断
+ 一个简单的 网络工具，用于开发过程中的网络请求/网络连接状态判断
  */
 
-import Foundation
-
 public typealias NetTool = XYNetTool
-open class XYNetTool: NSObject {
+public struct XYNetTool {
+    private init () {}
     
-    public enum RequestType: String {
-        case GET, POST
-    }
+    public typealias AnyJsonCallback = ([String: Any])->()
+    public typealias DataCallback = (Data)->()
+    public typealias ErrorCallback = (_ errMsg: String)->()
+    public typealias DownloadDataCallback = (_ filePath: URL?, _ error: Error?)->()
     
-    public static var shared = XYNetTool()
+    /// GET 方式请求获取 JSON 数据
+    /// - Parameters:
+    ///   - url: 网络地址
+    ///   - headers: 请求头
+    ///   - success: 成功回调, 返回 json dictionary
+    ///   - failure: 失败回调
     public static func get(url: URL,
-                            paramters: [String: Any],
-                            headers: [String: String]?,
-                            success: @escaping ([String: Any])->(),
-                            failure: @escaping (String)->()) {
+                           paramters: [String: Any],
+                           headers: [String: String]?,
+                           success: @escaping AnyJsonCallback,
+                           failure: @escaping ErrorCallback) {
         request(url: url, method: .GET, paramters: paramters, headers: headers, success: success, failure: failure)
     }
+    
+    /// POST 方式请求获取 JSON 数据
+    /// - Parameters:
+    ///   - url: 网络地址
+    ///   - paramters: 请求参数
+    ///   - headers: 请求头
+    ///   - success: 成功回调, 返回 json dictionary
+    ///   - failure: 失败回调
     public static func post(url: URL,
                             paramters: [String: Any],
                             headers: [String: String]?,
-                            success: @escaping ([String: Any])->(),
-                            failure: @escaping (String)->()) {
+                            success: @escaping AnyJsonCallback,
+                            failure: @escaping ErrorCallback) {
         request(url: url, method: .POST, paramters: paramters, headers: headers, success: success, failure: failure)
     }
     
-    public static func request(url: URL,
-                               method: RequestType,
-                           paramters: [String: Any],
-                           headers: [String: String]?,
-                           success: @escaping ([String: Any])->(),
-                           failure: @escaping (String)->()){
+    /// 下载数据, 直接返回网络接口拿到的 Data 数据
+    /// - Parameters:
+    ///   - url: 网络地址
+    ///   - paramters: 请求参数
+    ///   - headers: 请求头
+    ///   - success: 成功回调, 参数为网络拿到的 Data 数据
+    ///   - failure: 失败回调
+    public static func download(url: URL,
+                                paramters: [String: Any],
+                                headers: [String: String]?,
+                                success: @escaping DataCallback,
+                                failure: @escaping ErrorCallback) {
+        request(url: url, method: .POST, paramters: paramters, headers: headers, success: success, failure: failure)
+    }
+    
+    /// 下载文件到指定 URL 地址(GET)
+    /// - Parameters:
+    ///   - url: 网络地址
+    ///   - paramters: 请求参数
+    ///   - headers: 请求头
+    ///   - saveToUrl: 文件指定要存储的 fileURL
+    ///   - completion: 完成回调, 参数为当前文件存储地址(成功的情况下为saveToUrl), 或者失败后的 error 信息
+    public static func download(url: URL,
+                                paramters: [String: Any],
+                                headers: [String: String]?,
+                                saveToUrl: URL,
+                                completion: @escaping DownloadDataCallback) {
+        request(url: url, method: .GET, paramters: paramters, headers: headers, saveToUrl: saveToUrl, completion: completion)
+    }
+    
+}
+
+
+private extension XYNetTool {
+    enum RequestType: String {
+        case GET, POST
+    }
+    
+    /*
+     目前支持:
+     post / get 返回格式: ([String: Any])->()
+     download 返回格式 (Data)->()
+     */
+    
+    static func request(url: URL,
+                        method: RequestType,
+                        paramters: [String: Any],
+                        headers: [String: String]?,
+                        success: Any,
+                        failure: @escaping (String)->()){
         
+        let (request, session) = getRequestAndSession(url: url, method: method, paramters: paramters, headers: headers)
+        
+        session.dataTask(with: request) { data, response, error in
+            if error != nil { // 网络异常
+                DispatchQueue.main.async {
+                    failure(error!.localizedDescription)
+                }
+                return;
+            }
+            
+            // JSON 格式处理
+            if let success = success as? AnyJsonCallback {
+                if let data = data, let resultJson = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed), let dict = resultJson as? [String: Any] {
+                    DispatchQueue.main.async {
+                        success(dict)
+                    }
+                }else{
+                    DispatchQueue.main.async {
+                        failure(error?.localizedDescription ?? "")
+                    }
+                }
+            }
+            
+            // 下载数据类型
+            if let success = success as? DataCallback {
+                success(data ?? .init())
+            }
+        }.resume()
+    }
+    
+    static func request(url: URL,
+                        method: RequestType,
+                        paramters: [String: Any],
+                        headers: [String: String]?,
+                        saveToUrl: URL,
+                        completion: @escaping DownloadDataCallback) {
+        
+        let (request, session) = getRequestAndSession(url: url, method: method, paramters: paramters, headers: headers)
+        
+        session.downloadTask(with: request) { tmpFileUrl, urlResponse, error in
+            if let tmpFileUrl = tmpFileUrl {
+                do {
+                    try FileManager.default.moveItem(at: tmpFileUrl, to: saveToUrl)
+                    completion(saveToUrl, nil)
+                }catch{
+                    print("NetTool download task did fail to move file with error: \(error.localizedDescription)")
+                    completion(nil, error)
+                }
+            } else {
+                completion(nil, error)
+            }
+        }.resume()
+    }
+    
+    
+    static func getRequestAndSession(url: URL,
+                                     method: RequestType,
+                                     paramters: [String: Any],
+                                     headers: [String: String]?) -> (URLRequest, URLSession){
         let request = NSMutableURLRequest(url: url)
         request.timeoutInterval = 10
         request.httpMethod = method.rawValue
         
-        if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
-            request.httpBody = data
+        if method == .GET {
+            if paramters.isEmpty == false {
+                var pStr = "?"
+                paramters.forEach { (k, v) in
+                    pStr.append("\(k)=\(v)&")
+                }
+                let pStrResult = String(pStr.dropLast())
+                request.url = URL(string: url.absoluteString + pStrResult)
+            }
+        }else
+        if method == .POST {
+            if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
+                request.httpBody = data
+            }
         }
-       
+        
+        
         if let headers = headers {
             for (key, value) in headers {
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
         
-        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: shared, delegateQueue: OperationQueue.main)
-        session.dataTask(with: request as URLRequest) { data, response, error in
-            
-            if error != nil { // 网络异常/出错
-                DispatchQueue.main.async {
-                    failure("网络异常")
-                }
-                return;
-            }
-            
-            if let data = data, let resultJson = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed), let dict = resultJson as? [String: Any] {
-                
-                success(dict)
-                
-//                if let code = dict["code"] as? Int, code == 200 {
-//                    DispatchQueue.main.async {
-//                        if let data = dict["data"] as? [String : Any] {
-//                            success(data)
-//                        }else{
-//                            success([:])
-//                        }
-//                    }
-//                }else{
-//                    DispatchQueue.main.async {
-//                        failure(dict["message"] as? String ?? "服务异常,返回非 200")
-//                        print(dict)
-//                    }
-//                }
-            }
-            else{
-                // 没能解析为JSON。可能直接访问的网站，返回的是 HTML。
-                
-                var result: [String: Any] = [:]
-                if let http = response as? HTTPURLResponse {
-                    result["url"] = http.url?.absoluteString
-                    result["Status Code"] = http.statusCode
-                    result["Headers"] = http.allHeaderFields
-                }
-                success(result)
-            }
-            
-        }.resume()
+        let session = URLSession(configuration: URLSessionConfiguration.default, delegate: nil, delegateQueue: OperationQueue.main)
+        
+        return (request as URLRequest, session)
     }
-
 }
 
-extension XYNetTool: URLSessionDelegate {
-    
-}
