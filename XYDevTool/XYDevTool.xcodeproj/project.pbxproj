@@ -11,6 +11,7 @@
 		B41895402C66742100C8CC86 /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B418953F2C66742100C8CC86 /* CustomTextEditor.swift */; };
 		B41895782C667C5400C8CC86 /* VDividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41895772C667C5400C8CC86 /* VDividerView.swift */; };
 		B418957A2C667E1B00C8CC86 /* HDividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41895792C667E1B00C8CC86 /* HDividerView.swift */; };
+		B424ED4F2CA7087300B02C3E /* PanelSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */; };
 		B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43606232957F381005A06A9 /* BaseDataProtocol.swift */; };
 		B439DE01293366A100E1CD02 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B439DC98293366A000E1CD02 /* InfoPlist.strings */; };
 		B439DE02293366A100E1CD02 /* ACEView.m in Sources */ = {isa = PBXBuildFile; fileRef = B439DC9B293366A000E1CD02 /* ACEView.m */; };
@@ -441,6 +442,7 @@
 		B418953F2C66742100C8CC86 /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		B41895772C667C5400C8CC86 /* VDividerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VDividerView.swift; sourceTree = "<group>"; };
 		B41895792C667E1B00C8CC86 /* HDividerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HDividerView.swift; sourceTree = "<group>"; };
+		B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelSettingsView.swift; sourceTree = "<group>"; };
 		B43606232957F381005A06A9 /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
 		B439DC99293366A000E1CD02 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B439DC9B293366A000E1CD02 /* ACEView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEView.m; sourceTree = "<group>"; };
@@ -1568,6 +1570,7 @@
 				B418953F2C66742100C8CC86 /* CustomTextEditor.swift */,
 				B41895772C667C5400C8CC86 /* VDividerView.swift */,
 				B41895792C667E1B00C8CC86 /* HDividerView.swift */,
+				B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */,
 			);
 			path = SwiftUIViews;
 			sourceTree = "<group>";
@@ -2111,6 +2114,7 @@
 				B4DA907A2C2C2D3C000A6667 /* PanelTopView.swift in Sources */,
 				B439DE04293366A100E1CD02 /* ACEThemeNames.m in Sources */,
 				B48A9A62292FB96500DD7333 /* ConstraintInsets.swift in Sources */,
+				B424ED4F2CA7087300B02C3E /* PanelSettingsView.swift in Sources */,
 				B48A9A6E292FB96500DD7333 /* ConstraintLayoutSupport.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
 				B48A9A64292FB96500DD7333 /* ConstraintDSL.swift in Sources */,

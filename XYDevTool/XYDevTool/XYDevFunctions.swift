@@ -25,6 +25,7 @@ extension Collection {
     }
     
     func toString() -> String? {
+        if isEmpty { return "" }
         if let data = toData(), let str = String(data: data, encoding: .utf8) {
             return str
         }

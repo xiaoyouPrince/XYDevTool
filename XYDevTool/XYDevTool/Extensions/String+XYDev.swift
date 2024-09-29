@@ -115,6 +115,30 @@ extension String {
         
         return result as String
     }
+    
+    public func asHeader() -> [String: String] {
+        if let data =  data(using: .utf8) {
+            do {
+                let dict = try JSONSerialization.jsonObject(with: data) as? [String: String]
+                return dict ?? ["error": "header 转换失败"]
+            } catch {
+                return ["error": error.localizedDescription]
+            }
+        }
+        return [:]
+    }
+    
+    public func asParams() -> [String: Any] {
+        if let data =  data(using: .utf8) {
+            do {
+                let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                return dict ?? ["error": "params 转换失败"]
+            } catch {
+                return ["error": error.localizedDescription]
+            }
+        }
+        return [:]
+    }
 }
 
 import CommonCrypto //MD5
@@ -125,6 +149,7 @@ public extension String {
      */
     var md5: String {
         let str = self.cString(using: String.Encoding.utf8)
+        print("str2 == \(str)")
         let strLen = CUnsignedInt(self.lengthOfBytes(using: String.Encoding.utf8))
         let digestLen = Int(CC_MD5_DIGEST_LENGTH)
         let result = UnsafeMutablePointer<CUnsignedChar>.allocate(capacity: digestLen)

@@ -25,4 +25,27 @@ extension Dictionary where Key == String, Value == Any {
         }
         return ""
     }
+    
+    /// 此函数将字典内部所有的 value 都转换为 string 类型
+    public func asHttpHeader() -> [String: Any] {
+        var rlt = self
+        for k in self.keys {
+            if self[k] is Int {
+                rlt[k] = "\(self[k]!)"
+            }
+            if self[k] is Double {
+                rlt[k] = "\(self[k]!)"
+            }
+            if self[k] is String {
+                rlt[k] = "\(self[k]!)"
+            }
+            if self[k] is Array<Any> { // array 待优化实现
+                rlt[k] = "\(self[k]!)"
+            }
+            if var subDict = self[k] as? Dictionary<String,Any> { // array 待优化实现
+                rlt[k] = subDict.asHttpHeader()
+            }
+        }
+        return rlt
+    }
 }
