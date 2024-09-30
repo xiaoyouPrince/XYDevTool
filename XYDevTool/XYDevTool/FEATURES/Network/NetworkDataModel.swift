@@ -108,6 +108,9 @@ extension NetworkDataModel {
         headerDict = hp.headers
         parameters = hp.params
         
+        print("当前请求体: --- \(hp.params)")
+        print("当前请求体序列化: --- \(hp.params.toString())")
+        
     
         var request: URLRequest! = nil
         if httpMethod == .post {
@@ -225,6 +228,10 @@ extension NetworkDataModel {
         
         
         //-------
+        print("发起的请求头:", headerDict)
+        print("发起的请求体:", parameters)
+        
+        
         XYNetTool.post(url: URL(string: urlString)!, paramters: parameters, headers: headerDict) { result in
             print("XYNetTool 请求成功 - \n\(result)")
             self.status = "complete"
@@ -249,7 +256,8 @@ extension NetworkDataModel {
     func correct(headers: [String: String], params: [String: Any]) -> (headers: [String: String], params: [String: Any]) {
         
         if !userAgent.isEmpty {
-           runUserScript(userScript, headers: headers, params: params)
+            let newP = runUserScript(userScript, headers: headers, params: params)
+            return newP
         }
         
         var headers = headers
@@ -312,6 +320,9 @@ extension NetworkDataModel {
         // 使用 /bin/bash 来执行用户的脚本
         process.executableURL = URL(fileURLWithPath: "/bin/sh")
         
+        print("脚本传入的参数 ---- \(params)")
+        print("脚本传入的参数toString ---- \(params.toString())")
+        
         // 设置命令行参数，-c 参数表示执行传递的字符串，拼接 httpHeaders 和 httpParameters 作为传入参数
         let fullCommand = "\(script) '\(headers.toString() ?? "")' '\(params.toString() ?? "")'"
         process.arguments = ["-c", fullCommand]
@@ -334,7 +345,7 @@ extension NetworkDataModel {
         if let outputString = String(data: outputData, encoding: .utf8) {
             self.status = outputString
             let outputArr = outputString.split(separator: "\n", maxSplits: 100, omittingEmptySubsequences: true)
-            for item in outputArr {
+            for (idx,item) in outputArr.enumerated() {
                 let params = String(item).asParams()
                 if params.isEmpty { continue }
                 if params.keys.contains("headers") && params.keys.contains("parameters") {
@@ -344,8 +355,26 @@ extension NetworkDataModel {
                         // 理论上输出都是字符串, 这里服务器也是以字符串接收的, 需要手动都转换为字符串
                         // 可能有的服务器是以 Any 接收的, 以后遇到再处理
                         
+                        print("脚本返回的的参数原始数据 ---- \(outputString)") // 原始数据是对的
+                        print("脚本返回的的参数params ---- \(params)") // params 经过从 outputString 一层转化,已经走样
+                        print("脚本返回的的参数p ---- \(p)") // p 直接从 params 中获取,没有走样
+                        print("脚本返回的的参数toString11111 ---- \(p.toJsonString())") // 再次走样
+                        let ppp = p.asHttpHeader() // ppp 经过一层转化,再次走样
+                        print("脚本返回的参数toString222222 ---- \(ppp.toJsonString())")
                         
-                        rlt = (h, p.asHttpHeader())
+                        // 经过测试,明确这里如果经过多次对 paramsDict 转换,导致其多次 key 顺序调整
+                        // 当前这个 item 是目标值, 由于有做md5加密, 所以必须原样返回, idx 是索引
+                        
+                        print("\n")
+                        print("脚本返回的的参数原始数据正确的 ---- \(outputString)") // 原始数据是对的
+                        print("脚本返回的的参数原始数据 item ---- \(item)") // 原始数据是对的
+                        print("脚本返回的的参数原始数据 item.toDict ---- \(String(item).asParams())") // 原始数据是对的
+                        
+                        
+                        
+                        
+                        
+                        rlt = (h, p)
                         break
                     }
                 }
@@ -359,6 +388,22 @@ extension NetworkDataModel {
         }
         
         return rlt
+    }
+}
+
+func getDict(targrtString: String) -> [String: Any] {
+    let dict = String(targrtString).asParams()
+    let tar = dict.toJsonString()
+    
+    
+    print(tar)
+    print(targrtString)
+    
+    
+    if tar == targrtString {
+        return dict
+    } else {
+        return getDict(targrtString: targrtString)
     }
 }
 

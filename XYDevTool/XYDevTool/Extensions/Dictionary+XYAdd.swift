@@ -42,7 +42,7 @@ extension Dictionary where Key == String, Value == Any {
             if self[k] is Array<Any> { // array 待优化实现
                 rlt[k] = "\(self[k]!)"
             }
-            if var subDict = self[k] as? Dictionary<String,Any> { // array 待优化实现
+            if let subDict = self[k] as? Dictionary<String,Any> {
                 rlt[k] = subDict.asHttpHeader()
             }
         }
