@@ -176,7 +176,10 @@ extension NetworkDataModel {
     ///   - params: 用户直接设置的请求参数
     /// - Returns: 处理之后的请求头和参数
     func correct(headers: [String: String], params: [String: Any]) -> (headers: [String: String], params: [String: Any], response: Any?) {
-        return runUserScript(userScript, headers: headers, params: params)
+        if !userScript.isEmpty {
+            return runUserScript(userScript, headers: headers, params: params)
+        }
+        return (headers, params, nil)
     }
     
     // 运行用户脚本的函数
