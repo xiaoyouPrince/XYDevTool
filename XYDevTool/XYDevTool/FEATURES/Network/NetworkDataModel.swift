@@ -86,11 +86,11 @@ extension NetworkDataModel {
     func makeRequest() {
         
         // url
-        guard urlString.isEmpty == false else {
+        guard urlString.isEmpty == false, URL(string: urlString) == nil else {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
-        status = ("请求中，当前小🌈会转起来，因为我故意阻塞了主线程😂。。。稍等一下！")
+        status = ("reuqesting...")
         
         var headerDict: [String: String] = [:]
         if let headers = self.httpHeaders.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: Any]{
@@ -194,7 +194,7 @@ extension NetworkDataModel {
         process.executableURL = URL(fileURLWithPath: "/bin/sh")
         
         // 设置命令行参数，-c 参数表示执行传递的字符串，拼接 httpHeaders 和 httpParameters 作为传入参数
-        let fullCommand = "\(script) '\(headers.toString() ?? "")' '\(params.toString() ?? "")'"
+        let fullCommand = "\(script) '\(urlString)' '\(httpMethod.rawValue.uppercased())' '\(headers.toString() ?? "")' '\(params.toString() ?? "")'"
         process.arguments = ["-c", fullCommand]
         
         // 将标准输出和错误输出通过管道重定向
