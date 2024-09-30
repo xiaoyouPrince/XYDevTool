@@ -39,28 +39,42 @@ class ViewController: NSViewController {
         // Update the view, if already loaded.
         }
     }
-
-    @IBAction func networkClick(_ sender: Any) {
-        
-//        let settingVC = NetResquestController()
-////        settingVC.fileConfigChangedClosure = { [weak self] in
-////            self?.generateClasses()
-////        }
-//        
-//        presentAsModalWindow(settingVC)
-        
-        print("net work click")
-        
-        
-//        let networkVC = NSHostingController(rootView: NetworkPanelView())
-//        presentAsModalWindow(networkVC)
-        
-        openNewWindow()
-        
-        
+    
+    @IBAction func jsonFormatterClick(_ sender: Any) {
+        openJsonFormatterWindow()
     }
     
-    func openNewWindow() {
+
+    @IBAction func networkClick(_ sender: Any) {
+        openNetworkWindow()
+    }
+    
+}
+
+extension ViewController {
+    
+    func openJsonFormatterWindow() {
+        let newWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
+            styleMask: [.titled, .closable, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false)
+        
+        newWindow.center()
+        newWindow.title = "JSON格式化"
+        newWindow.isReleasedWhenClosed = false
+        
+        let hostingController = NSHostingController(rootView:
+                                                        JSONFormatterView()
+                                                    
+        )
+        newWindow.contentView = hostingController.view
+        
+        let windowController = NSWindowController(window: newWindow)
+        windowController.showWindow(self)
+    }
+    
+    func openNetworkWindow() {
         let newWindow = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 800, height: 600),
             styleMask: [.titled, .closable, .resizable, .miniaturizable],
@@ -71,16 +85,15 @@ class ViewController: NSViewController {
         newWindow.title = "网络请求"
         newWindow.isReleasedWhenClosed = false
         
-        let hostingController = NSHostingController(rootView: 
+        let hostingController = NSHostingController(rootView:
                                                         NetworkPanelView()
             .environmentObject(NetworkDataModel())
-            
+                                                    
         )
         newWindow.contentView = hostingController.view
         
         let windowController = NSWindowController(window: newWindow)
         windowController.showWindow(self)
     }
-    
 }
 

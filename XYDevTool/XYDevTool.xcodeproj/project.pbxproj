@@ -12,6 +12,8 @@
 		B41895782C667C5400C8CC86 /* VDividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41895772C667C5400C8CC86 /* VDividerView.swift */; };
 		B418957A2C667E1B00C8CC86 /* HDividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41895792C667E1B00C8CC86 /* HDividerView.swift */; };
 		B424ED4F2CA7087300B02C3E /* PanelSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */; };
+		B424ED522CAAEB0E00B02C3E /* JSONFormatterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED512CAAEB0E00B02C3E /* JSONFormatterView.swift */; };
+		B424ED542CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */; };
 		B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43606232957F381005A06A9 /* BaseDataProtocol.swift */; };
 		B439DE01293366A100E1CD02 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B439DC98293366A000E1CD02 /* InfoPlist.strings */; };
 		B439DE02293366A100E1CD02 /* ACEView.m in Sources */ = {isa = PBXBuildFile; fileRef = B439DC9B293366A000E1CD02 /* ACEView.m */; };
@@ -443,6 +445,8 @@
 		B41895772C667C5400C8CC86 /* VDividerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VDividerView.swift; sourceTree = "<group>"; };
 		B41895792C667E1B00C8CC86 /* HDividerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HDividerView.swift; sourceTree = "<group>"; };
 		B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelSettingsView.swift; sourceTree = "<group>"; };
+		B424ED512CAAEB0E00B02C3E /* JSONFormatterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFormatterView.swift; sourceTree = "<group>"; };
+		B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFormatterFunctionsView.swift; sourceTree = "<group>"; };
 		B43606232957F381005A06A9 /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
 		B439DC99293366A000E1CD02 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B439DC9B293366A000E1CD02 /* ACEView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEView.m; sourceTree = "<group>"; };
@@ -913,6 +917,15 @@
 				392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B424ED502CAAEACF00B02C3E /* SwiftUIViews */ = {
+			isa = PBXGroup;
+			children = (
+				B424ED512CAAEB0E00B02C3E /* JSONFormatterView.swift */,
+				B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */,
+			);
+			path = SwiftUIViews;
 			sourceTree = "<group>";
 		};
 		B43606222957F34A005A06A9 /* Protocols */ = {
@@ -1587,6 +1600,7 @@
 		B4F61DB9282A3C08006FAC35 /* JSONFormatter */ = {
 			isa = PBXGroup;
 			children = (
+				B424ED502CAAEACF00B02C3E /* SwiftUIViews */,
 				B4933E1F282433EC00E7845E /* JSONFormatter.storyboard */,
 				B4933E1B28242FF400E7845E /* JsonFormatterVC.swift */,
 			);
@@ -2097,6 +2111,7 @@
 				B4A3ADAC28217342001FD2B3 /* KeyedDecodingContainer.swift in Sources */,
 				B48A9A7A292FB96500DD7333 /* ConstraintRelatableTarget.swift in Sources */,
 				B4F61DC8282ABCAD006FAC35 /* XYNetTool.swift in Sources */,
+				B424ED522CAAEB0E00B02C3E /* JSONFormatterView.swift in Sources */,
 				B48A9A6C292FB96500DD7333 /* ConstraintView.swift in Sources */,
 				B4A3ADB028217342001FD2B3 /* AnyCodingKey.swift in Sources */,
 				B48A9A7C292FB96500DD7333 /* ConstraintLayoutGuide+Extensions.swift in Sources */,
@@ -2139,6 +2154,7 @@
 				B439DE07293366A100E1CD02 /* ACEModeNames.m in Sources */,
 				B48A9A67292FB96500DD7333 /* ConstraintInsetTarget.swift in Sources */,
 				B4DA90802C2C4C1C000A6667 /* PanelRequestView.swift in Sources */,
+				B424ED542CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift in Sources */,
 				B48A9A66292FB96500DD7333 /* ConstraintPriority.swift in Sources */,
 				B41895402C66742100C8CC86 /* CustomTextEditor.swift in Sources */,
 				B48A9A7E292FB96500DD7333 /* ConstraintLayoutSupportDSL.swift in Sources */,
