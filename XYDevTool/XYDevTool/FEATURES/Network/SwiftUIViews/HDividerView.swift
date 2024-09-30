@@ -16,8 +16,39 @@ struct HDividerView: View {
     
     var body: some View {
         Rectangle()
-            .fill(Color.gray)
+            .fill(Color.gray.opacity(0.3))
             .frame(width: dividerWidth)
+            .clipShape(RoundedRectangle(cornerSize: .init(width: dividerWidth, height: dividerWidth), style: .circular))
+            .onAppear {
+                self.lastLocation = CGPoint(x: self.leftWidth + self.dividerWidth / 2, y: 0)
+            }
+            .transaction { transaction in
+                transaction.animation = nil // 禁用动画
+            }
+            .overlay {
+                ZStack {
+//                    Image(systemName: "ellipsis")
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fit)
+//                        .frame(width: dividerWidth / 3 * 2)
+//                        .disabled(true)
+                    VStack(spacing: 7) {
+                        ZStack {
+                            Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
+                                .clipShape(RoundedRectangle(cornerRadius: dividerWidth/3))
+                        }
+                        ZStack {
+                            Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
+                                .clipShape(RoundedRectangle(cornerRadius: dividerWidth/3))
+                        }
+                        ZStack {
+                            Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
+                                .clipShape(RoundedRectangle(cornerRadius: dividerWidth/3))
+                        }
+                    }
+                }
+                .rotationEffect(Angle(degrees: .pi/4))
+            }
             .gesture(
                 DragGesture()
                     .onChanged { value in
@@ -27,11 +58,5 @@ struct HDividerView: View {
                         }
                     }
             )
-            .onAppear {
-                self.lastLocation = CGPoint(x: self.leftWidth + self.dividerWidth / 2, y: 0)
-            }
-            .transaction { transaction in
-                transaction.animation = nil // 禁用动画
-            }
     }
 }

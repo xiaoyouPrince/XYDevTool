@@ -26,7 +26,8 @@ struct PanelHistoryView: View {
                             Text(hisName)
                                 .font(.body)
                             Spacer()
-                            Text("delete")
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
                                 .onTapGesture {
                                     if isLock {
                                         showAlert(msg: "您要移除的记录为【" + hisName + "】它是锁定的记录，不能直接删除，需要先接触锁定")

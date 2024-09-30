@@ -16,9 +16,21 @@ struct VDividerView: View {
     
     var body: some View {
         Rectangle()
-            .fill(Color.gray)
+            .fill(Color.gray.opacity(0.3))
             .frame(height: dividerHeight)
-            .gesture(
+            .clipShape(RoundedRectangle(cornerSize: .init(width: dividerHeight, height: dividerHeight), style: .circular))
+            .onAppear {
+                self.lastLocation = CGPoint(x: 0, y: self.topHeight + self.dividerHeight / 2)
+            }
+            .transaction { transaction in
+                transaction.animation = nil // 禁用动画
+            }.overlay {
+                Image(systemName: "ellipsis")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: dividerHeight / 3 * 2)
+                    .disabled(true)
+            }.gesture(
                 DragGesture()
                     .onChanged { value in
                         let newHeight = self.topHeight + value.translation.height
@@ -27,11 +39,5 @@ struct VDividerView: View {
                         }
                     }
             )
-            .onAppear {
-                self.lastLocation = CGPoint(x: 0, y: self.topHeight + self.dividerHeight / 2)
-            }
-            .transaction { transaction in
-                transaction.animation = nil // 禁用动画
-            }
     }
 }
