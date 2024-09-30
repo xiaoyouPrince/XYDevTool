@@ -131,119 +131,7 @@ extension NetworkDataModel {
             return
         }
         
-//        print("当前请求体: --- \(hp.params)")
-//        print("当前请求体序列化: --- \(hp.params.toString())")
-//        
-//    
-//        var request: URLRequest! = nil
-//        if httpMethod == .post {
-//            request = URLRequest(url: URL(string: urlString)!, timeoutInterval: Double.infinity)
-//            request.httpBody = parameters.toData()
-//        } else {// GET
-//            var params = ""
-//            if let bodyDict = srting2JsonObject(string: httpParameters) {
-//                for (index, kv) in bodyDict.enumerated() {
-//                    if index == 0 {
-//                        params += "?" + "\(kv.key)=\(kv.value)"
-//                    } else {
-//                        params += "&" + "\(kv.key)=\(kv.value)"
-//                    }
-//                }
-//            }
-//            
-//            if urlString.contains(where: {$0 == "?"}), let index = urlString.firstIndex(of: "?") {
-//                
-//                if params.isEmpty == false { // GET 请求， URL有参数且也输入了 JOSN 参数，按JSON 参数取值
-//                    urlString = String(urlString[urlString.startIndex..<index])
-//                    
-//                }
-//            }
-//            
-//            urlString += params
-//            
-//            request = URLRequest(url: URL(string: urlString)!, timeoutInterval: Double.infinity)
-//        }
-//        
-//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//        for (key,value) in headerDict {
-//            request.addValue(value, forHTTPHeaderField: key)
-//        }
-//        
-//        request.httpMethod = httpMethod.rawValue.uppercased()//methodBtn.selectedItem?.title
-//        
-//        
-//        
-//        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-//            
-//            print("系统 task 请求结果:")
-//            
-//            // 如果当前是选中的那个,就直接更新历史记录,否则添加一个新纪录
-//            var updateItem: XYItem? = nil
-//            if (self.currentHistory?.name ?? "") == item.name {
-//                for item_his in self.historyArray {
-//                    if item.name == item_his.name {
-//                        item_his.update(with: item)
-//                        updateItem = item_his
-//                        break
-//                    }
-//                }
-//            } else {
-//                self.historyArray.append(item)
-//            }
-//            print("请求结果线程 - ", Thread.current)
-//            
-//            guard let data = data else {
-//                let errMsg = String(describing: error.debugDescription)
-//                DispatchQueue.main.async {
-//                    self.status = "Failed"
-//                    self.httpResponse = errMsg
-//                    item.response = errMsg
-//                    if let updateItem = updateItem,
-//                       let index = self.historyArray.firstIndex(where: { item in
-//                           item.name == updateItem.name})
-//                    {
-//                        updateItem.response = errMsg
-//                        self.historyArray.replaceSubrange(index...index, with: [updateItem])
-//                    }
-//                    self.updateHistory()
-//                }
-//                print(errMsg)
-//                return
-//            }
-//            
-//            var sucString = String(data: data, encoding: .utf8)!
-//            if sucString.isEmpty {
-//                sucString = response?.description ?? "请求完成，返回数据为空"
-//            }
-//            print("请求成功,结果如下:\n",sucString)
-//            DispatchQueue.main.async {
-//                self.status = "complete"
-//                
-//                item.response = sucString
-//                self.httpResponse = sucString
-//                if let updateItem = updateItem,
-//                   let index = self.historyArray.firstIndex(where: { item in
-//                       item.name == updateItem.name})
-//                {
-//                    updateItem.response = sucString
-//                    self.historyArray.replaceSubrange(index...index, with: [updateItem])
-//                }
-//                self.updateHistory()
-//            }
-//        }
-//        
-//        print("准备发起请求线程 - ", Thread.current)
-//        DispatchQueue.global().async {
-//            print("发起请求线程 - ", Thread.current)
-//            //task.resume()
-//        }
-//        
-//        
-//        //-------
-//        print("发起的请求头:", headerDict)
-//        print("发起的请求体:", parameters)
-        
-        
+
         XYNetTool.post(url: URL(string: urlString)!, paramters: parameters, headers: headerDict) { result in
             print("XYNetTool 请求成功 - \n\(result)")
             self.status = "complete"
@@ -274,7 +162,7 @@ extension NetworkDataModel {
         
         if newItem == nil {
             self.historyArray.append(item)
-        } 
+        }
         
         self.updateHistory()
     }
@@ -289,36 +177,6 @@ extension NetworkDataModel {
     /// - Returns: 处理之后的请求头和参数
     func correct(headers: [String: String], params: [String: Any]) -> (headers: [String: String], params: [String: Any], response: Any?) {
         return runUserScript(userScript, headers: headers, params: params)
-        
-        // return
-        
-        var headers = headers
-        var parameters = params
-        
-        parameters.updateValue([
-            "platform": "iPhone",
-            "platformVersion": "18",
-            "versionName": "2.1.0",
-            "versionCode": "1",
-            "timezone": "Asia/Shanghai",
-            "width": "375",
-            "height": "667",
-        ], forKey: "client")
-        
-        let SECRETKEY = "b2zf3etid4beca121xasi9cwkfdc29p"
-        
-        let time = String(Int(Date().timeIntervalSince1970 * 1000))
-        let string = parameters.toJsonString() + SECRETKEY + time
-        
-        let sign = string.md5
-        let token = "Ak+LXVNQVAMDUndoYHsK.Ak8NUEBQVBAoMHJgYWxFSExBRlRMAkwbKzl0bWdqQkNAWEgTVh0KAyUjOQVwKxIWEB4QVEYmB0x6XWBjY25GQUBeUQMNR1sRKC0eeycqEgMwCTgTDkBfF2IjPw==.z4UJm3rdQiKDc9onU9FC8XkhelqnmltT/LediF6hcsrAbCr1kdhBVpuN5BIV3cwEmPnMAivOrKw0c1tXr++U6w=="
-        
-        headers.updateValue(time, forKey: "Time")
-        headers.updateValue(sign.uppercased(), forKey: "Sign")
-        headers.updateValue(token, forKey: "Token")
-        headers.updateValue("application/json", forKey: "Content-Type")
-        
-        return (headers, parameters, nil)
     }
     
     // 运行用户脚本的函数
@@ -361,15 +219,13 @@ extension NetworkDataModel {
                 let params = String(item).asParams()
                 if params.isEmpty { continue }
                 if params.keys.contains("headers") && params.keys.contains("parameters") {
-//                    rlt = (params["headers"], params["parameters"])
                     if let h = params["headers"] as? [String: String], let p = params["parameters"] as? [String: Any] {
+                        /*
+                         如果脚本中参数经过摘要计算, 比如 md5 这类需要原样转发的数据, 则不能走此函数
+                         因为 Dictionary 本身是 hash 表, 通过 json 解码之后的 key 是无序的,造成摘要错误
+                         此场景适用于没有加密额外加密,且计算规则不想暴露的场合
+                         */
 
-                        let ppp = p.asHttpHeader() // ppp 经过一层转化,再次走样
-                        print("脚本返回的参数toString222222 ---- \(ppp.toJsonString())")
-                        
-                        // 经过测试,明确这里如果经过多次对 paramsDict 转换,导致其多次 key 顺序调整
-                        // 当前这个 item 是目标值, 由于有做md5加密, 所以必须原样返回, idx 是索引
-                        
                         rlt = (h, p, nil)
                         break
                     }
@@ -412,7 +268,7 @@ struct Result: Model {
  2. 必须有一个输出值类型是一个 json 对象, 有两个参数 {"headers": ..., "parameters": ...}
  
  搜索
- https://stage.widget.haoqimiao.net/api/search/resource
+ https://{{host }}/api/search/resource
  {"search":  "桌面"}
  
  */

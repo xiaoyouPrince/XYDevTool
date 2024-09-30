@@ -27,11 +27,6 @@ struct HDividerView: View {
             }
             .overlay {
                 ZStack {
-//                    Image(systemName: "ellipsis")
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fit)
-//                        .frame(width: dividerWidth / 3 * 2)
-//                        .disabled(true)
                     VStack(spacing: 7) {
                         ZStack {
                             Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
