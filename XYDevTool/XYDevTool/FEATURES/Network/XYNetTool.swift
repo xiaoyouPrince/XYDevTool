@@ -172,16 +172,7 @@ private extension XYNetTool {
             }
         }else
         if method == .POST {
-            
-            
-            
             if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
-                
-                
-                
-                print("data ----- \(data)")
-                print("dataString ----- \(String(data: data, encoding: .utf8))")
-                
                 request.httpBody = data
             }
         }
