@@ -86,7 +86,7 @@ extension NetworkDataModel {
     func makeRequest() {
         
         // url
-        guard urlString.isEmpty == false, URL(string: urlString) == nil else {
+        guard urlString.isEmpty == false, let url = URL(string: urlString) else {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
