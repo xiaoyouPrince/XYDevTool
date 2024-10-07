@@ -14,6 +14,10 @@
 		B424ED4F2CA7087300B02C3E /* PanelSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */; };
 		B424ED522CAAEB0E00B02C3E /* JSONFormatterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED512CAAEB0E00B02C3E /* JSONFormatterView.swift */; };
 		B424ED542CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */; };
+		B424ED572CB440E600B02C3E /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = B424ED562CB440E600B02C3E /* CodeEditorView */; };
+		B424ED592CB440E600B02C3E /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B424ED582CB440E600B02C3E /* LanguageSupport */; };
+		B424ED5C2CB4413400B02C3E /* CodeEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED5B2CB4413400B02C3E /* CodeEditorView.swift */; };
+		B424ED5E2CB441A500B02C3E /* CodeEditorDemoDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED5D2CB441A500B02C3E /* CodeEditorDemoDocument.swift */; };
 		B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43606232957F381005A06A9 /* BaseDataProtocol.swift */; };
 		B439DE01293366A100E1CD02 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B439DC98293366A000E1CD02 /* InfoPlist.strings */; };
 		B439DE02293366A100E1CD02 /* ACEView.m in Sources */ = {isa = PBXBuildFile; fileRef = B439DC9B293366A000E1CD02 /* ACEView.m */; };
@@ -447,6 +451,8 @@
 		B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelSettingsView.swift; sourceTree = "<group>"; };
 		B424ED512CAAEB0E00B02C3E /* JSONFormatterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFormatterView.swift; sourceTree = "<group>"; };
 		B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFormatterFunctionsView.swift; sourceTree = "<group>"; };
+		B424ED5B2CB4413400B02C3E /* CodeEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorView.swift; sourceTree = "<group>"; };
+		B424ED5D2CB441A500B02C3E /* CodeEditorDemoDocument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeEditorDemoDocument.swift; sourceTree = "<group>"; };
 		B43606232957F381005A06A9 /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
 		B439DC99293366A000E1CD02 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B439DC9B293366A000E1CD02 /* ACEView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEView.m; sourceTree = "<group>"; };
@@ -896,6 +902,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C40F6CEA7546C13C8E23D087 /* Pods_XYDevTool.framework in Frameworks */,
+				B424ED592CB440E600B02C3E /* LanguageSupport in Frameworks */,
+				B424ED572CB440E600B02C3E /* CodeEditorView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -922,10 +930,20 @@
 		B424ED502CAAEACF00B02C3E /* SwiftUIViews */ = {
 			isa = PBXGroup;
 			children = (
+				B424ED5A2CB4410C00B02C3E /* CodeEditorView */,
 				B424ED512CAAEB0E00B02C3E /* JSONFormatterView.swift */,
 				B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */,
 			);
 			path = SwiftUIViews;
+			sourceTree = "<group>";
+		};
+		B424ED5A2CB4410C00B02C3E /* CodeEditorView */ = {
+			isa = PBXGroup;
+			children = (
+				B424ED5D2CB441A500B02C3E /* CodeEditorDemoDocument.swift */,
+				B424ED5B2CB4413400B02C3E /* CodeEditorView.swift */,
+			);
+			path = CodeEditorView;
 			sourceTree = "<group>";
 		};
 		B43606222957F34A005A06A9 /* Protocols */ = {
@@ -1679,6 +1697,10 @@
 			dependencies = (
 			);
 			name = XYDevTool;
+			packageProductDependencies = (
+				B424ED562CB440E600B02C3E /* CodeEditorView */,
+				B424ED582CB440E600B02C3E /* LanguageSupport */,
+			);
 			productName = XYDevTool;
 			productReference = B48BC71C281D074E0093D91F /* XYDevTool.app */;
 			productType = "com.apple.product-type.application";
@@ -1708,6 +1730,9 @@
 				Base,
 			);
 			mainGroup = B48BC713281D074E0093D91F;
+			packageReferences = (
+				B424ED552CB440E600B02C3E /* XCRemoteSwiftPackageReference "CodeEditorView" */,
+			);
 			productRefGroup = B48BC71D281D074E0093D91F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -2127,9 +2152,11 @@
 				B48A9A60292FB96500DD7333 /* ConstraintViewDSL.swift in Sources */,
 				B418957A2C667E1B00C8CC86 /* HDividerView.swift in Sources */,
 				B4DA907A2C2C2D3C000A6667 /* PanelTopView.swift in Sources */,
+				B424ED5E2CB441A500B02C3E /* CodeEditorDemoDocument.swift in Sources */,
 				B439DE04293366A100E1CD02 /* ACEThemeNames.m in Sources */,
 				B48A9A62292FB96500DD7333 /* ConstraintInsets.swift in Sources */,
 				B424ED4F2CA7087300B02C3E /* PanelSettingsView.swift in Sources */,
+				B424ED5C2CB4413400B02C3E /* CodeEditorView.swift in Sources */,
 				B48A9A6E292FB96500DD7333 /* ConstraintLayoutSupport.swift in Sources */,
 				B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */,
 				B48A9A64292FB96500DD7333 /* ConstraintDSL.swift in Sources */,
@@ -2347,7 +2374,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.xiaoyou.XYDevTool.no-team";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2381,7 +2408,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.xiaoyou.XYDevTool.no-team";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2414,6 +2441,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B424ED552CB440E600B02C3E /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mchakravarty/CodeEditorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B424ED562CB440E600B02C3E /* CodeEditorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B424ED552CB440E600B02C3E /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = CodeEditorView;
+		};
+		B424ED582CB440E600B02C3E /* LanguageSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B424ED552CB440E600B02C3E /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = LanguageSupport;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B48BC714281D074E0093D91F /* Project object */;
 }

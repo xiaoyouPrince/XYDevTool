@@ -12,7 +12,7 @@ import Combine
 
 struct JSONFormatterView: View {
     @State var text: String = ""
-
+    @State var document = CodeEditorDemoDocument()
     
     var body: some View {
         ZStack {
@@ -26,6 +26,10 @@ struct JSONFormatterView: View {
                     .padding(.vertical)
                     .padding(.leading)
                     .colorScheme(.light)
+                
+//                ContentView(document: $document)
+                
+                
                 
                 JSONFormatterFunctionsView(text: $text)
                     .padding(.trailing)
