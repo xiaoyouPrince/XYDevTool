@@ -58,6 +58,9 @@ struct CustomTextEditor: NSViewRepresentable {
         scrollView.autoresizingMask = [.width, .height]
         textView.autoresizingMask = [.width, .height]
         
+        textView.isHorizontallyResizable = true
+        textView.isVerticallyResizable = true
+        
         return scrollView
     }
     
