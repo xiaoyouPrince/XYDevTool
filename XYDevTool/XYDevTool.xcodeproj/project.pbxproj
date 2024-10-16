@@ -18,6 +18,7 @@
 		B424ED592CB440E600B02C3E /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B424ED582CB440E600B02C3E /* LanguageSupport */; };
 		B424ED5C2CB4413400B02C3E /* CodeEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED5B2CB4413400B02C3E /* CodeEditorView.swift */; };
 		B424ED5E2CB441A500B02C3E /* CodeEditorDemoDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED5D2CB441A500B02C3E /* CodeEditorDemoDocument.swift */; };
+		B424ED612CB445B500B02C3E /* CustomServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED602CB445B500B02C3E /* CustomServerView.swift */; };
 		B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43606232957F381005A06A9 /* BaseDataProtocol.swift */; };
 		B439DE01293366A100E1CD02 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B439DC98293366A000E1CD02 /* InfoPlist.strings */; };
 		B439DE02293366A100E1CD02 /* ACEView.m in Sources */ = {isa = PBXBuildFile; fileRef = B439DC9B293366A000E1CD02 /* ACEView.m */; };
@@ -453,6 +454,7 @@
 		B424ED532CAAECAA00B02C3E /* JSONFormatterFunctionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONFormatterFunctionsView.swift; sourceTree = "<group>"; };
 		B424ED5B2CB4413400B02C3E /* CodeEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorView.swift; sourceTree = "<group>"; };
 		B424ED5D2CB441A500B02C3E /* CodeEditorDemoDocument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodeEditorDemoDocument.swift; sourceTree = "<group>"; };
+		B424ED602CB445B500B02C3E /* CustomServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomServerView.swift; sourceTree = "<group>"; };
 		B43606232957F381005A06A9 /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
 		B439DC99293366A000E1CD02 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B439DC9B293366A000E1CD02 /* ACEView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACEView.m; sourceTree = "<group>"; };
@@ -944,6 +946,14 @@
 				B424ED5B2CB4413400B02C3E /* CodeEditorView.swift */,
 			);
 			path = CodeEditorView;
+			sourceTree = "<group>";
+		};
+		B424ED5F2CB4456800B02C3E /* CustomServer */ = {
+			isa = PBXGroup;
+			children = (
+				B424ED602CB445B500B02C3E /* CustomServerView.swift */,
+			);
+			path = CustomServer;
 			sourceTree = "<group>";
 		};
 		B43606222957F34A005A06A9 /* Protocols */ = {
@@ -1628,6 +1638,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
+				B424ED5F2CB4456800B02C3E /* CustomServer */,
 				B454C7882837DF04008F07B7 /* Upgrade */,
 				B4F61DC2282AA189006FAC35 /* Network */,
 				B4F61DBD282A3DA7006FAC35 /* CreateIcons */,
@@ -2197,6 +2208,7 @@
 				B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */,
 				B48A9A77292FB96500DD7333 /* ConstraintItem.swift in Sources */,
 				B48A9A70292FB96500DD7333 /* ConstraintConstantTarget.swift in Sources */,
+				B424ED612CB445B500B02C3E /* CustomServerView.swift in Sources */,
 				B439DE0A293366A100E1CD02 /* NSString+EscapeForJavaScript.m in Sources */,
 				B48A9A7D292FB96500DD7333 /* ConstraintDirectionalInsets.swift in Sources */,
 				B439DE06293366A100E1CD02 /* ACELogger.m in Sources */,

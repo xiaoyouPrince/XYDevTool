@@ -49,6 +49,11 @@ class ViewController: NSViewController {
         openNetworkWindow()
     }
     
+    
+    @IBAction func customServerClick(_ sender: Any) {
+        openNewWindow(with: NSRect(x: 0, y: 0, width: 800, height: 600), title: "自定义服务器", contentView: CustomServerView())
+    }
+    
 }
 
 extension ViewController {
@@ -90,6 +95,24 @@ extension ViewController {
             .environmentObject(NetworkDataModel())
                                                     
         )
+        newWindow.contentView = hostingController.view
+        
+        let windowController = NSWindowController(window: newWindow)
+        windowController.showWindow(self)
+    }
+    
+    func openNewWindow<Content: View>(with contentRect: NSRect, title: String, contentView: Content) {
+        let newWindow = NSWindow(
+            contentRect: contentRect,
+            styleMask: [.titled, .closable, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false)
+        
+        newWindow.center()
+        newWindow.title = title
+        newWindow.isReleasedWhenClosed = false
+        
+        let hostingController = NSHostingController(rootView: contentView)
         newWindow.contentView = hostingController.view
         
         let windowController = NSWindowController(window: newWindow)
