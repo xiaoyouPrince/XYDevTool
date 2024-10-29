@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <title>CodeMirror Example</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/foldcode.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/foldgutter.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/brace-fold.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/comment-fold.min.js"></script>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/fold/foldgutter.min.css">
+                        <style>
+                            /* 让编辑器填充整个窗口 */
+                            html, body {
+                                height: 100%;
+                                margin: 0;
+                                overflow: hidden;
+                            }
+                            
+                            /* 让 CodeMirror 的容器全屏 */
+                            #code {
+                                height: 100%;
+                                width: 100%;
+                            }
+                            
+                            /* 让 CodeMirror 编辑器自身填充窗口 */
+                            .CodeMirror {
+                                height: 100vh;
+                                width: 100vw;
+                            }
+                        </style>
+                    </head>
+    <body>
+        <textarea id="code" name="code"></textarea>
+        <script>
+            // 初始化 CodeMirror 并使其填满窗口
+            var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                mode: "javascript",
+                lineNumbers: true,
+                theme: "default", // 设置代码主题
+                matchBrackets: true, // 高亮匹配的括号
+                autoCloseBrackets: true, // 自动补齐括号和引号
+                lineWrapping: true, // 启用自动换行
+                foldGutter: true, // 启用代码折叠
+                gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"] // 显示折叠标记
+            });
+            
+            // 窗口大小变化时，调整编辑器尺寸
+            window.addEventListener('resize', () => {
+                editor.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // 初始化时也设置编辑器大小
+            editor.setSize(window.innerWidth, window.innerHeight);
+            
+            // 监听内容变化并发送给 Swift
+            editor.on("change", function() {
+                const codeContent = editor.getValue();
+                window.webkit.messageHandlers.editorContentDidChange.postMessage(codeContent);
+            });
+        </script>
+    </body>
+</html>

@@ -17,6 +17,7 @@
 		B424ED612CB445B500B02C3E /* CustomServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B424ED602CB445B500B02C3E /* CustomServerView.swift */; };
 		B43606242957F381005A06A9 /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43606232957F381005A06A9 /* BaseDataProtocol.swift */; };
 		B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B454C7892837DF30008F07B7 /* UpgradeUtils.swift */; };
+		B46CEDBC2CCFB2AD00C5EDCC /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B46CEDBB2CCFB2AD00C5EDCC /* index.html */; };
 		B471DB92282BAB1F002146A1 /* NetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB91282BAB1F002146A1 /* NetModels.swift */; };
 		B471DB94282BE39E002146A1 /* XYAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B471DB93282BE39E002146A1 /* XYAlert.swift */; };
 		B471DB96282BE3BE002146A1 /* XYAlert.xib in Resources */ = {isa = PBXBuildFile; fileRef = B471DB95282BE3BE002146A1 /* XYAlert.xib */; };
@@ -120,6 +121,7 @@
 		B424ED602CB445B500B02C3E /* CustomServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomServerView.swift; sourceTree = "<group>"; };
 		B43606232957F381005A06A9 /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
 		B454C7892837DF30008F07B7 /* UpgradeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeUtils.swift; sourceTree = "<group>"; };
+		B46CEDBB2CCFB2AD00C5EDCC /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		B471DB91282BAB1F002146A1 /* NetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetModels.swift; sourceTree = "<group>"; };
 		B471DB93282BE39E002146A1 /* XYAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYAlert.swift; sourceTree = "<group>"; };
 		B471DB95282BE3BE002146A1 /* XYAlert.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = XYAlert.xib; sourceTree = "<group>"; };
@@ -277,6 +279,14 @@
 				B4DB4BA0283936AC00AF654D /* UpgradeViewController.xib */,
 			);
 			path = Upgrade;
+			sourceTree = "<group>";
+		};
+		B46CEDBD2CCFB62100C5EDCC /* CodeMirrorSite */ = {
+			isa = PBXGroup;
+			children = (
+				B46CEDBB2CCFB2AD00C5EDCC /* index.html */,
+			);
+			path = CodeMirrorSite;
 			sourceTree = "<group>";
 		};
 		B48A9A30292FB96500DD7333 /* SnapKit */ = {
@@ -506,6 +516,7 @@
 		B4F61DBB282A3C46006FAC35 /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				B46CEDBD2CCFB62100C5EDCC /* CodeMirrorSite */,
 				B4A3AD9D28217247001FD2B3 /* json */,
 				B4A3B06A281EC16C00C34DD8 /* sh */,
 				B4A3B065281D66CB00C34DD8 /* js */,
@@ -613,6 +624,7 @@
 				B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */,
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
+				B46CEDBC2CCFB2AD00C5EDCC /* index.html in Resources */,
 				B471DB96282BE3BE002146A1 /* XYAlert.xib in Resources */,
 				B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */,
 				B4EC92CE29533F66005FC62E /* NetResquestController.xib in Resources */,
