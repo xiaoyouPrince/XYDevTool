@@ -105,6 +105,7 @@
 		B4F61DC1282A9B78006FAC35 /* CreateMacIcons.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC0282A9B78006FAC35 /* CreateMacIcons.storyboard */; };
 		B4F61DC4282AA276006FAC35 /* Network.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4F61DC3282AA276006FAC35 /* Network.storyboard */; };
 		B4F61DC8282ABCAD006FAC35 /* XYNetTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */; };
+		BE66A9592DA5316400EF6D1C /* ImageInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE66A9582DA5316400EF6D1C /* ImageInspector.swift */; };
 		C40F6CEA7546C13C8E23D087 /* Pods_XYDevTool.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */; };
 /* End PBXBuildFile section */
 
@@ -214,6 +215,7 @@
 		B4F61DC3282AA276006FAC35 /* Network.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Network.storyboard; sourceTree = "<group>"; };
 		B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XYNetTool.swift; sourceTree = "<group>"; };
 		B4F61DC9282AC4CD006FAC35 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		BE66A9582DA5316400EF6D1C /* ImageInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageInspector.swift; sourceTree = "<group>"; };
 		CA6AF161DDDF8C3A49BF6B5E /* Pods-XYDevTool.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.debug.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -503,6 +505,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
+				BE66A95A2DA5316A00EF6D1C /* ImageInspector */,
 				B424ED5F2CB4456800B02C3E /* CustomServer */,
 				B454C7882837DF04008F07B7 /* Upgrade */,
 				B4F61DC2282AA189006FAC35 /* Network */,
@@ -557,6 +560,14 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
+		BE66A95A2DA5316A00EF6D1C /* ImageInspector */ = {
+			isa = PBXGroup;
+			children = (
+				BE66A9582DA5316400EF6D1C /* ImageInspector.swift */,
+			);
+			path = ImageInspector;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -568,14 +579,13 @@
 				B48BC718281D074E0093D91F /* Sources */,
 				B48BC719281D074E0093D91F /* Frameworks */,
 				B48BC71A281D074E0093D91F /* Resources */,
+				BAEE2CEDCD4049DBFC0A5F6C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = XYDevTool;
-			packageProductDependencies = (
-			);
 			productName = XYDevTool;
 			productReference = B48BC71C281D074E0093D91F /* XYDevTool.app */;
 			productType = "com.apple.product-type.application";
@@ -605,8 +615,6 @@
 				Base,
 			);
 			mainGroup = B48BC713281D074E0093D91F;
-			packageReferences = (
-			);
 			productRefGroup = B48BC71D281D074E0093D91F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -665,6 +673,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BAEE2CEDCD4049DBFC0A5F6C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-XYDevTool/Pods-XYDevTool-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-XYDevTool/Pods-XYDevTool-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-XYDevTool/Pods-XYDevTool-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -741,6 +766,7 @@
 				B4EC92CD29533F66005FC62E /* NetResquestController.swift in Sources */,
 				B48A9A77292FB96500DD7333 /* ConstraintItem.swift in Sources */,
 				B48A9A70292FB96500DD7333 /* ConstraintConstantTarget.swift in Sources */,
+				BE66A9592DA5316400EF6D1C /* ImageInspector.swift in Sources */,
 				B424ED612CB445B500B02C3E /* CustomServerView.swift in Sources */,
 				B48A9A7D292FB96500DD7333 /* ConstraintDirectionalInsets.swift in Sources */,
 				B48BC722281D074E0093D91F /* ViewController.swift in Sources */,

@@ -54,6 +54,9 @@ class ViewController: NSViewController {
         openNewWindow(with: NSRect(x: 0, y: 0, width: 800, height: 600), title: "自定义服务器", contentView: CustomServerView())
     }
     
+    @IBAction func imageInspectorClick(_ sender: Any) {
+        openNewWindow(with: NSRect(x: 0, y: 0, width: 800, height: 600), title: "ImageInspector", contentView: ImageInspector())
+    }
 }
 
 extension ViewController {

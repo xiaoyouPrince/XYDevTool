@@ -9,4 +9,6 @@ target 'XYDevTool' do
 #  pod 'Highlightr', '~> 2.1.0'
 #pod 'YYUIKit/Foundation', :path => '/Users/quxiaoyou/Desktop/XYUIKit'
 
+pod 'SDWebImageSwiftUI'
+
 end
