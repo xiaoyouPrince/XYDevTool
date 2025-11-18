@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="bU7-R8-ocO">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="bU7-R8-ocO">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22690"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24128"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -44,10 +44,10 @@
                                         </scroller>
                                     </scrollView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="16" horizontalStackHuggingPriority="250.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ssF-Mr-8fG">
-                                        <rect key="frame" x="617" y="135" width="160" height="324"/>
+                                        <rect key="frame" x="617" y="27" width="160" height="432"/>
                                         <subviews>
                                             <comboBox focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XqE-aL-QVE">
-                                                <rect key="frame" x="9" y="292" width="153" height="23"/>
+                                                <rect key="frame" x="9" y="400" width="153" height="23"/>
                                                 <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="DRe-GA-eJm">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -60,7 +60,7 @@
                                                 </comboBoxCell>
                                             </comboBox>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Sdz-Rw-YQJ">
-                                                <rect key="frame" x="3" y="251" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="359" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="JSON格式化" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Qdi-xv-D2u">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -70,7 +70,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ufH-6f-v6j">
-                                                <rect key="frame" x="3" y="215" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="323" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="压缩" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mJq-FT-YQm">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -80,7 +80,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1br-fe-NV5">
-                                                <rect key="frame" x="3" y="179" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="287" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="转义" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zeY-fD-q78">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -90,7 +90,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rd9-sp-fl5">
-                                                <rect key="frame" x="3" y="143" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="251" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="去除转义" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="E7d-S4-edv">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" size="13" name="STSongti-SC-Regular"/>
@@ -100,7 +100,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XjQ-5r-fZy">
-                                                <rect key="frame" x="3" y="107" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="215" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="汉字转Unicode" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZUI-d2-n20">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -110,7 +110,7 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EYa-wd-BGs">
-                                                <rect key="frame" x="3" y="71" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="179" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="Unicode转汉字" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pge-SH-LhY">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -120,13 +120,43 @@
                                                 </connections>
                                             </button>
                                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="R6M-Id-buB">
-                                                <rect key="frame" x="3" y="35" width="154" height="32"/>
+                                                <rect key="frame" x="3" y="143" width="154" height="32"/>
                                                 <buttonCell key="cell" type="push" title="生成随机JSON 串" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oks-u6-HG0">
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
                                                 </buttonCell>
                                                 <connections>
                                                     <action selector="createRandomJSON:" target="bU7-R8-ocO" id="zbW-kV-dSs"/>
+                                                </connections>
+                                            </button>
+                                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Sqe-2R-tCV">
+                                                <rect key="frame" x="3" y="107" width="154" height="32"/>
+                                                <buttonCell key="cell" type="push" title="URL编码" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Lie-kN-FAa">
+                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="stringURLEncode:" target="bU7-R8-ocO" id="4XE-Uy-QjS"/>
+                                                </connections>
+                                            </button>
+                                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="51t-i6-wIZ">
+                                                <rect key="frame" x="3" y="71" width="154" height="32"/>
+                                                <buttonCell key="cell" type="push" title="URL编码(严格)" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oS2-Cy-4uN">
+                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="stringURLEncode2:" target="bU7-R8-ocO" id="08J-fv-80J"/>
+                                                </connections>
+                                            </button>
+                                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9X6-ey-Jer">
+                                                <rect key="frame" x="3" y="35" width="154" height="32"/>
+                                                <buttonCell key="cell" type="push" title="URL解码" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nND-Bb-Gse">
+                                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                    <font key="font" metaFont="system"/>
+                                                </buttonCell>
+                                                <connections>
+                                                    <action selector="stringURLDecode:" target="bU7-R8-ocO" id="oYZ-eq-67b"/>
                                                 </connections>
                                             </button>
                                             <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="diP-iH-IZJ">
@@ -152,8 +182,14 @@
                                             <integer value="1000"/>
                                             <integer value="1000"/>
                                             <integer value="1000"/>
+                                            <integer value="1000"/>
+                                            <integer value="1000"/>
+                                            <integer value="1000"/>
                                         </visibilityPriorities>
                                         <customSpacing>
+                                            <real value="3.4028234663852886e+38"/>
+                                            <real value="3.4028234663852886e+38"/>
+                                            <real value="3.4028234663852886e+38"/>
                                             <real value="3.4028234663852886e+38"/>
                                             <real value="3.4028234663852886e+38"/>
                                             <real value="3.4028234663852886e+38"/>

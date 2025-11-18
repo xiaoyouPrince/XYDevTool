@@ -144,6 +144,20 @@ class JsonFormatterVC: NSViewController {
         setResult(string: result, desc: sender.title)
     }
     
+    @IBAction func stringURLEncode(_ sender: NSButton) {
+        let str = tv1.string.urlEncoded
+        setResult(string: str, desc: sender.title)
+    }
+    
+    @IBAction func stringURLEncode2(_ sender: NSButton) {
+        let str = tv1.string.urlQueryValueEncoded
+        setResult(string: str, desc: sender.title)
+    }
+    
+    @IBAction func stringURLDecode(_ sender: NSButton) {
+        let str = tv1.string.urlDecoded
+        setResult(string: str, desc: sender.title)
+    }
     
 }
 

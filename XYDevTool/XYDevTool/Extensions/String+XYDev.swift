@@ -165,3 +165,29 @@ public extension String {
     }
 }
 
+public extension String {
+    
+    /// URL 编码（对整个字符串做百分号编码）
+    var urlEncoded: String {
+        addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? self
+    }
+    
+    /// URL 解码
+    var urlDecoded: String {
+        removingPercentEncoding ?? self
+    }
+
+    /// 严格用于 Query Value 的编码
+    /// Apple 官方的 .urlQueryAllowed 会使 "&"、"=" 等保留字符被错误允许，所以我们提供一个更安全的适配版：
+    var urlQueryValueEncoded: String {
+        let generalDelimiters = ":#[]@"
+        let subDelimiters = "!$&'()*+,;="
+        
+        var allowed = CharacterSet.urlQueryAllowed
+        allowed.remove(charactersIn: generalDelimiters + subDelimiters)
+        
+        return addingPercentEncoding(withAllowedCharacters: allowed) ?? self
+    }
+    
+    
+}

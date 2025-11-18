@@ -13,7 +13,16 @@ struct JSONFormatterFunctionsView: View {
     @State var status: String = ""
     
     let funcsArray: [String] = [
-        "JSON 格式化", "压缩", "转义", "去除转义", "汉字转 Unicode", "Unicode 转汉字", "随机生成 JSON 串"
+        "JSON 格式化", 
+        "压缩",
+        "转义",
+        "去除转义",
+        "汉字转 Unicode",
+        "Unicode 转汉字",
+        "随机生成 JSON 串",
+        "URL编吗(通用)",
+        "URL编吗(严格)",
+        "URL解码",
     ]
     
     var body: some View {
@@ -53,6 +62,9 @@ extension JSONFormatterFunctionsView {
         case 4: Chinese2Unicode(funcName)
         case 5: Unicode2Chinese(funcName)
         case 6: createRandomJSON(funcName)
+        case 7: stringURLEncode(funcName)
+        case 8: stringURLEncode2(funcName)
+        case 9: stringURLDecode(funcName)
         default:
             break
         }
@@ -120,6 +132,24 @@ extension JSONFormatterFunctionsView {
     func createRandomJSON(_ funcName: String) {
         
         let result = getRandomJSON(maxLayer: 8, maxElementsPerLayer: 8)
+        setResult(string: result, desc: funcName)
+    }
+    
+    func stringURLEncode(_ funcName: String) {
+        
+        let result = text.urlEncoded
+        setResult(string: result, desc: funcName)
+    }
+    
+    func stringURLEncode2(_ funcName: String) {
+        
+        let result = text.urlQueryValueEncoded
+        setResult(string: result, desc: funcName)
+    }
+    
+    func stringURLDecode(_ funcName: String) {
+        
+        let result = text.urlDecoded
         setResult(string: result, desc: funcName)
     }
     
