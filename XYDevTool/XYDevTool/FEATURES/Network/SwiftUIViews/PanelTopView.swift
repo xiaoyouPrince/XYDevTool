@@ -22,7 +22,15 @@ struct PanelTopView: View {
             HStack {
                 Text("Name:")
                 TextField("输入请求名称, 后续作为请求标记(默认使用 url 地址)", text: $dataModel.requesName)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                     .padding(.trailing, 25)
                 
                 Toggle("🔒", isOn: $dataModel.isLock)
@@ -31,7 +39,15 @@ struct PanelTopView: View {
             HStack {
                 Text("URL:")
                 TextField("输入请求地址", text: $dataModel.urlString)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 
                 Picker("Method:", selection: $dataModel.httpMethod) {
                     ForEach(HttpMethod.allCases) { method in
@@ -48,6 +64,12 @@ struct PanelTopView: View {
         }.frame(height: 60)
             .padding()
             .background(bgColor)
+            .overlay(
+                Rectangle()
+                    .fill(NetworkTheme.panelBorder)
+                    .frame(height: 1),
+                alignment: .bottom
+            )
     }
     
     var bgColor: Color {

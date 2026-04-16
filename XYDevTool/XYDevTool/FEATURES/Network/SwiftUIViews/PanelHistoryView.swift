@@ -49,6 +49,8 @@ struct PanelHistoryView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(NetworkTheme.sectionBackground)
         
     }
 }

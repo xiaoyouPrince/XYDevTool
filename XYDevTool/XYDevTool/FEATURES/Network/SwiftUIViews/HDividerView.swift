@@ -29,15 +29,15 @@ struct HDividerView: View {
                 ZStack {
                     VStack(spacing: 7) {
                         ZStack {
-                            Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
+                            NetworkTheme.dividerDot.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
                                 .clipShape(RoundedRectangle(cornerRadius: dividerWidth/3))
                         }
                         ZStack {
-                            Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
+                            NetworkTheme.dividerDot.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
                                 .clipShape(RoundedRectangle(cornerRadius: dividerWidth/3))
                         }
                         ZStack {
-                            Color.white.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
+                            NetworkTheme.dividerDot.frame(width: dividerWidth / 3 * 2, height: dividerWidth / 3 * 2)
                                 .clipShape(RoundedRectangle(cornerRadius: dividerWidth/3))
                         }
                     }

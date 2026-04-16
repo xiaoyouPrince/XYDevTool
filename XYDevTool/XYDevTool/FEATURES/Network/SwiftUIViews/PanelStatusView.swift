@@ -25,8 +25,8 @@ struct PanelStatusView: View {
 
         }).frame(height: 30)
             .padding(.horizontal)
-            .background(Color(nsColor: .windowBackgroundColor))
-            .border(.background)
+            .background(NetworkTheme.panelBackground)
+            .border(NetworkTheme.panelBorder)
             .sheet(isPresented: $showSettings) {
                 SettingsView()
                     .frame(minWidth: 400, minHeight: 300)

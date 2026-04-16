@@ -10,8 +10,6 @@ import SwiftUI
 import AppKit
 
 struct CustomTextEditor: NSViewRepresentable {
-    
-    @Environment(\.colorScheme) var colorScheme
     @Binding var text: String
     
     class Coordinator: NSObject, NSTextViewDelegate {
@@ -40,12 +38,7 @@ struct CustomTextEditor: NSViewRepresentable {
         textView.isAutomaticDashSubstitutionEnabled = false
         textView.isAutomaticTextCompletionEnabled = false
         textView.delegate = context.coordinator
-        
-        if colorScheme == .dark {
-            textView.backgroundColor = .windowBackgroundColor
-        } else {
-            textView.backgroundColor = .windowBackgroundColor
-        }
+        applyTheme(for: textView)
         
         textView.font = NSFont.systemFont(ofSize: 16)
         
@@ -69,6 +62,13 @@ struct CustomTextEditor: NSViewRepresentable {
             if textView.string != self.text {
                 textView.string = self.text
             }
+            applyTheme(for: textView)
         }
+    }
+    
+    private func applyTheme(for textView: NSTextView) {
+        textView.backgroundColor = .textBackgroundColor
+        textView.textColor = .labelColor
+        textView.insertionPointColor = .labelColor
     }
 }

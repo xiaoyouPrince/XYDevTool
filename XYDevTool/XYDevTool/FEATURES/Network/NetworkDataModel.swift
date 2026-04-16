@@ -31,7 +31,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     @Published private(set) var currentHistory: XYItem?
     
-    @Published var userScript: String = "swift /Users/quxiaoyou/Desktop/Shell/swift.swift"//TimeZone.current.identifier
+    @Published var userScript: String = ""
     
     init() {
         // init history
@@ -90,19 +90,31 @@ extension NetworkDataModel {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
-        status = ("reuqesting...")
+        status = "requesting..."
         
         var headerDict: [String: String] = [:]
-        if let headers = self.httpHeaders.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: headers, options: .fragmentsAllowed) as? [String: Any]{
-            headerDict = dict.reduce([:], { partialResult, new in
-                var partialResult = partialResult
+        let headersText = self.httpHeaders.trimmingCharacters(in: .whitespacesAndNewlines)
+        if headersText.isEmpty == false {
+            guard let headersData = headersText.data(using: .utf8),
+                  let dict = try? JSONSerialization.jsonObject(with: headersData, options: .fragmentsAllowed) as? [String: Any] else {
+                status = "request fail: Header 不是合法 JSON 对象"
+                showAlert(msg: "请求头格式错误：请输入 JSON 对象，例如 {\"Authorization\":\"Bearer xxx\"}")
+                return
+            }
+            headerDict = dict.reduce(into: [:]) { partialResult, new in
                 partialResult[new.key] = "\(new.value)"
-                return partialResult
-            })
+            }
         }
         
         var parameters: [String: Any] = [:]
-        if let params = httpParameters.data(using: .utf8), let dict = try?  JSONSerialization.jsonObject(with: params, options: .fragmentsAllowed) as? [String: Any] {
+        let paramsText = httpParameters.trimmingCharacters(in: .whitespacesAndNewlines)
+        if paramsText.isEmpty == false {
+            guard let paramsData = paramsText.data(using: .utf8),
+                  let dict = try? JSONSerialization.jsonObject(with: paramsData, options: .fragmentsAllowed) as? [String: Any] else {
+                status = "request fail: Parameters 不是合法 JSON 对象"
+                showAlert(msg: "请求参数格式错误：请输入 JSON 对象，例如 {\"page\":1,\"size\":20}")
+                return
+            }
             parameters = dict
         }
         
@@ -125,23 +137,32 @@ extension NetworkDataModel {
         parameters = hp.params
         if let response = hp.response {
             self.httpResponse = response as? String ?? ""
-            self.status = "Complete"
+            self.status = "complete"
             item.response = self.httpResponse
             self.updateHistory(with: item)
             return
         }
         
-
-        XYNetTool.post(url: URL(string: urlString)!, paramters: parameters, headers: headerDict) { result in
+        let onSuccess: ([String: Any]) -> Void = { result in
             print("XYNetTool 请求成功 - \n\(result)")
             self.status = "complete"
             
             item.response = result.toJsonString()
             self.httpResponse = result.toJsonString()
             self.updateHistory(with: item)
-        } failure: { errMsg in
+        }
+        
+        let onFailure: (String) -> Void = { errMsg in
             print("XYNetTool 请求失败 - \n\(errMsg)")
-            self.status = "request fail"
+            let message = errMsg.isEmpty ? "未知错误" : errMsg
+            self.status = "request fail: \(message)"
+        }
+        
+        switch httpMethod {
+        case .get:
+            XYNetTool.get(url: url, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
+        case .post:
+            XYNetTool.post(url: url, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
         }
 
     }

@@ -40,6 +40,7 @@ struct NetworkPanelView: View {
             }
             .frame(minWidth: 350, idealWidth: 700, maxWidth: .infinity,
                    minHeight: 200, idealHeight: 450, maxHeight: .infinity)
+            .background(NetworkTheme.panelBackground)
         }
     }
 }

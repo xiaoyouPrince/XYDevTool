@@ -21,8 +21,11 @@ struct PanelResponceView: View {
                     }
                     CustomTextEditor(text: $dataModel.httpResponse)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .border(.background, width: 1)
+                        .border(NetworkTheme.panelBorder, width: 1)
                 }
+                .padding(8)
+                .background(NetworkTheme.sectionBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
     }

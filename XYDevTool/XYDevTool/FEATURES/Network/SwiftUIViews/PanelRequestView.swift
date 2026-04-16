@@ -20,9 +20,12 @@ struct PanelRequestView: View {
                 }
                 CustomTextEditor(text: $dataModel.httpHeaders)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .border(.background, width: 1)
+                    .border(NetworkTheme.panelBorder, width: 1)
                 
             }
+            .padding(8)
+            .background(NetworkTheme.sectionBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             
             VStack {
                 HStack {
@@ -31,8 +34,11 @@ struct PanelRequestView: View {
                 }
                 CustomTextEditor(text: $dataModel.httpParameters)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .border(.background, width: 1)
+                    .border(NetworkTheme.panelBorder, width: 1)
             }
+            .padding(8)
+            .background(NetworkTheme.sectionBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 }
