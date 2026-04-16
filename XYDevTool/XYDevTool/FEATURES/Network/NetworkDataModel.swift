@@ -14,6 +14,12 @@ struct NetworkVariable: Identifiable, Codable, Equatable {
     var value: String = ""
 }
 
+struct GlobalPostScript: Identifiable, Codable, Equatable {
+    var id: UUID = UUID()
+    var name: String = ""
+    var command: String = ""
+}
+
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     @Published var requesName: String = ""
@@ -38,9 +44,15 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     @Published private(set) var currentHistory: XYItem?
     
     @Published var userScript: String = ""
-    @Published var postResponseScript: String = "" {
+    @Published var selectedPostScriptIDsForCurrent: [String] = [] {
         didSet {
-            UserDefaults.standard.set(postResponseScript, forKey: postResponseScriptStoreKey)
+            syncCurrentScriptSelection()
+        }
+    }
+    @Published var globalPostScripts: [GlobalPostScript] = [] {
+        didSet {
+            saveGlobalPostScripts()
+            sanitizeSelectedScriptReferences()
         }
     }
     @Published var variables: [NetworkVariable] = [] {
@@ -50,7 +62,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     }
     
     private let variablesStoreKey = "xydev.network.variables"
-    private let postResponseScriptStoreKey = "xydev.network.postResponseScript"
+    private let globalPostScriptsStoreKey = "xydev.network.globalPostScripts"
     
     init() {
         // init history
@@ -58,7 +70,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
             historyArray = historys.item ?? []
         }
         loadVariables()
-        postResponseScript = UserDefaults.standard.string(forKey: postResponseScriptStoreKey) ?? ""
+        loadGlobalPostScripts()
     }
 }
 
@@ -78,6 +90,7 @@ extension NetworkDataModel {
                 self.httpHeaders = item.request?.header ?? ""
                 self.httpParameters = item.request?.body ?? ""
                 self.httpResponse = item.response ?? ""
+                self.selectedPostScriptIDsForCurrent = item.selectedPostScriptIDs ?? []
                 break
             }
         }
@@ -152,6 +165,7 @@ extension NetworkDataModel {
         let item = XYItem()
         item.isLock = isLock
         item.name = requesName
+        item.selectedPostScriptIDs = selectedPostScriptIDsForCurrent
         let res = XYRequest()
         res.method = httpMethod.rawValue.uppercased()
         res.url = urlString
@@ -185,7 +199,7 @@ extension NetworkDataModel {
             item.response = result.toJsonString()
             self.httpResponse = result.toJsonString()
             self.updateHistory(with: item)
-            self.runPostResponseScriptIfNeeded(responseText: self.httpResponse)
+            self.runPostResponseScriptIfNeeded(for: item, responseText: self.httpResponse)
         }
         
         let onFailure: (String) -> Void = { errMsg in
@@ -222,10 +236,62 @@ extension NetworkDataModel {
         }
         
         self.updateHistory()
+        if currentHistory?.name == item.name {
+            currentHistory = item
+        }
     }
 }
 
 extension NetworkDataModel {
+    private func syncCurrentScriptSelection() {
+        guard let currentHistory else { return }
+        currentHistory.selectedPostScriptIDs = selectedPostScriptIDsForCurrent
+        updateHistory()
+    }
+
+    func addGlobalPostScript() {
+        globalPostScripts.append(GlobalPostScript())
+    }
+    
+    func removeGlobalPostScript(id: UUID) {
+        globalPostScripts.removeAll { $0.id == id }
+    }
+
+    private func loadGlobalPostScripts() {
+        guard let data = UserDefaults.standard.data(forKey: globalPostScriptsStoreKey),
+              let list = try? JSONDecoder().decode([GlobalPostScript].self, from: data) else {
+            globalPostScripts = []
+            return
+        }
+        globalPostScripts = list
+    }
+    
+    private func saveGlobalPostScripts() {
+        guard let data = try? JSONEncoder().encode(globalPostScripts) else { return }
+        UserDefaults.standard.set(data, forKey: globalPostScriptsStoreKey)
+    }
+    
+    private func sanitizeSelectedScriptReferences() {
+        let validIDs = Set(globalPostScripts.map { $0.id.uuidString })
+        let sanitizedCurrent = selectedPostScriptIDsForCurrent.filter { validIDs.contains($0) }
+        if sanitizedCurrent != selectedPostScriptIDsForCurrent {
+            selectedPostScriptIDsForCurrent = sanitizedCurrent
+        }
+        
+        var hasHistoryChange = false
+        for item in historyArray {
+            let selected = item.selectedPostScriptIDs ?? []
+            let sanitized = selected.filter { validIDs.contains($0) }
+            if selected != sanitized {
+                item.selectedPostScriptIDs = sanitized
+                hasHistoryChange = true
+            }
+        }
+        if hasHistoryChange {
+            updateHistory()
+        }
+    }
+
     func addVariable() {
         variables.append(NetworkVariable())
     }
@@ -283,71 +349,84 @@ extension NetworkDataModel {
         return nil
     }
     
-    private func runPostResponseScriptIfNeeded(responseText: String) {
-        let script = postResponseScript.trimmingCharacters(in: .whitespacesAndNewlines)
-        if script.isEmpty { return }
+    private func runPostResponseScriptIfNeeded(for item: XYItem, responseText: String) {
+        let selectedIDs = item.selectedPostScriptIDs ?? []
+        if selectedIDs.isEmpty { return }
+        
+        let scriptsToRun = globalPostScripts.filter { selectedIDs.contains($0.id.uuidString) }
+        if scriptsToRun.isEmpty {
+            DispatchQueue.main.async {
+                self.status = "post-script skipped: no valid script selected"
+            }
+            return
+        }
         
         let variablesJSON = variableDictionary().toJsonString()
         
         DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            let pipe = Pipe()
-            let errorPipe = Pipe()
-            process.executableURL = URL(fileURLWithPath: "/bin/sh")
-            // 将 UI 输入作为完整命令模板执行，允许用户在模板中直接使用 $1/$2。
-            // e.g. swift /Users/me/script.swift "$1" "$2"
-            process.arguments = ["-c", script, "xy-post-script", responseText, variablesJSON]
-            process.standardOutput = pipe
-            process.standardError = errorPipe
+            var mergedUpdates: [String: String] = [:]
             
-            do {
-                try process.run()
-                process.waitUntilExit()
-            } catch {
-                DispatchQueue.main.async {
-                    self.status = "post-script fail: \(error.localizedDescription)"
+            for scriptItem in scriptsToRun {
+                let script = scriptItem.command.trimmingCharacters(in: .whitespacesAndNewlines)
+                if script.isEmpty { continue }
+                
+                let process = Process()
+                let pipe = Pipe()
+                let errorPipe = Pipe()
+                process.executableURL = URL(fileURLWithPath: "/bin/sh")
+                process.arguments = ["-c", script, "xy-post-script", responseText, variablesJSON]
+                process.standardOutput = pipe
+                process.standardError = errorPipe
+                
+                do {
+                    try process.run()
+                    process.waitUntilExit()
+                } catch {
+                    DispatchQueue.main.async {
+                        self.status = "post-script[\(scriptItem.name)] fail: \(error.localizedDescription)"
+                    }
+                    return
                 }
-                return
-            }
-            
-            let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
-            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-            let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let err = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            
-            if err.isEmpty == false {
-                DispatchQueue.main.async {
-                    self.status = "post-script fail: \(err)"
+                
+                let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+                let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+                let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let err = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                
+                if err.isEmpty == false {
+                    DispatchQueue.main.async {
+                        self.status = "post-script[\(scriptItem.name)] fail: \(err)"
+                    }
+                    return
                 }
-                return
+                
+                if output.isEmpty {
+                    continue
+                }
+                
+                let updates = self.parseVariableUpdates(from: output)
+                if updates.isEmpty {
+                    DispatchQueue.main.async {
+                        self.status = "post-script[\(scriptItem.name)] fail: 输出格式无效"
+                    }
+                    return
+                }
+                
+                for (key, value) in updates {
+                    mergedUpdates[key] = value
+                }
             }
             
-            // Test
-            /*
-            DispatchQueue.main.async {
-                showAlert(msg: output)
-            }
-            return
-             */
-            
-            guard output.isEmpty == false else {
+            if mergedUpdates.isEmpty {
                 DispatchQueue.main.async {
                     self.status = "complete (post-script no update)"
                 }
                 return
             }
             
-            let updates = self.parseVariableUpdates(from: output)
-            if updates.isEmpty {
-                DispatchQueue.main.async {
-                    self.status = "post-script fail: 输出格式无效"
-                }
-                return
-            }
-            
             DispatchQueue.main.async {
-                self.applyVariableUpdates(updates)
-                self.status = "complete (updated variables: \(updates.map { $0.key }.joined(separator: ", ")))"
+                self.applyVariableUpdates(mergedUpdates)
+                self.status = "complete (updated variables: \(mergedUpdates.keys.sorted().joined(separator: ", ")))"
             }
         }
     }

@@ -58,12 +58,21 @@ class XYItem: Model, Hashable {
     var isLock: Bool?
     var request: XYRequest?
     var response: String?
+    /// 是否启用请求完成后脚本
+    var enablePostScript: Bool?
+    /// 请求完成后脚本命令模板
+    var postResponseScript: String?
+    /// 当前请求选择执行的全局脚本 ID 列表
+    var selectedPostScriptIDs: [String]?
     
     func update(with item: XYItem) {
         name = item.name
         isLock = item.isLock
         request = item.request
         response = item.response
+        enablePostScript = item.enablePostScript
+        postResponseScript = item.postResponseScript
+        selectedPostScriptIDs = item.selectedPostScriptIDs
     }
 }
 

