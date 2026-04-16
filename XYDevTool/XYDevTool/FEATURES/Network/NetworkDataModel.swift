@@ -288,16 +288,15 @@ extension NetworkDataModel {
         if script.isEmpty { return }
         
         let variablesJSON = variableDictionary().toJsonString()
-        let escapedResponse = responseText.replacingOccurrences(of: "'", with: "'\"'\"'")
-        let escapedVariables = variablesJSON.replacingOccurrences(of: "'", with: "'\"'\"'")
-        let command = "\(script) '\(escapedResponse)' '\(escapedVariables)'"
         
         DispatchQueue.global(qos: .userInitiated).async {
             let process = Process()
             let pipe = Pipe()
             let errorPipe = Pipe()
             process.executableURL = URL(fileURLWithPath: "/bin/sh")
-            process.arguments = ["-c", command]
+            // 将 UI 输入作为完整命令模板执行，允许用户在模板中直接使用 $1/$2。
+            // e.g. swift /Users/me/script.swift "$1" "$2"
+            process.arguments = ["-c", script, "xy-post-script", responseText, variablesJSON]
             process.standardOutput = pipe
             process.standardError = errorPipe
             

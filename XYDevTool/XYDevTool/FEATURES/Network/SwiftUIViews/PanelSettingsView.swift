@@ -96,7 +96,7 @@ struct SettingsView: View {
             Text("请求完成后脚本（可更新变量）")
                 .font(.title3)
                 .fontWeight(.semibold)
-            Text("脚本入参：$1=响应文本，$2=当前变量JSON。\n脚本输出支持 3 种格式：\n1) JSON 包裹变量：{\"variables\":{\"token\":\"xxx\"}}\n2) 直接 JSON 对象：{\"token\":\"xxx\",\"uid\":\"1001\"}\n3) 多行 key=value：token=xxx\\nuid=1001\n注意：key 不能为空；重复 key 以最后一条为准。")
+            Text("此输入框为完整命令模板，支持直接写 $1/$2（示例：swift /Users/quxiaoyou/Desktop/Shell/swift2.swift \"$1\" \"$2\"）。\n其中：$1=响应文本，$2=当前变量JSON。\n脚本输出支持 3 种格式：\n1) JSON 包裹变量：{\"variables\":{\"token\":\"xxx\"}}\n2) 直接 JSON 对象：{\"token\":\"xxx\",\"uid\":\"1001\"}\n3) 多行 key=value：token=xxx\\nuid=1001\n注意：key 不能为空；重复 key 以最后一条为准。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             CustomTextEditor(text: $dataModel.postResponseScript)
