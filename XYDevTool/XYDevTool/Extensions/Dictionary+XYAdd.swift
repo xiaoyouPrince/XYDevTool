@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension Dictionary where Key == String, Value == Any {
+extension Dictionary {
     /// 将字典转为 json 字符串
     /// - Returns: json字符串
     func toJsonString() -> String {
@@ -23,8 +23,11 @@ extension Dictionary where Key == String, Value == Any {
         } catch {
             print("Error converting dictionary to JSON: \(error)")
         }
-        return ""
+        return "{}"
     }
+}
+
+extension Dictionary where Key == String, Value == Any {
     
     /// 此函数将字典内部所有的 value 都转换为 string 类型
     public func asHttpHeader() -> [String: Any] {

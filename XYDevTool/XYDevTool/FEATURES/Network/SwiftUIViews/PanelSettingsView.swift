@@ -13,10 +13,42 @@ struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    variableSection
+                    scriptSection
+                }
+                .padding()
+            }
+            
+            if dataModel.variables.isEmpty {
+                EmptyView()
+            }
+            
+            HStack {
+                Spacer()
+                Button("关闭") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+            .background(NetworkTheme.panelBackground)
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(NetworkTheme.panelBorder)
+                    .frame(height: 1)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var variableSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("变量设置")
-                    .font(.title2)
+                    .font(.title3)
                     .fontWeight(.semibold)
                 Spacer()
                 Button("新增变量") {
@@ -25,12 +57,11 @@ struct SettingsView: View {
             }
             
             if dataModel.variables.isEmpty {
-                Spacer()
                 Text("暂无变量，点击右上角“新增变量”开始配置")
                     .foregroundStyle(.secondary)
-                Spacer()
+                    .padding(.vertical, 12)
             } else {
-                List {
+                VStack(spacing: 8) {
                     ForEach($dataModel.variables) { $variable in
                         HStack(spacing: 10) {
                             TextField("key", text: $variable.key)
@@ -47,21 +78,44 @@ struct SettingsView: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        .padding(.vertical, 2)
                     }
-                }
-                .listStyle(.inset)
-            }
-            
-            HStack {
-                Spacer()
-                Button("关闭") {
-                    presentationMode.wrappedValue.dismiss()
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        .padding(12)
+        .background(NetworkTheme.sectionBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private var scriptSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("请求完成后脚本（可更新变量）")
+                .font(.title3)
+                .fontWeight(.semibold)
+            Text("脚本入参：$1=响应文本，$2=当前变量JSON。\n脚本输出支持 3 种格式：\n1) JSON 包裹变量：{\"variables\":{\"token\":\"xxx\"}}\n2) 直接 JSON 对象：{\"token\":\"xxx\",\"uid\":\"1001\"}\n3) 多行 key=value：token=xxx\\nuid=1001\n注意：key 不能为空；重复 key 以最后一条为准。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            CustomTextEditor(text: $dataModel.postResponseScript)
+                .frame(minHeight: 140)
+                .padding(6)
+                .background(NetworkTheme.panelBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+        .padding(12)
+        .background(NetworkTheme.sectionBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 #Preview {

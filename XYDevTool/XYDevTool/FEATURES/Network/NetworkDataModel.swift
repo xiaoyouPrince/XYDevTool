@@ -38,6 +38,11 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     @Published private(set) var currentHistory: XYItem?
     
     @Published var userScript: String = ""
+    @Published var postResponseScript: String = "" {
+        didSet {
+            UserDefaults.standard.set(postResponseScript, forKey: postResponseScriptStoreKey)
+        }
+    }
     @Published var variables: [NetworkVariable] = [] {
         didSet {
             saveVariables()
@@ -45,6 +50,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     }
     
     private let variablesStoreKey = "xydev.network.variables"
+    private let postResponseScriptStoreKey = "xydev.network.postResponseScript"
     
     init() {
         // init history
@@ -52,6 +58,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
             historyArray = historys.item ?? []
         }
         loadVariables()
+        postResponseScript = UserDefaults.standard.string(forKey: postResponseScriptStoreKey) ?? ""
     }
 }
 
@@ -178,6 +185,7 @@ extension NetworkDataModel {
             item.response = result.toJsonString()
             self.httpResponse = result.toJsonString()
             self.updateHistory(with: item)
+            self.runPostResponseScriptIfNeeded(responseText: self.httpResponse)
         }
         
         let onFailure: (String) -> Void = { errMsg in
@@ -273,6 +281,121 @@ extension NetworkDataModel {
         }
         
         return nil
+    }
+    
+    private func runPostResponseScriptIfNeeded(responseText: String) {
+        let script = postResponseScript.trimmingCharacters(in: .whitespacesAndNewlines)
+        if script.isEmpty { return }
+        
+        let variablesJSON = variableDictionary().toJsonString()
+        let escapedResponse = responseText.replacingOccurrences(of: "'", with: "'\"'\"'")
+        let escapedVariables = variablesJSON.replacingOccurrences(of: "'", with: "'\"'\"'")
+        let command = "\(script) '\(escapedResponse)' '\(escapedVariables)'"
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let process = Process()
+            let pipe = Pipe()
+            let errorPipe = Pipe()
+            process.executableURL = URL(fileURLWithPath: "/bin/sh")
+            process.arguments = ["-c", command]
+            process.standardOutput = pipe
+            process.standardError = errorPipe
+            
+            do {
+                try process.run()
+                process.waitUntilExit()
+            } catch {
+                DispatchQueue.main.async {
+                    self.status = "post-script fail: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let err = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            
+            if err.isEmpty == false {
+                DispatchQueue.main.async {
+                    self.status = "post-script fail: \(err)"
+                }
+                return
+            }
+            
+            // Test
+            /*
+            DispatchQueue.main.async {
+                showAlert(msg: output)
+            }
+            return
+             */
+            
+            guard output.isEmpty == false else {
+                DispatchQueue.main.async {
+                    self.status = "complete (post-script no update)"
+                }
+                return
+            }
+            
+            let updates = self.parseVariableUpdates(from: output)
+            if updates.isEmpty {
+                DispatchQueue.main.async {
+                    self.status = "post-script fail: 输出格式无效"
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.applyVariableUpdates(updates)
+                self.status = "complete (updated variables: \(updates.map { $0.key }.joined(separator: ", ")))"
+            }
+        }
+    }
+    
+    private func variableDictionary() -> [String: String] {
+        var dict: [String: String] = [:]
+        for item in variables {
+            let key = item.key.trimmingCharacters(in: .whitespacesAndNewlines)
+            if key.isEmpty { continue }
+            dict[key] = item.value
+        }
+        return dict
+    }
+    
+    private func parseVariableUpdates(from output: String) -> [String: String] {
+        if let data = output.data(using: .utf8),
+           let json = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed) as? [String: Any] {
+            if let vars = json["variables"] as? [String: Any] {
+                return vars.reduce(into: [:]) { partialResult, pair in
+                    partialResult[pair.key] = "\(pair.value)"
+                }
+            }
+            return json.reduce(into: [:]) { partialResult, pair in
+                partialResult[pair.key] = "\(pair.value)"
+            }
+        }
+        
+        var kv: [String: String] = [:]
+        for line in output.split(separator: "\n") {
+            let parts = line.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+            if parts.count != 2 { continue }
+            let key = String(parts[0]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let value = String(parts[1]).trimmingCharacters(in: .whitespacesAndNewlines)
+            if key.isEmpty { continue }
+            kv[key] = value
+        }
+        return kv
+    }
+    
+    private func applyVariableUpdates(_ updates: [String: String]) {
+        for (key, value) in updates {
+            if let index = variables.firstIndex(where: { $0.key.trimmingCharacters(in: .whitespacesAndNewlines) == key }) {
+                variables[index].value = value
+            } else {
+                variables.append(NetworkVariable(key: key, value: value))
+            }
+        }
     }
 
     /// 这里做更正 header 和 parameters, 为之后抽取出公用脚本准备
