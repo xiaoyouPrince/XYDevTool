@@ -8,37 +8,59 @@
 
 import SwiftUI
 
-// 设置页面
 struct SettingsView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
-    @Environment(\.presentationMode) var presentationMode // 用于关闭设置页面
-    @State private var settingOption = false              // 一个简单的设置选项示例
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack {
-            Text("Settings")
-                .font(.largeTitle)
-                .padding()
-            
-            // 简单的设置选项
-            Toggle(isOn: $settingOption) {
-                Text("Enable Option")
+        VStack(spacing: 12) {
+            HStack {
+                Text("变量设置")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Spacer()
+                Button("新增变量") {
+                    dataModel.addVariable()
+                }
             }
-            .padding()
             
-            CustomTextEditor(text: $dataModel.userScript)
-                .frame(width: .infinity, height: .infinity)
-            
-            Spacer()
-            
-            // 完成设置按钮，关闭视图
-            Button("Save and Close") {
-                // 可以在这里保存设置，然后关闭页面
-                presentationMode.wrappedValue.dismiss()
+            if dataModel.variables.isEmpty {
+                Spacer()
+                Text("暂无变量，点击右上角“新增变量”开始配置")
+                    .foregroundStyle(.secondary)
+                Spacer()
+            } else {
+                List {
+                    ForEach($dataModel.variables) { $variable in
+                        HStack(spacing: 10) {
+                            TextField("key", text: $variable.key)
+                                .textFieldStyle(.roundedBorder)
+                            Text(":")
+                                .foregroundStyle(.secondary)
+                            TextField("value", text: $variable.value)
+                                .textFieldStyle(.roundedBorder)
+                            Button {
+                                dataModel.removeVariable(id: variable.id)
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+                .listStyle(.inset)
             }
-            .padding()
+            
+            HStack {
+                Spacer()
+                Button("关闭") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity) // 设置页面占满窗口
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
     }
 }

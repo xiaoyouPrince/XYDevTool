@@ -8,6 +8,12 @@
 
 import Foundation
 
+struct NetworkVariable: Identifiable, Codable, Equatable {
+    var id: UUID = UUID()
+    var key: String = ""
+    var value: String = ""
+}
+
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     @Published var requesName: String = ""
@@ -32,12 +38,20 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     @Published private(set) var currentHistory: XYItem?
     
     @Published var userScript: String = ""
+    @Published var variables: [NetworkVariable] = [] {
+        didSet {
+            saveVariables()
+        }
+    }
+    
+    private let variablesStoreKey = "xydev.network.variables"
     
     init() {
         // init history
         if let data = NSData(contentsOfFile: history_path), let historys = MyObj.mapping(jsonData: data as Data) {
             historyArray = historys.item ?? []
         }
+        loadVariables()
     }
 }
 
@@ -53,6 +67,7 @@ extension NetworkDataModel {
                 self.requesName = item.name ?? ""
                 self.isLock = item.isLock ?? true
                 self.urlString = item.request?.url ?? ""
+                self.httpMethod = HttpMethod(rawValue: item.request?.method?.lowercased() ?? "") ?? .get
                 self.httpHeaders = item.request?.header ?? ""
                 self.httpParameters = item.request?.body ?? ""
                 self.httpResponse = item.response ?? ""
@@ -84,16 +99,25 @@ extension NetworkDataModel {
     
     /// 开始发起请求
     func makeRequest() {
+        if let variableError = validateVariablesBeforeRequest() {
+            status = "request fail: \(variableError)"
+            showAlert(msg: variableError)
+            return
+        }
         
+        let urlStringApplied = applyVariables(to: urlString)
+        let headersTextApplied = applyVariables(to: httpHeaders)
+        let paramsTextApplied = applyVariables(to: httpParameters)
+
         // url
-        guard urlString.isEmpty == false, let url = URL(string: urlString) else {
+        guard urlStringApplied.isEmpty == false, let url = URL(string: urlStringApplied) else {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
         status = "requesting..."
         
         var headerDict: [String: String] = [:]
-        let headersText = self.httpHeaders.trimmingCharacters(in: .whitespacesAndNewlines)
+        let headersText = headersTextApplied.trimmingCharacters(in: .whitespacesAndNewlines)
         if headersText.isEmpty == false {
             guard let headersData = headersText.data(using: .utf8),
                   let dict = try? JSONSerialization.jsonObject(with: headersData, options: .fragmentsAllowed) as? [String: Any] else {
@@ -107,7 +131,7 @@ extension NetworkDataModel {
         }
         
         var parameters: [String: Any] = [:]
-        let paramsText = httpParameters.trimmingCharacters(in: .whitespacesAndNewlines)
+        let paramsText = paramsTextApplied.trimmingCharacters(in: .whitespacesAndNewlines)
         if paramsText.isEmpty == false {
             guard let paramsData = paramsText.data(using: .utf8),
                   let dict = try? JSONSerialization.jsonObject(with: paramsData, options: .fragmentsAllowed) as? [String: Any] else {
@@ -126,9 +150,13 @@ extension NetworkDataModel {
         res.url = urlString
         res.header = httpHeaders
         res.body = httpParameters
+        //res.url = urlStringApplied
+        //res.header = headersTextApplied
+        //res.body = paramsTextApplied
         item.request = res
         if item.name?.isEmpty == true {
             item.name = URL(string: urlString)?.host
+            //item.name = URL(string: urlStringApplied)?.host
         }
         
         // 更正脚本, 如果直接返回 response 则直接展示
@@ -190,6 +218,62 @@ extension NetworkDataModel {
 }
 
 extension NetworkDataModel {
+    func addVariable() {
+        variables.append(NetworkVariable())
+    }
+    
+    func removeVariable(id: UUID) {
+        variables.removeAll { $0.id == id }
+    }
+    
+    private func loadVariables() {
+        guard let data = UserDefaults.standard.data(forKey: variablesStoreKey),
+              let list = try? JSONDecoder().decode([NetworkVariable].self, from: data) else {
+            variables = []
+            return
+        }
+        variables = list
+    }
+    
+    private func saveVariables() {
+        guard let data = try? JSONEncoder().encode(variables) else { return }
+        UserDefaults.standard.set(data, forKey: variablesStoreKey)
+    }
+    
+    private func applyVariables(to text: String) -> String {
+        if text.isEmpty { return text }
+        var result = text
+        for variable in variables {
+            let key = variable.key.trimmingCharacters(in: .whitespacesAndNewlines)
+            if key.isEmpty { continue }
+            result = result.replacingOccurrences(of: "{{\(key)}}", with: variable.value)
+        }
+        return result
+    }
+    
+    private func validateVariablesBeforeRequest() -> String? {
+        let trimmedKeys = variables.map { $0.key.trimmingCharacters(in: .whitespacesAndNewlines) }
+        
+        if trimmedKeys.contains(where: { $0.isEmpty }) {
+            return "变量配置错误：存在空 key，请先补全或删除该变量。"
+        }
+        
+        var keyCounter: [String: Int] = [:]
+        for key in trimmedKeys {
+            keyCounter[key, default: 0] += 1
+        }
+        
+        let duplicatedKeys = keyCounter
+            .filter { $0.value > 1 }
+            .map { $0.key }
+            .sorted()
+        
+        if duplicatedKeys.isEmpty == false {
+            return "变量配置错误：存在重复 key -> \(duplicatedKeys.joined(separator: ", "))"
+        }
+        
+        return nil
+    }
 
     /// 这里做更正 header 和 parameters, 为之后抽取出公用脚本准备
     /// - Parameters:

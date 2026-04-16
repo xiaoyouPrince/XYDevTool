@@ -71,7 +71,7 @@ public struct XYNetTool {
         public var responseParsers: [ResponseParser]
         
         public init(timeout: TimeInterval = 20,
-                    validateStatusCode: Bool = true,
+                    validateStatusCode: Bool = false,
                     responseParsers: [ResponseParser] = ResponseParser.defaultParsers) {
             self.timeout = timeout
             self.validateStatusCode = validateStatusCode
@@ -252,6 +252,9 @@ private extension XYNetTool {
                 result = .failure(.statusCode(statusCode, message))
                 return
             }
+            
+            // TODO
+            // 这里请求以 200-299 认为是成功, 这里需要增加一个插件能力, 有插件的时候插件去处理一些异常情况,
             
             guard let parsedBody = parseBody(data: body, response: response, parsers: options.responseParsers) else {
                 result = .failure(.decodeFailed)
