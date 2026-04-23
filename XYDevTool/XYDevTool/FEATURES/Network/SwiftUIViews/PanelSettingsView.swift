@@ -12,6 +12,10 @@ struct SettingsView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
     @Environment(\.presentationMode) var presentationMode
     
+    private var variablePreview: (rows: [NetworkVariablePreview], error: String?) {
+        dataModel.variableResolutionPreview()
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -81,6 +85,36 @@ struct SettingsView: View {
                         }
                     }
                 }
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("最终解析预览")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    if let error = variablePreview.error {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    } else if variablePreview.rows.isEmpty {
+                        Text("暂无可预览变量")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(variablePreview.rows) { row in
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                Text(row.key)
+                                    .font(.system(.caption, design: .monospaced))
+                                Text("=>")
+                                    .foregroundStyle(.secondary)
+                                Text(row.resolvedValue)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .textSelection(.enabled)
+                                Spacer(minLength: 0)
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 4)
             }
         }
         .padding(12)

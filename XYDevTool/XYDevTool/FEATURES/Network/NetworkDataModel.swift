@@ -14,6 +14,20 @@ struct NetworkVariable: Identifiable, Codable, Equatable {
     var value: String = ""
 }
 
+struct NetworkVariablePreview: Identifiable, Equatable {
+    let id: String
+    let key: String
+    let resolvedValue: String
+}
+
+struct VariableResolveError: Error, LocalizedError, Equatable {
+    let message: String
+    
+    var errorDescription: String? {
+        message
+    }
+}
+
 struct GlobalPostScript: Identifiable, Codable, Equatable {
     var id: UUID = UUID()
     var name: String = ""
@@ -75,6 +89,40 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
 }
 
 extension NetworkDataModel {
+    func variableResolutionPreview() -> (rows: [NetworkVariablePreview], error: String?) {
+        let trimmedKeys = variables.map { $0.key.trimmingCharacters(in: .whitespacesAndNewlines) }
+        if trimmedKeys.contains(where: { $0.isEmpty }) {
+            return ([], "存在空 key，补全后可查看完整解析结果。")
+        }
+        
+        var keyCounter: [String: Int] = [:]
+        for key in trimmedKeys {
+            keyCounter[key, default: 0] += 1
+        }
+        let duplicatedKeys = keyCounter
+            .filter { $0.value > 1 }
+            .map { $0.key }
+            .sorted()
+        if duplicatedKeys.isEmpty == false {
+            return ([], "存在重复 key：\(duplicatedKeys.joined(separator: ", "))")
+        }
+        
+        switch resolvedVariableDictionary() {
+        case .success(let resolvedVariables):
+            var rows: [NetworkVariablePreview] = []
+            var addedKeys = Set<String>()
+            for item in variables {
+                let key = item.key.trimmingCharacters(in: .whitespacesAndNewlines)
+                if key.isEmpty || addedKeys.contains(key) { continue }
+                rows.append(NetworkVariablePreview(id: key, key: key, resolvedValue: resolvedVariables[key] ?? item.value))
+                addedKeys.insert(key)
+            }
+            return (rows, nil)
+        case .failure(let error):
+            return ([], error.message)
+        }
+    }
+    
     
     /// 设置当前请求项, 当用户选择历史记录,则会将选中内容设置为当前项目
     /// - Parameter name: 名
@@ -316,13 +364,12 @@ extension NetworkDataModel {
     
     private func applyVariables(to text: String) -> String {
         if text.isEmpty { return text }
-        var result = text
-        for variable in variables {
-            let key = variable.key.trimmingCharacters(in: .whitespacesAndNewlines)
-            if key.isEmpty { continue }
-            result = result.replacingOccurrences(of: "{{\(key)}}", with: variable.value)
+        guard case .success(let resolvedVariables) = resolvedVariableDictionary() else {
+            return text
         }
-        return result
+        return replacePlaceholders(in: text) { key in
+            resolvedVariables[key] ?? "{{\(key)}}"
+        }
     }
     
     private func validateVariablesBeforeRequest() -> String? {
@@ -344,6 +391,10 @@ extension NetworkDataModel {
         
         if duplicatedKeys.isEmpty == false {
             return "变量配置错误：存在重复 key -> \(duplicatedKeys.joined(separator: ", "))"
+        }
+        
+        if case .failure(let error) = resolvedVariableDictionary() {
+            return error.message
         }
         
         return nil
@@ -432,13 +483,93 @@ extension NetworkDataModel {
     }
     
     private func variableDictionary() -> [String: String] {
-        var dict: [String: String] = [:]
-        for item in variables {
-            let key = item.key.trimmingCharacters(in: .whitespacesAndNewlines)
-            if key.isEmpty { continue }
-            dict[key] = item.value
+        switch resolvedVariableDictionary() {
+        case .success(let dict):
+            return dict
+        case .failure:
+            var fallback: [String: String] = [:]
+            for item in variables {
+                let key = item.key.trimmingCharacters(in: .whitespacesAndNewlines)
+                if key.isEmpty { continue }
+                fallback[key] = item.value
+            }
+            return fallback
         }
-        return dict
+    }
+
+    private func resolvedVariableDictionary() -> Swift.Result<[String: String], VariableResolveError> {
+        let rawVariables = variables.reduce(into: [String: String]()) { partialResult, variable in
+            let key = variable.key.trimmingCharacters(in: .whitespacesAndNewlines)
+            if key.isEmpty { return }
+            partialResult[key] = variable.value
+        }
+        
+        var resolvedVariables: [String: String] = [:]
+        var resolvingStack: [String] = []
+        
+        func resolve(_ key: String) -> Swift.Result<String, VariableResolveError> {
+            if let resolved = resolvedVariables[key] {
+                return .success(resolved)
+            }
+            
+            if resolvingStack.contains(key) {
+                let cyclePath = (resolvingStack + [key]).joined(separator: " -> ")
+                return .failure(VariableResolveError(message: "变量配置错误：检测到循环引用 -> \(cyclePath)"))
+            }
+            
+            guard let rawValue = rawVariables[key] else {
+                return .success("{{\(key)}}")
+            }
+            
+            resolvingStack.append(key)
+            let resolvedValue = replacePlaceholders(in: rawValue) { nestedKey in
+                switch resolve(nestedKey) {
+                case .success(let value):
+                    return value
+                case .failure:
+                    return "{{\(nestedKey)}}"
+                }
+            }
+            _ = resolvingStack.popLast()
+            
+            resolvedVariables[key] = resolvedValue
+            return .success(resolvedValue)
+        }
+        
+        for key in rawVariables.keys {
+            if case .failure(let error) = resolve(key) {
+                return .failure(error)
+            }
+        }
+        
+        return .success(resolvedVariables)
+    }
+    
+    private func replacePlaceholders(in text: String, resolver: (String) -> String) -> String {
+        guard text.isEmpty == false else { return text }
+        
+        let pattern = #"\{\{\s*([^{}]+?)\s*\}\}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return text
+        }
+        
+        let nsRange = NSRange(text.startIndex..<text.endIndex, in: text)
+        let matches = regex.matches(in: text, options: [], range: nsRange)
+        if matches.isEmpty { return text }
+        
+        var result = text
+        for match in matches.reversed() {
+            guard match.numberOfRanges > 1,
+                  let wholeRange = Range(match.range(at: 0), in: result),
+                  let keyRange = Range(match.range(at: 1), in: result) else {
+                continue
+            }
+            let key = String(result[keyRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let replacement = key.isEmpty ? String(result[wholeRange]) : resolver(key)
+            result.replaceSubrange(wholeRange, with: replacement)
+        }
+        
+        return result
     }
     
     private func parseVariableUpdates(from output: String) -> [String: String] {
