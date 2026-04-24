@@ -77,6 +77,9 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     private let variablesStoreKey = "xydev.network.variables"
     private let globalPostScriptsStoreKey = "xydev.network.globalPostScripts"
+    private let exportHistoryFileName = "network_history.json"
+    private let exportVariablesFileName = "network_variables.json"
+    private let exportGlobalScriptsFileName = "network_global_scripts.json"
     
     init() {
         // init history
@@ -89,6 +92,55 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
 }
 
 extension NetworkDataModel {
+    func exportNetworkConfigs(to folderURL: URL) throws {
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        
+        let historyItems = historyArray.map { $0.toDictionary() }
+        let historyDict: [String: Any] = ["item": historyItems]
+        let historyData = try JSONSerialization.data(withJSONObject: historyDict, options: [.prettyPrinted, .sortedKeys])
+        try historyData.write(to: folderURL.appendingPathComponent(exportHistoryFileName), options: .atomic)
+        
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        
+        let variablesData = try encoder.encode(variables)
+        try variablesData.write(to: folderURL.appendingPathComponent(exportVariablesFileName), options: .atomic)
+        
+        let scriptsData = try encoder.encode(globalPostScripts)
+        try scriptsData.write(to: folderURL.appendingPathComponent(exportGlobalScriptsFileName), options: .atomic)
+    }
+    
+    func importNetworkConfigs(from folderURL: URL) throws {
+        let historyURL = folderURL.appendingPathComponent(exportHistoryFileName)
+        let variablesURL = folderURL.appendingPathComponent(exportVariablesFileName)
+        let scriptsURL = folderURL.appendingPathComponent(exportGlobalScriptsFileName)
+        
+        guard FileManager.default.fileExists(atPath: historyURL.path),
+              FileManager.default.fileExists(atPath: variablesURL.path),
+              FileManager.default.fileExists(atPath: scriptsURL.path) else {
+            throw VariableResolveError(message: "导入失败：所选目录缺少必要文件（network_history.json / network_variables.json / network_global_scripts.json）")
+        }
+        
+        let historyData = try Data(contentsOf: historyURL)
+        guard let historys = MyObj.mapping(jsonData: historyData) else {
+            throw VariableResolveError(message: "导入失败：network_history.json 格式无效")
+        }
+        
+        let decoder = JSONDecoder()
+        let importedVariables = try decoder.decode([NetworkVariable].self, from: Data(contentsOf: variablesURL))
+        let importedScripts = try decoder.decode([GlobalPostScript].self, from: Data(contentsOf: scriptsURL))
+        
+        historyArray = historys.item ?? []
+        variables = importedVariables
+        globalPostScripts = importedScripts
+        currentHistory = nil
+        selectedPostScriptIDsForCurrent = []
+    }
+    
+    func exportFileNamesDescription() -> String {
+        "\(exportHistoryFileName), \(exportVariablesFileName), \(exportGlobalScriptsFileName)"
+    }
+    
     func variableResolutionPreview() -> (rows: [NetworkVariablePreview], error: String?) {
         let trimmedKeys = variables.map { $0.key.trimmingCharacters(in: .whitespacesAndNewlines) }
         if trimmedKeys.contains(where: { $0.isEmpty }) {

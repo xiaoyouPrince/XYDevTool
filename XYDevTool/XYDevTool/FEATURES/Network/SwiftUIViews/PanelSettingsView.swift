@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct SettingsView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
@@ -32,6 +33,12 @@ struct SettingsView: View {
             }
             
             HStack {
+                Button("导入配置") {
+                    importConfigs()
+                }
+                Button("导出配置") {
+                    exportConfigs()
+                }
                 Spacer()
                 Button("关闭") {
                     presentationMode.wrappedValue.dismiss()
@@ -249,6 +256,38 @@ struct SettingsView: View {
                 }
             }
         )
+    }
+    
+    private func exportConfigs() {
+        guard let folderURL = chooseFolder(title: "选择导出目录", prompt: "导出到此目录") else { return }
+        do {
+            try dataModel.exportNetworkConfigs(to: folderURL)
+            showAlert(msg: "导出成功：\(dataModel.exportFileNamesDescription())")
+        } catch {
+            showAlert(msg: "导出失败：\(error.localizedDescription)")
+        }
+    }
+    
+    private func importConfigs() {
+        guard let folderURL = chooseFolder(title: "选择导入目录", prompt: "从此目录导入") else { return }
+        do {
+            try dataModel.importNetworkConfigs(from: folderURL)
+            showAlert(msg: "导入成功，已更新历史记录、变量和全局脚本")
+        } catch {
+            showAlert(msg: "导入失败：\(error.localizedDescription)")
+        }
+    }
+    
+    private func chooseFolder(title: String, prompt: String) -> URL? {
+        let panel = NSOpenPanel()
+        panel.title = title
+        panel.prompt = prompt
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = true
+        panel.directoryURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
+        return panel.runModal() == .OK ? panel.url : nil
     }
 }
 #Preview {
