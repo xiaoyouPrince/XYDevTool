@@ -51,7 +51,10 @@ class XYItem: Model, Hashable {
         hasher.combine(name)
     }
     
-    
+    /// 请求在历史列表中的唯一标识（业务主键）。
+    /// - 展示名称，用户可改；
+    /// - `NetworkDataModel.updateHistory(with:)` 按同名覆盖更新，不会并存两条同名记录；
+    /// - 列表排序、选中、删除、拖拽排序均以 `name` 定位条目。
     /** New Request */
     var name: String?
     /// 是否锁定，锁定不能移除，防止误删

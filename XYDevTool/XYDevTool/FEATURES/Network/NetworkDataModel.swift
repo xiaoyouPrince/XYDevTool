@@ -176,8 +176,37 @@ extension NetworkDataModel {
     }
     
     
+    /// 将 `fromName` 对应条目移动到 `toName` 所在位置（松手后调用，会触发持久化）。
+    func moveHistory(fromName: String, toName: String) {
+        guard fromName != toName,
+              let sourceIndex = historyArray.firstIndex(where: { $0.name == fromName }),
+              let destinationIndex = historyArray.firstIndex(where: { $0.name == toName }) else {
+            return
+        }
+        let item = historyArray.remove(at: sourceIndex)
+        historyArray.insert(item, at: destinationIndex)
+    }
+    
+    /// 按 UI 拖拽后的顺序写回历史（仅当顺序变化时持久化）。
+    func applyHistoryOrder(_ items: [XYItem]) {
+        let newOrder = items.compactMap { $0.name }
+        let currentOrder = historyArray.compactMap { $0.name }
+        guard newOrder != currentOrder else { return }
+        historyArray = items
+    }
+    
+    /// 删除指定名称的历史记录（`name` 为唯一键）。
+    func removeHistory(named name: String) {
+        guard let index = historyArray.firstIndex(where: { $0.name == name }) else { return }
+        historyArray.remove(at: index)
+        if currentHistory?.name == name {
+            currentHistory = nil
+            selectedPostScriptIDsForCurrent = []
+        }
+    }
+    
     /// 设置当前请求项, 当用户选择历史记录,则会将选中内容设置为当前项目
-    /// - Parameter name: 名
+    /// - Parameter name: 历史条目的唯一 `name`
     func setCurrentHistory(with name: String) {
         for item in historyArray {
             if item.name == name {
