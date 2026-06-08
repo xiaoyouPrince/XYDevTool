@@ -36,6 +36,23 @@ struct GlobalPostScript: Identifiable, Codable, Equatable {
 
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
+    /// 历史列表行内上下 padding、拖拽把手边长（与 PanelHistoryView 保持一致）
+    static let historyRowVerticalPadding: CGFloat = 3
+    static let historyRowHandleSize: CGFloat = 22
+    
+    /// 历史列表单行目标高度（改此值即可统一调整）
+    let historyRowHeight: CGFloat = 28
+    
+    /// 行内容撑开的最小高度，低于此值背景会重叠
+    static var historyRowMinHeight: CGFloat {
+        historyRowHandleSize + historyRowVerticalPadding * 2
+    }
+    
+    /// 实际行高：布局与拖拽补偿共用，不会低于 historyRowMinHeight
+    var effectiveHistoryRowHeight: CGFloat {
+        max(historyRowHeight, Self.historyRowMinHeight)
+    }
+    
     @Published var requesName: String = ""
     @Published var isLock: Bool = true {
         didSet {

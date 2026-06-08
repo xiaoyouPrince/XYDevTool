@@ -24,7 +24,6 @@ struct PanelHistoryView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
     
     private let coordinateSpaceName = "historyReorder"
-    private let defaultRowHeight: CGFloat = 40
     
     @State private var selectedItem: String? = nil
     @State private var displayItems: [XYItem] = []
@@ -108,9 +107,10 @@ struct PanelHistoryView: View {
                     }
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.vertical, NetworkDataModel.historyRowVerticalPadding)
         }
-        .frame(minHeight: defaultRowHeight)
+        .frame(height: dataModel.effectiveHistoryRowHeight)
+        .clipped()
         .contentShape(Rectangle())
         .background(
             GeometryReader { proxy in
@@ -141,7 +141,10 @@ struct PanelHistoryView: View {
         Image(systemName: "line.3.horizontal")
             .font(.body)
             .foregroundStyle(.secondary)
-            .frame(width: 22, height: 22)
+            .frame(
+                width: NetworkDataModel.historyRowHandleSize,
+                height: NetworkDataModel.historyRowHandleSize
+            )
             .contentShape(Rectangle())
             .help("拖拽以调整顺序")
             .gesture(
@@ -192,7 +195,7 @@ struct PanelHistoryView: View {
     }
     
     private func averageRowHeight() -> CGFloat {
-        guard rowFrames.isEmpty == false else { return defaultRowHeight }
+        guard rowFrames.isEmpty == false else { return dataModel.effectiveHistoryRowHeight }
         let heights = rowFrames.values.map(\.height)
         return heights.reduce(0, +) / CGFloat(heights.count)
     }
