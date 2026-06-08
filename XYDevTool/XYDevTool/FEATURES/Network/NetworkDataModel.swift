@@ -39,7 +39,6 @@ struct GlobalPostScript: Identifiable, Codable, Equatable {
 /// 历史列表专用 UI 状态，与编辑区字段分离，避免选中时整表重绘。
 @Observable
 final class HistoryListUIStore {
-    var rows: [HistoryDisplayRow] = []
     var selectedId: String?
     var requestCount: Int = 0
     /// 树结构变更时递增，供 AppKit Outline 触发 reloadData。
@@ -100,21 +99,13 @@ final class NetworkEditorStore {
 
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
-    /// 历史列表行内上下 padding、拖拽把手边长（与 PanelHistoryView 保持一致）
+    /// 历史列表行内上下 padding、行尾删除按钮边长
     static let historyRowVerticalPadding: CGFloat = 3
-    static let historyRowHandleSize: CGFloat = 22
-    
-    /// 历史列表单行目标高度（改此值即可统一调整）
-    let historyRowHeight: CGFloat = 28
+    static let historyRowAccessorySize: CGFloat = 22
     
     /// 行内容撑开的最小高度，低于此值背景会重叠
     static var historyRowMinHeight: CGFloat {
-        historyRowHandleSize + historyRowVerticalPadding * 2
-    }
-    
-    /// 实际行高：布局与拖拽补偿共用，不会低于 historyRowMinHeight
-    var effectiveHistoryRowHeight: CGFloat {
-        max(historyRowHeight, Self.historyRowMinHeight)
+        historyRowAccessorySize + historyRowVerticalPadding * 2
     }
     
     let editor = NetworkEditorStore()
@@ -273,10 +264,18 @@ extension NetworkDataModel {
     }
     
     func refreshHistoryListUI() {
-        historyListUI.rows = HistoryTree.flatten(historyRoots)
         historyListUI.requestCount = HistoryTree.allRequestNodes(in: historyRoots).count
         historyListUI.selectedId = selectedId
         historyListUI.treeRevision += 1
+    }
+    
+    /// 当前选中节点是否为请求（供设置页等判断脚本绑定）。
+    var isSelectedRequest: Bool {
+        guard let selectedId,
+              let node = HistoryTree.findNode(id: selectedId, in: historyRoots)?.node else {
+            return false
+        }
+        return node.isRequest
     }
     
     private func updateHistoryListSelection(_ id: String?, notifyListUI: Bool = true) {
@@ -460,10 +459,6 @@ extension NetworkDataModel {
     func lockedRequestCount(inSubtreeOf groupId: String) -> Int {
         guard let node = HistoryTree.findNode(id: groupId, in: historyRoots)?.node else { return 0 }
         return HistoryTree.countLockedRequests(in: node)
-    }
-    
-    func flattenHistoryForDisplay() -> [HistoryDisplayRow] {
-        HistoryTree.flatten(historyRoots)
     }
     
     func exportFileNamesDescription() -> String {

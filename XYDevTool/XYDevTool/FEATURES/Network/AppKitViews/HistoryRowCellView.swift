@@ -47,7 +47,7 @@ final class HistoryRowCellView: NSTableCellView, NSTextFieldDelegate {
         return button
     }()
     
-    private let deleteButtonSize = NetworkDataModel.historyRowHandleSize
+    private let deleteButtonSize = NetworkDataModel.historyRowAccessorySize
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)

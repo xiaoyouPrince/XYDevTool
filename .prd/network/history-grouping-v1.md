@@ -1,25 +1,28 @@
 # 请求历史多层分组 — PRD v1
 
-> **状态**：已定稿，待开发  
+> **状态**：已实现  
 > **模块**：Network / 请求历史列表  
-> **最后更新**：2026-06-08
+> **最后更新**：2026-06-08  
+> **列表 UI**：AppKit `NSOutlineView`（见 [history-appkit-migration.md](./history-appkit-migration.md)）
 
 ---
 
 ## 1. 背景与现状
 
-### 1.1 当前实现
+### 1.1 当前实现（v1 + AppKit 迁移后）
 
-- 历史为**扁平数组** `historyArray: [XYItem]`，持久化 `history.json`：
+- 历史为**树形根数组** `historyRoots: [HistoryNode]`，持久化 `history.json` v2：
 
   ```json
-  { "item": [ { "name": "...", "request": { ... }, ... } ] }
+  { "version": 2, "item": [ { "type": "group", "id": "...", "children": [ ... ] }, ... ] }
   ```
 
-- **`name` 是请求业务主键**：同名覆盖更新，异名新建；选中 / 删除 / 排序 / 拖拽均用 `name` 定位。
-- **展示顺序** = 数组顺序 = `history.json` 中 `item` 顺序。
-- **主 UI**：SwiftUI `PanelHistoryView`；`≡` 把手同层拖拽排序，松手 `applyHistoryOrder` 写盘。
-- **行高**：由 `NetworkDataModel.historyRowHeight` 统一控制（含最小高度防重叠）。
+- **`id` 是内部主键**：选中 / 删除 / 拖拽 / 加载编辑区一律用 `HistoryNode.id`（UUID）。
+- **请求 `name` 是业务主键**：发请求时同名覆盖更新、异名新建（见 §6）。
+- **展示顺序** = 各层 `children` 数组顺序 = `history.json` 中树结构顺序。
+- **主 UI**：`PanelHistoryView`（SwiftUI 顶栏）+ `HistoryOutlineRepresentable` → AppKit `NSOutlineView`；整行拖拽排序（删除按钮区域除外），松手 `commitHistoryMutation` 写盘。
+- **行高**：`HistoryListLayout.rowHeight`（28pt，含最小高度防重叠）。
+- **列表状态**：`HistoryListUIStore`（`selectedId` / `requestCount` / `treeRevision`）；编辑区字段在 `NetworkEditorStore`，与列表分离。
 
 ### 1.2 痛点
 
@@ -34,7 +37,7 @@
 | 多层分组（组内可再建组） | 行缝隙精确插入位置 |
 | 顶栏「+」创建分组 | 多选、批量移动 |
 | 请求 / 分组拖入、拖出、组嵌套 | 搜索过滤 |
-| 同层 `≡` 把手排序（组 + 请求） | |
+| 同层整行拖拽排序（组 + 请求） | |
 | 分组折叠，状态持久化 | |
 | 空分组 `(empty)` 标记 | |
 | 删分组弹窗 + 锁定项二次确认 | |
@@ -129,7 +132,7 @@
 
 ### 4.1 顶栏「+」— 创建分组
 
-入口：`PanelTopView` 顶栏 **「+」** 按钮。
+入口：`PanelHistoryView` 顶栏 **「+」** 按钮（「请求历史(n)」右侧）。
 
 | 当前选中 | 行为 |
 |----------|------|
@@ -138,25 +141,25 @@
 
 **默认分组名**：`新分组`、`新分组 2`、`新分组 3`…（在分组命名空间内自动去重）。
 
-### 4.2 列表行布局
+### 4.2 列表行布局（AppKit）
 
-**原则**：`≡` 把手统一最左列；**仅名称区域**随层级缩进。
+**原则**：系统 disclosure 控制折叠；名称随 `NSOutlineView` 层级缩进（`HistoryListLayout.indentPerLevel` = 12pt）；整行可拖拽。
 
 ```
-≡  ▼  登录模块                              🗑
-≡  ▶  子流程 (empty)                        🗑
-≡      获取 token                            🗑
-≡  未分组请求                                🗑
+▼  登录模块                                    🗑
+▶  子流程 (empty)                              🗑
+     获取 token                                  🗑
+   未分组请求                                    🗑
 ```
 
 | 元素 | 分组行 | 请求行 |
 |------|--------|--------|
-| `≡` 把手 | ✅ 最左，不缩进 | ✅ 最左，不缩进 |
-| 折叠三角 `▶/▼` | ✅ 把手右侧；点击切换折叠 | — |
-| 名称 | 从第三列起，按层级缩进（建议每层 +12pt） | 缩进随父级深度 |
+| 折叠三角 `▶/▼` | ✅ 系统 disclosure；点击切换折叠 | — |
+| 名称 | 随层级缩进（每层 +12pt） | 缩进随父级深度 |
 | `(empty)` 后缀 | 见 §4.3 | — |
-| 删除 🗑 | ✅ | ✅（锁定项逻辑不变） |
-| 选中高亮 | ✅（分组可选中，供「+」判断） | ✅；点击加载到编辑区 |
+| 删除 🗑 | ✅ 行尾 `NSButton` | ✅（锁定项逻辑不变） |
+| 选中 / 悬停 | ✅ `HistoryTableRowView` 背景 | ✅；点击加载到编辑区 |
+| 拖拽 | ✅ 整行（排除删除按钮 hit area） | ✅ 整行 |
 
 ### 4.3 `(empty)` 判定
 
@@ -195,12 +198,14 @@
 
 ## 5. 拖拽交互
 
-### 5.1 `≡` 把手 — 同层排序（保留并扩展）
+实现：`HistoryOutlineController+DragDrop.swift`（AppKit 原生拖拽）。
 
-- **分组、请求**均可拖拽排序。
-- **仅限同一父节点**下的兄弟节点之间调整顺序。
+### 5.1 整行拖拽 — 同层排序
+
+- **分组、请求**均可拖拽排序（`shouldStartDragFromRow` 排除删除按钮区域）。
+- **仅限同一父节点**下的兄弟节点之间调整顺序（`applySiblingOrder`）。
 - 同一父下分组与请求可**混排**。
-- 松手后一次写盘（等价于更新父级 `children` 或根 `item` 顺序）。
+- 松手后一次写盘（`commitHistoryMutation` → 更新父级 `children` 或根 `item` 顺序）。
 
 ### 5.2 拖入 / 拖出（drop）
 
@@ -215,9 +220,9 @@
 
 ### 5.3 视觉反馈
 
-- 合法 drop 目标（分组行）：高亮。
+- 合法 drop 目标（分组行）：`HistoryTableRowView.isDropTarget` 高亮。
 - 非法（成环等）：不高亮 / 不响应 drop。
-- 拖动中逻辑与现有 `dragTranslation` / `reorderCompensation` 机制对齐，行高使用 `effectiveHistoryRowHeight`。
+- 拖拽由 `NSOutlineView` 原生机制驱动，无 SwiftUI `GeometryReader` / `PreferenceKey` 跟手逻辑。
 
 ---
 
@@ -263,30 +268,33 @@
 
 ---
 
-## 8. 与现有代码的 API 映射
+## 8. 与代码的 API 映射（当前）
 
-| 现有 | v1 变更 |
-|------|---------|
-| `historyArray: [XYItem]` | 树形根数组 `[HistoryNode]`（或 `historyTree`） |
-| `setCurrentHistory(with name:)` | `setCurrentHistory(id:)` |
-| `removeHistory(named:)` | `removeHistory(id:)` |
-| `applyHistoryOrder(_:)` | 同父级 `children` 顺序写回 |
-| `updateHistory(with:)` | 按 request `name` 全局查找；更新 or 新建（§6） |
-| `moveHistory(fromName:toName:)` | 改为基于 `id` 的树移动，或废弃 |
-| 选中态 | `selectedId: String?`（分组 / 请求均可） |
-| 导入 / 导出 | v2 格式 + v1 兼容读取 |
+| 概念 | 实现 |
+|------|------|
+| 历史数据源 | `NetworkDataModel.historyRoots: [HistoryNode]` |
+| 列表 UI 刷新 | `refreshHistoryListUI()` → `treeRevision++` |
+| 选中 | `selectHistory(id:)` / `HistoryListUIStore.selectedId` |
+| 删除请求 | `removeHistory(id:)`（经 `HistoryListActions`） |
+| 同层排序 | `applySiblingOrder(parentId:orderedIds:)` |
+| 跨层 / 入组 | `moveNode(id:toParentId:atIndex:)` / `moveNodeIntoGroup` |
+| 更新 / 新建请求 | `updateHistory(with:)` — 按 request `name` 全局查找 |
+| 分组 CRUD | `createGroup()` / `deleteGroup(id:unwrapOnly:)` / `renameGroup(id:to:)` |
+| UI 操作门面 | `HistoryListActions` → `PanelHistoryView` / `HistoryOutlineController` |
+| 设置页判断选中请求 | `dataModel.isSelectedRequest` |
+| 导入 / 导出 | v2 格式 + v1 扁平格式兼容读取 |
 
 ---
 
-## 9. 实现顺序（建议）
+## 9. 实现顺序（已完成）
 
-1. **模型 + 持久化**：`HistoryNode`、v2 JSON 读写、旧数据迁移  
-2. **DataModel 树 API**：按 `id` 查找、同层排序、移动节点、建组、删组、按 `name` 更新 / 新建请求  
-3. **PanelHistoryView**：递归渲染、把手左对齐、名称缩进、`(empty)`、折叠  
-4. **拖拽**：同层排序 + drop 入组 / 出组 / 组嵌套 + 防环  
-5. **顶栏「+」**、删组弹窗、锁定二次确认  
-6. **分组重命名**：双击 + 右键菜单 + 行内编辑  
-7. **导入导出** + 全量回归  
+1. ✅ **模型 + 持久化**：`HistoryNode`、v2 JSON 读写、旧数据迁移  
+2. ✅ **DataModel 树 API**：按 `id` 查找、同层排序、移动节点、建组、删组、按 `name` 更新 / 新建请求  
+3. ✅ **AppKit 历史树**：`HistoryOutlineRepresentable` + `HistoryRowCellView`；缩进、`(empty)`、折叠  
+4. ✅ **拖拽**：整行同层排序 + drop 入组 / 出组 / 组嵌套 + 防环  
+5. ✅ **顶栏「+」**、删组弹窗、锁定二次确认  
+6. ✅ **分组重命名**：双击 + 右键菜单 + 行内 `NSTextField`  
+7. ✅ **导入导出** + AppKit 迁移 Phase 5 清理（移除 SwiftUI 扁平列表遗留）  
 
 ---
 
@@ -319,11 +327,11 @@
 
 ### 拖拽
 
-- [ ] 同层 `≡` 排序（组 + 请求混排）  
+- [ ] 同层整行排序（组 + 请求混排）  
 - [ ] 请求拖入组、拖出根级  
 - [ ] 组拖入组（多层）  
 - [ ] 拖入自身子孙 → 禁止  
-- [ ] 把手列左对齐，名称随层级缩进  
+- [ ] 名称随层级缩进；删除按钮区域不触发拖拽  
 
 ### 删除
 
@@ -352,21 +360,31 @@
 | 7 | 折叠 | 要；默认展开；持久化用户选择 |
 | 8 | 空分组 | 允许；`(empty)` 后缀 |
 | 9 | 创建分组入口 | 顶栏「+」 |
-| 10 | v1 拖拽 | 组拖入组：要；保留把手同层排序：要 |
+| 10 | v1 拖拽 | 组拖入组：要；整行同层排序：要 |
 | 11 | 「+」落点 | 选中组 → 子组；否则根级 |
 | 12 | 新建请求落点 | 异名：选中组 → 组内，否则根级；同名原地更新 |
 | 13 | `(empty)` 判定 | 子树内无任何 request |
-| 14 | 把手与缩进 | 把手最左不缩进；名称区随层级缩进 |
+| 14 | 拖拽与缩进 | 整行拖拽（排除删除按钮）；名称区随层级缩进 |
 | 15 | 分组重命名 | 双击或右键；校验分组命名空间唯一 |
 
 ---
 
-## 12. 附录：行高配置（已实现，分组 UI 需沿用）
+## 12. 附录：行高配置（AppKit）
 
-以下配置在 `NetworkDataModel` 中，分组行 / 请求行应共用：
+| 常量 | 位置 | 默认值 | 说明 |
+|------|------|--------|------|
+| `HistoryListLayout.rowHeight` | `NetworkDataModel` | 28 | Outline 行高 |
+| `HistoryListLayout.indentPerLevel` | `NetworkDataModel` | 12 | 每层缩进 |
+| `historyRowAccessorySize` | `NetworkDataModel` | 22 | 行尾删除按钮边长 |
+| `historyRowVerticalPadding` | `NetworkDataModel` | 3 | 行内上下 padding |
+| `historyRowMinHeight` | `NetworkDataModel` | 28 | accessory + padding×2 |
 
-| 常量 | 默认值 | 说明 |
-|------|--------|------|
-| `historyRowHeight` | 28 | 目标行高 |
-| `historyRowMinHeight` | 28 | 把手 22 + 上下 padding 各 3 |
-| `effectiveHistoryRowHeight` | `max(目标, 最小)` | 布局与拖拽补偿共用 |
+---
+
+## 13. 修订记录
+
+| 日期 | 变更 |
+|------|------|
+| 2026-06-08 | 初版定稿 |
+| 2026-06-08 | v1 功能实现完成 |
+| 2026-06-08 | 同步 AppKit 迁移后现状：整行拖拽、NSOutlineView UI、API 与行高常量 |

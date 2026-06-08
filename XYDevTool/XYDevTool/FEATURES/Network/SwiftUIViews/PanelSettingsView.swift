@@ -12,15 +12,10 @@ import AppKit
 struct SettingsView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
     @Environment(NetworkEditorStore.self) private var editorStore
-    @Environment(HistoryListUIStore.self) private var listUI
     @Environment(\.presentationMode) var presentationMode
     
     private var hasSelectedRequest: Bool {
-        guard let id = listUI.selectedId,
-              let row = listUI.rows.first(where: { $0.nodeId == id }) else {
-            return false
-        }
-        return row.isGroup == false
+        dataModel.isSelectedRequest
     }
     
     private var variablePreview: (rows: [NetworkVariablePreview], error: String?) {

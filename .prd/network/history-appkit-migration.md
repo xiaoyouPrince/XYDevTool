@@ -1,6 +1,6 @@
 # 请求历史列表 AppKit 迁移 — PRD
 
-> **状态**：开发中（Phase 5）  
+> **状态**：已完成  
 > **模块**：Network / 请求历史列表  
 > **最后更新**：2026-06-08
 
@@ -8,11 +8,13 @@
 
 ## 1. 背景与动机
 
-### 1.1 现状
+### 1.1 迁移前现状（已解决）
 
-- 历史列表由 SwiftUI `PanelHistoryView` 实现（`ScrollView + LazyVStack + ForEach`）。
-- 多层分组、拖拽排序、折叠、重命名等 v1 功能已落地（见 [history-grouping-v1.md](./history-grouping-v1.md)）。
+- 历史列表曾由 SwiftUI `PanelHistoryView` 实现（`ScrollView + LazyVStack + ForEach`）。
+- 多层分组、拖拽排序、折叠、重命名等 v1 功能已在 SwiftUI 阶段落地（见 [history-grouping-v1.md](./history-grouping-v1.md)）。
 - 数据层为 `historyRoots: [HistoryNode]` + `HistoryTree` 工具；操作入口为 `HistoryListActions`。
+
+**迁移后**：`PanelHistoryView` 仅保留 SwiftUI 顶栏；树列表由 AppKit `NSOutlineView` 承载（`AppKitViews/`）。
 
 ### 1.2 痛点
 
@@ -46,7 +48,7 @@
 | **Phase 2** | 删除、样式、刷新同步 | +1 天 | **已完成** |
 | **Phase 3** | 拖拽排序 / 移入分组 / 跨层移动 | +2～3 天 | **已完成** |
 | **Phase 4** | 重命名、右键菜单、删组弹窗 | +1 天 | **已完成** |
-| **Phase 5** | 清理 SwiftUI 遗留、回归、文档 | +1 天 | 待开发 |
+| **Phase 5** | 清理 SwiftUI 遗留、回归、文档 | +1 天 | **已完成** |
 
 **全量 parity 合计**：约 5～8 个工作日。
 
@@ -76,7 +78,7 @@
 ### 3.3 不包含（后续阶段）
 
 - 行内删除按钮、锁定校验提示（Phase 2）
-- `≡` 拖拽排序、移入分组（Phase 3）
+- 整行拖拽排序、移入分组（Phase 3）
 - 双击 / 右键重命名、删组弹窗（Phase 4）
 - 拖拽过程视觉反馈、drop 高亮（Phase 3）
 
@@ -109,7 +111,7 @@
 
 ### Phase 3 — 拖拽（已完成）
 
-- `≡` 把手发起拖拽（`HistoryDragHandleView` + `beginDraggingSession`）。
+- 整行拖拽（`outlineView(_:pasteboardWriterForItem:)` + `shouldStartDragFromRow`，删除按钮区域除外）。
 - `validateDrop` / `acceptDrop`：`NSOutlineViewDropOnItemIndex` → `moveNodeIntoGroup`。
 - 同级缝隙：`applySiblingOrder`；跨父级：`moveNode(toParentId:atIndex:)`。
 - 禁止拖入自身子树（`canMoveNode` / `isDescendant`）。
@@ -117,7 +119,7 @@
 
 #### Phase 3 验收标准
 
-1. 仅能通过 `≡` 把手拖拽，点击标题/删除不触发拖拽。
+1. 整行可拖拽，点击删除按钮不触发拖拽。
 2. 同层上下调整顺序，松手后 `history.json` 顺序更新。
 3. 拖到分组行上松手，节点移入该分组（含嵌套分组）。
 4. 可将节点拖到根级或其他分组下（跨父级）。
@@ -137,30 +139,36 @@
 3. 右键分组可重命名或删除（走删组弹窗流程）。
 4. 请求行无双击重命名、无分组右键菜单。
 
-### Phase 5 — 清理
+### Phase 5 — 清理（已完成）
 
-- 删除 `PanelHistoryView` 内 SwiftUI 行视图 / 拖拽 / `PreferenceKey` 代码
-- 精简 `HistoryListUIStore`（移除 `rows`，保留 `selectedId` / `requestCount` / `treeRevision`）
-- `SettingsView` 改用 `selectedId` + `HistoryTree.findNode`
-- 更新 `.cursor/skills/xydevtool-network`
+- `PanelHistoryView` 仅保留 SwiftUI 顶栏 + `HistoryOutlineRepresentable`（无遗留行视图）。
+- `HistoryListUIStore` 移除 `rows`；删除 `HistoryDisplayRow` / `HistoryTree.flatten`。
+- `SettingsView` 改用 `dataModel.isSelectedRequest`。
+- 更新 `.cursor/skills/xydevtool-network`（SKILL.md + reference.md）。
 
 ---
 
 ## 5. 技术方案
 
-### 5.1 文件结构（目标）
+### 5.1 文件结构（当前）
 
 ```
 FEATURES/Network/
 ├── AppKitViews/
-│   ├── HistoryOutlineRepresentable.swift   # NSViewRepresentable 桥接
-│   ├── HistoryOutlineController.swift      # DataSource / Delegate
-│   └── HistoryRowCellView.swift            # 可复用 cell
+│   ├── HistoryOutlineView.swift              # NSOutlineView 子类，右键 menu(for:)
+│   ├── HistoryOutlineRepresentable.swift     # NSViewRepresentable 桥接
+│   ├── HistoryOutlineController.swift        # DataSource / Delegate / 选中
+│   ├── HistoryOutlineController+DragDrop.swift
+│   ├── HistoryOutlineController+Delete.swift
+│   ├── HistoryOutlineController+Rename.swift
+│   ├── HistoryRowCellView.swift              # 行内容 + 删除 + 行内编辑
+│   ├── HistoryTableRowView.swift             # 行背景（选中/悬停/drop）
+│   └── HistoryDragDrop.swift                 # Pasteboard 类型
 ├── SwiftUIViews/
-│   ├── PanelHistoryView.swift              # 顶栏 + Representable 容器
-│   └── NetworkPanelView.swift              # 布局不变
-├── NetworkDataModel.swift
-└── NetModels.swift
+│   ├── PanelHistoryView.swift                # 顶栏 + Representable 容器
+│   └── NetworkPanelView.swift                # 布局不变
+├── NetworkDataModel.swift                    # historyRoots, HistoryListUIStore
+└── NetModels.swift                           # HistoryNode, HistoryTree
 ```
 
 ### 5.2 数据流
@@ -213,3 +221,5 @@ historyListUI.selectedId   ──► 回写选中行（外部变更）
 | 2026-06-08 | 初版：五阶段排期 + Phase 1 详细范围 |
 | 2026-06-08 | Phase 1 完成；Phase 2 删除/样式/刷新同步完成 |
 | 2026-06-08 | Phase 3 拖拽排序/移入分组/跨层移动完成 |
+| 2026-06-08 | Phase 4 重命名/右键菜单；修复 HistoryOutlineView.menu(for:) |
+| 2026-06-08 | Phase 5 清理完成，AppKit 迁移收官 |

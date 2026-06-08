@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-/// 历史列表容器：顶栏 SwiftUI + 树列表 AppKit（Phase 1）。
+/// 历史列表容器：顶栏 SwiftUI + AppKit NSOutlineView 树。
 struct PanelHistoryView: View {
     @Environment(HistoryListUIStore.self) private var listUI
     let actions: HistoryListActions

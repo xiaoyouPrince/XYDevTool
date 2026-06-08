@@ -165,20 +165,6 @@ class HistoryDocument: Model {
     var item: [HistoryNode]?
 }
 
-// MARK: - Display row
-
-struct HistoryDisplayRow: Identifiable, Equatable {
-    let id: String
-    let nodeId: String
-    let parentId: String?
-    let depth: Int
-    let isGroup: Bool
-    let title: String
-    let collapsed: Bool
-    let isLock: Bool
-    let isEmptyGroup: Bool
-}
-
 // MARK: - Tree helpers
 
 enum HistoryTree {
@@ -202,30 +188,6 @@ enum HistoryTree {
                 normalize(&nodes[i].children!)
             }
         }
-    }
-    
-    static func flatten(_ nodes: [HistoryNode], parentId: String? = nil, depth: Int = 0) -> [HistoryDisplayRow] {
-        var rows: [HistoryDisplayRow] = []
-        for node in nodes {
-            guard let nodeId = node.id else { continue }
-            let title = node.name ?? ""
-            let empty = node.isGroup && !subtreeContainsRequest(node)
-            rows.append(HistoryDisplayRow(
-                id: nodeId,
-                nodeId: nodeId,
-                parentId: parentId,
-                depth: depth,
-                isGroup: node.isGroup,
-                title: title,
-                collapsed: node.collapsed ?? false,
-                isLock: node.isLock ?? false,
-                isEmptyGroup: empty
-            ))
-            if node.isGroup, node.collapsed != true, let children = node.children {
-                rows.append(contentsOf: flatten(children, parentId: nodeId, depth: depth + 1))
-            }
-        }
-        return rows
     }
     
     static func subtreeContainsRequest(_ node: HistoryNode) -> Bool {

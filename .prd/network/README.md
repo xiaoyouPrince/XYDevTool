@@ -7,7 +7,7 @@
 | 文档 | 说明 | 状态 |
 |------|------|------|
 | [history-grouping-v1.md](./history-grouping-v1.md) | 请求历史多层分组（v1） | 已实现 |
-| [history-appkit-migration.md](./history-appkit-migration.md) | 历史列表 AppKit（NSOutlineView）迁移 | **Phase 4 已完成** |
+| [history-appkit-migration.md](./history-appkit-migration.md) | 历史列表 AppKit（NSOutlineView）迁移 | **已完成** |
 
 ## 相关代码（实现时对照）
 
@@ -30,3 +30,6 @@
 | 2026-06-08 | history-appkit-migration.md | Phase 1/2 实现完成 |
 | 2026-06-08 | history-appkit-migration.md | Phase 3 拖拽完成 |
 | 2026-06-08 | history-appkit-migration.md | Phase 4 重命名/右键菜单完成 |
+| 2026-06-08 | history-appkit-migration.md | Phase 5 清理完成，迁移收官 |
+| 2026-06-08 | history-grouping-v1.md | 同步 AppKit 实现：整行拖拽、API、行高常量 |
+| 2026-06-08 | history-appkit-migration.md | 补全 AppKitViews 文件结构；修正迁移前/后描述 |
