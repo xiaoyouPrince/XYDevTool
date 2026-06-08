@@ -14,14 +14,17 @@ enum HttpMethod: String, CaseIterable, Identifiable {
 }
 
 struct PanelTopView: View {
-    @EnvironmentObject var dataModel: NetworkDataModel
+    let onSubmit: () -> Void
+    @Environment(NetworkEditorStore.self) private var editorStore
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
+        @Bindable var editor = editorStore
+        
         VStack {
             HStack {
                 Text("Name:")
-                TextField("输入请求名称, 后续作为请求标记(默认使用 url 地址)", text: $dataModel.requesName)
+                TextField("输入请求名称, 后续作为请求标记(默认使用 url 地址)", text: $editor.requesName)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 6)
@@ -33,12 +36,12 @@ struct PanelTopView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .padding(.trailing, 25)
                 
-                Toggle("🔒", isOn: $dataModel.isLock)
+                Toggle("🔒", isOn: $editor.isLock)
             }
             
             HStack {
                 Text("URL:")
-                TextField("输入请求地址", text: $dataModel.urlString)
+                TextField("输入请求地址", text: $editor.urlString)
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 6)
@@ -49,17 +52,14 @@ struct PanelTopView: View {
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                 
-                Picker("Method:", selection: $dataModel.httpMethod) {
+                Picker("Method:", selection: $editor.httpMethod) {
                     ForEach(HttpMethod.allCases) { method in
                         Text(method.rawValue.uppercased())
                             .tag(method)
                     }
                 }.frame(width: 170)
                 
-                Button("Submit") {
-                    print("action")
-                    dataModel.makeRequest()
-                }
+                Button("Submit", action: onSubmit)
             }
         }.frame(height: 60)
             .padding()
@@ -82,5 +82,7 @@ struct PanelTopView: View {
 }
 
 #Preview {
-    PanelTopView()
+    let model = NetworkDataModel()
+    PanelTopView(onSubmit: {})
+        .environment(model.editor)
 }

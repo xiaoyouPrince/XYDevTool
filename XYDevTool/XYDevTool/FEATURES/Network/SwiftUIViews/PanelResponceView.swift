@@ -9,9 +9,11 @@
 import SwiftUI
 
 struct PanelResponceView: View {
-    @EnvironmentObject var dataModel: NetworkDataModel
+    @Environment(NetworkEditorStore.self) private var editorStore
     
     var body: some View {
+        @Bindable var editor = editorStore
+        
         ZStack {
             HStack {
                 VStack {
@@ -19,7 +21,7 @@ struct PanelResponceView: View {
                         Text("请求结果")
                         Spacer()
                     }
-                    CustomTextEditor(text: $dataModel.httpResponse)
+                    CustomTextEditor(text: $editor.httpResponse)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .border(NetworkTheme.panelBorder, width: 1)
                 }
@@ -33,4 +35,5 @@ struct PanelResponceView: View {
 
 #Preview {
     PanelResponceView()
+        .environment(NetworkEditorStore())
 }

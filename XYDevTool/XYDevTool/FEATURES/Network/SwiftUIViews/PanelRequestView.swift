@@ -9,16 +9,18 @@
 import SwiftUI
 
 struct PanelRequestView: View {
-    @EnvironmentObject var dataModel: NetworkDataModel
+    @Environment(NetworkEditorStore.self) private var editorStore
     
     var body: some View {
+        @Bindable var editor = editorStore
+        
         HStack(spacing: 8) {
             VStack {
                 HStack {
                     Text("请求头(仅支持JSON)")
                     Spacer()
                 }
-                CustomTextEditor(text: $dataModel.httpHeaders)
+                CustomTextEditor(text: $editor.httpHeaders)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .border(NetworkTheme.panelBorder, width: 1)
                 
@@ -32,7 +34,7 @@ struct PanelRequestView: View {
                     Text("请求参数(仅支持JSON)")
                     Spacer()
                 }
-                CustomTextEditor(text: $dataModel.httpParameters)
+                CustomTextEditor(text: $editor.httpParameters)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .border(NetworkTheme.panelBorder, width: 1)
             }
@@ -45,4 +47,5 @@ struct PanelRequestView: View {
 
 #Preview {
     PanelRequestView()
+        .environment(NetworkEditorStore())
 }

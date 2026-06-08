@@ -93,10 +93,9 @@ extension ViewController {
         newWindow.title = "网络请求"
         newWindow.isReleasedWhenClosed = false
         
+        let dataModel = NetworkDataModel()
         let hostingController = NSHostingController(rootView:
-                                                        NetworkPanelView()
-            .environmentObject(NetworkDataModel())
-                                                    
+            NetworkHostingRoot(dataModel: dataModel)
         )
         newWindow.contentView = hostingController.view
         

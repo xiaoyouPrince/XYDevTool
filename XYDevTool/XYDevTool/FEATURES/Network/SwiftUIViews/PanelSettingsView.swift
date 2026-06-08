@@ -11,7 +11,17 @@ import AppKit
 
 struct SettingsView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
+    @Environment(NetworkEditorStore.self) private var editorStore
+    @Environment(HistoryListUIStore.self) private var listUI
     @Environment(\.presentationMode) var presentationMode
+    
+    private var hasSelectedRequest: Bool {
+        guard let id = listUI.selectedId,
+              let row = listUI.rows.first(where: { $0.nodeId == id }) else {
+            return false
+        }
+        return row.isGroup == false
+    }
     
     private var variablePreview: (rows: [NetworkVariablePreview], error: String?) {
         dataModel.variableResolutionPreview()
@@ -142,7 +152,7 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
-            if dataModel.currentHistory == nil {
+            if hasSelectedRequest == false {
                 Text("未选中历史请求，无法绑定脚本。请先在左侧选择一个请求。")
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 8)
@@ -244,15 +254,15 @@ struct SettingsView: View {
     private func bindingForScriptSelection(_ scriptID: String) -> Binding<Bool> {
         Binding(
             get: {
-                dataModel.selectedPostScriptIDsForCurrent.contains(scriptID)
+                editorStore.selectedPostScriptIDsForCurrent.contains(scriptID)
             },
             set: { selected in
                 if selected {
-                    if dataModel.selectedPostScriptIDsForCurrent.contains(scriptID) == false {
-                        dataModel.selectedPostScriptIDsForCurrent.append(scriptID)
+                    if editorStore.selectedPostScriptIDsForCurrent.contains(scriptID) == false {
+                        editorStore.selectedPostScriptIDsForCurrent.append(scriptID)
                     }
                 } else {
-                    dataModel.selectedPostScriptIDsForCurrent.removeAll { $0 == scriptID }
+                    editorStore.selectedPostScriptIDsForCurrent.removeAll { $0 == scriptID }
                 }
             }
         )

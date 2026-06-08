@@ -14,6 +14,7 @@ struct CustomTextEditor: NSViewRepresentable {
     
     class Coordinator: NSObject, NSTextViewDelegate {
         var parent: CustomTextEditor
+        var pendingUpdateGeneration = 0
         
         init(_ parent: CustomTextEditor) {
             self.parent = parent
@@ -23,6 +24,16 @@ struct CustomTextEditor: NSViewRepresentable {
             guard let textView = notification.object as? NSTextView else { return }
             DispatchQueue.main.async {
                 self.parent.text = textView.string
+            }
+        }
+        
+        func scheduleTextUpdate(_ newText: String, on textView: NSTextView) {
+            pendingUpdateGeneration += 1
+            let generation = pendingUpdateGeneration
+            DispatchQueue.main.async {
+                guard generation == self.pendingUpdateGeneration else { return }
+                guard textView.string != newText else { return }
+                textView.string = newText
             }
         }
     }
@@ -58,12 +69,10 @@ struct CustomTextEditor: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        if let textView = nsView.documentView as? NSTextView {
-            if textView.string != self.text {
-                textView.string = self.text
-            }
-            applyTheme(for: textView)
-        }
+        guard let textView = nsView.documentView as? NSTextView else { return }
+        applyTheme(for: textView)
+        guard textView.string != text else { return }
+        context.coordinator.scheduleTextUpdate(text, on: textView)
     }
     
     private func applyTheme(for textView: NSTextView) {

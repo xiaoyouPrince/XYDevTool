@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import Observation
 
 struct NetworkVariable: Identifiable, Codable, Equatable {
     var id: UUID = UUID()
@@ -34,6 +36,68 @@ struct GlobalPostScript: Identifiable, Codable, Equatable {
     var command: String = ""
 }
 
+/// 历史列表专用 UI 状态，与编辑区字段分离，避免选中时整表重绘。
+@Observable
+final class HistoryListUIStore {
+    var rows: [HistoryDisplayRow] = []
+    var selectedId: String?
+    var requestCount: Int = 0
+    /// 树结构变更时递增，供 AppKit Outline 触发 reloadData。
+    var treeRevision: Int = 0
+}
+
+/// 请求编辑区状态，与历史列表分离，避免加载表单时触发列表重绘。
+@Observable
+final class NetworkEditorStore {
+    var requesName: String = ""
+    var isLock: Bool = true {
+        didSet {
+            guard isApplyingState == false else { return }
+            onLockChanged?()
+        }
+    }
+    var urlString: String = ""
+    var httpMethod: HttpMethod = .get
+    var httpHeaders: String = ""
+    var httpParameters: String = ""
+    var httpResponse: String = ""
+    var selectedPostScriptIDsForCurrent: [String] = [] {
+        didSet {
+            guard isApplyingState == false else { return }
+            onScriptsChanged?()
+        }
+    }
+    
+    fileprivate var isApplyingState = false
+    fileprivate var onLockChanged: (() -> Void)?
+    fileprivate var onScriptsChanged: (() -> Void)?
+    
+    /// 先加载轻量字段，让顶栏立刻刷新。
+    fileprivate func loadMetadata(from node: HistoryNode) {
+        isApplyingState = true
+        requesName = node.name ?? ""
+        isLock = node.isLock ?? true
+        urlString = node.request?.url ?? ""
+        httpMethod = HttpMethod(rawValue: node.request?.method?.lowercased() ?? "") ?? .get
+        selectedPostScriptIDsForCurrent = node.selectedPostScriptIDs ?? []
+        isApplyingState = false
+    }
+    
+    /// 大段 JSON 延后加载，避免阻塞选中高亮。
+    fileprivate func loadTextContent(from node: HistoryNode) {
+        isApplyingState = true
+        httpHeaders = node.request?.header ?? ""
+        httpParameters = node.request?.body ?? ""
+        httpResponse = node.response ?? ""
+        isApplyingState = false
+    }
+    
+    fileprivate func load(from node: HistoryNode) {
+        loadMetadata(from: node)
+        loadTextContent(from: node)
+    }
+}
+
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     /// 历史列表行内上下 padding、拖拽把手边长（与 PanelHistoryView 保持一致）
@@ -53,33 +117,18 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
         max(historyRowHeight, Self.historyRowMinHeight)
     }
     
-    @Published var requesName: String = ""
-    @Published var isLock: Bool = true {
-        didSet {
-            currentHistory?.isLock = isLock
-        }
-    }
-    @Published var urlString: String = ""
-    @Published var httpMethod: HttpMethod = .get
-    @Published var httpHeaders: String = ""
-    @Published var httpParameters: String = ""
-    @Published var httpResponse: String = ""
-    @Published var historyArray: [XYItem] = [] {
-        didSet {
-            print("didset")
-            updateHistory()
-        }
-    }
+    let editor = NetworkEditorStore()
+    var historyRoots: [HistoryNode] = []
+    private(set) var selectedId: String?
     @Published var status: String = "Ready"
     
-    @Published private(set) var currentHistory: XYItem?
+    /// 非 @Published：选中切换时不触发整窗 EnvironmentObject 刷新。
+    private(set) var currentHistory: HistoryNode?
+    
+    /// 名称区每加深一层缩进（pt）
+    let historyIndentPerLevel: CGFloat = 12
     
     @Published var userScript: String = ""
-    @Published var selectedPostScriptIDsForCurrent: [String] = [] {
-        didSet {
-            syncCurrentScriptSelection()
-        }
-    }
     @Published var globalPostScripts: [GlobalPostScript] = [] {
         didSet {
             saveGlobalPostScripts()
@@ -98,13 +147,23 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     private let exportVariablesFileName = "network_variables.json"
     private let exportGlobalScriptsFileName = "network_global_scripts.json"
     
+    let historyListUI = HistoryListUIStore()
+    lazy var historyActions = HistoryListActions(model: self)
+    private var historyPersistToken = UUID()
+    private var selectionGeneration = 0
+    
     init() {
-        // init history
-        if let data = NSData(contentsOfFile: history_path), let historys = MyObj.mapping(jsonData: data as Data) {
-            historyArray = historys.item ?? []
-        }
+        editor.onLockChanged = { [weak self] in self?.syncLockToSelectedRequest() }
+        editor.onScriptsChanged = { [weak self] in self?.syncCurrentScriptSelection() }
+        loadHistoryFromDisk()
+        refreshHistoryListUI()
         loadVariables()
         loadGlobalPostScripts()
+    }
+    
+    var selectedNode: HistoryNode? {
+        guard let selectedId else { return nil }
+        return HistoryTree.findNode(id: selectedId, in: historyRoots)?.node
     }
 }
 
@@ -112,8 +171,8 @@ extension NetworkDataModel {
     func exportNetworkConfigs(to folderURL: URL) throws {
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         
-        let historyItems = historyArray.map { $0.toDictionary() }
-        let historyDict: [String: Any] = ["item": historyItems]
+        let historyItems = historyRoots.compactMap { $0.toDictionary() }
+        let historyDict: [String: Any] = ["version": 2, "item": historyItems]
         let historyData = try JSONSerialization.data(withJSONObject: historyDict, options: [.prettyPrinted, .sortedKeys])
         try historyData.write(to: folderURL.appendingPathComponent(exportHistoryFileName), options: .atomic)
         
@@ -139,7 +198,7 @@ extension NetworkDataModel {
         }
         
         let historyData = try Data(contentsOf: historyURL)
-        guard let historys = MyObj.mapping(jsonData: historyData) else {
+        guard let roots = parseImportedHistoryRoots(from: historyData) else {
             throw VariableResolveError(message: "导入失败：network_history.json 格式无效")
         }
         
@@ -147,11 +206,264 @@ extension NetworkDataModel {
         let importedVariables = try decoder.decode([NetworkVariable].self, from: Data(contentsOf: variablesURL))
         let importedScripts = try decoder.decode([GlobalPostScript].self, from: Data(contentsOf: scriptsURL))
         
-        historyArray = historys.item ?? []
+        historyRoots = roots
+        refreshHistoryListUI()
+        persistHistory()
         variables = importedVariables
         globalPostScripts = importedScripts
         currentHistory = nil
-        selectedPostScriptIDsForCurrent = []
+        selectedId = nil
+        historyListUI.selectedId = nil
+        editor.selectedPostScriptIDsForCurrent = []
+    }
+    
+    // MARK: - History tree
+    
+    private func loadHistoryFromDisk() {
+        guard let data = NSData(contentsOfFile: history_path) as Data? else { return }
+        
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           json["version"] as? Int == 2,
+           let doc = HistoryDocument.mapping(jsonData: data) {
+            var items = doc.item ?? []
+            HistoryTree.normalize(&items)
+            historyRoots = items
+            return
+        }
+        
+        if let doc = HistoryDocument.mapping(jsonData: data),
+           let items = doc.item,
+           items.isEmpty == false,
+           items.contains(where: { $0.type != nil }) {
+            var normalized = items
+            HistoryTree.normalize(&normalized)
+            historyRoots = normalized
+            return
+        }
+        
+        if let historys = MyObj.mapping(jsonData: data) {
+            historyRoots = (historys.item ?? []).map { HistoryNode.fromXYItem($0) }
+            persistHistory()
+        }
+    }
+    
+    private func parseImportedHistoryRoots(from data: Data) -> [HistoryNode]? {
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           json["version"] as? Int == 2,
+           let doc = HistoryDocument.mapping(jsonData: data) {
+            var items = doc.item ?? []
+            HistoryTree.normalize(&items)
+            return items
+        }
+        
+        if let doc = HistoryDocument.mapping(jsonData: data),
+           let items = doc.item,
+           items.isEmpty == false,
+           items.contains(where: { $0.type != nil }) {
+            var normalized = items
+            HistoryTree.normalize(&normalized)
+            return normalized
+        }
+        
+        if let historys = MyObj.mapping(jsonData: data) {
+            return (historys.item ?? []).map { HistoryNode.fromXYItem($0) }
+        }
+        
+        return nil
+    }
+    
+    func refreshHistoryListUI() {
+        historyListUI.rows = HistoryTree.flatten(historyRoots)
+        historyListUI.requestCount = HistoryTree.allRequestNodes(in: historyRoots).count
+        historyListUI.selectedId = selectedId
+        historyListUI.treeRevision += 1
+    }
+    
+    private func updateHistoryListSelection(_ id: String?, notifyListUI: Bool = true) {
+        selectedId = id
+        guard notifyListUI else { return }
+        guard historyListUI.selectedId != id else { return }
+        historyListUI.selectedId = id
+    }
+    
+    private func commitHistoryMutation(_ mutate: (inout [HistoryNode]) -> Void) {
+        mutate(&historyRoots)
+        refreshHistoryListUI()
+        persistHistory()
+    }
+    
+    func persistHistory() {
+        let items = historyRoots.compactMap { $0.toDictionary() }
+        let dict: [String: Any] = ["version": 2, "item": items]
+        let path = history_path
+        historyPersistToken = UUID()
+        let token = historyPersistToken
+        
+        DispatchQueue.global(qos: .utility).async {
+            do {
+                let data = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+                let jsonStr = String(data: data, encoding: .utf8)
+                try jsonStr?.write(toFile: path, atomically: true, encoding: .utf8)
+            } catch {
+                print(error)
+            }
+            _ = token
+        }
+    }
+    
+    func createGroup() {
+        let parentId = selectedNode?.isGroup == true ? selectedId : nil
+        let name = uniqueGroupName(base: "新分组")
+        let group = HistoryNode.newGroup(name: name)
+        commitHistoryMutation { roots in
+            if let parentId {
+                _ = HistoryTree.insertNode(group, parentId: parentId, at: Int.max, in: &roots)
+            } else {
+                roots.append(group)
+            }
+        }
+        updateHistoryListSelection(group.id)
+    }
+    
+    func uniqueGroupName(base: String) -> String {
+        let existing = Set(HistoryTree.allGroupNames(in: historyRoots))
+        if existing.contains(base) == false { return base }
+        var index = 2
+        while existing.contains("\(base) \(index)") {
+            index += 1
+        }
+        return "\(base) \(index)"
+    }
+    
+    func groupNameExists(_ name: String, excludingId: String? = nil) -> Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.isEmpty == false else { return false }
+        return containsGroupName(trimmed, in: historyRoots, excludingId: excludingId)
+    }
+    
+    private func containsGroupName(_ name: String, in nodes: [HistoryNode], excludingId: String?) -> Bool {
+        for node in nodes {
+            if node.isGroup {
+                if node.id != excludingId, node.name == name { return true }
+                if let children = node.children, containsGroupName(name, in: children, excludingId: excludingId) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    func canMoveNode(_ nodeId: String, intoGroup groupId: String) -> Bool {
+        guard nodeId != groupId else { return false }
+        guard HistoryTree.findNode(id: groupId, in: historyRoots)?.node.isGroup == true else { return false }
+        return HistoryTree.isDescendant(nodeId: groupId, of: nodeId, in: historyRoots) == false
+    }
+    
+    func renameGroup(id: String, to newName: String) -> String? {
+        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.isEmpty == false else { return "分组名称不能为空" }
+        guard let location = HistoryTree.findNode(id: id, in: historyRoots), location.node.isGroup else {
+            return "未找到分组"
+        }
+        if location.node.name == trimmed { return nil }
+        if groupNameExists(trimmed, excludingId: id) {
+            return "已存在同名分组"
+        }
+        location.node.name = trimmed
+        refreshHistoryListUI()
+        persistHistory()
+        return nil
+    }
+    
+    func toggleGroupCollapsed(id: String) {
+        guard let node = HistoryTree.findNode(id: id, in: historyRoots)?.node, node.isGroup else { return }
+        node.collapsed = !(node.collapsed ?? false)
+        refreshHistoryListUI()
+        persistHistory()
+    }
+    
+    /// 由 NSOutlineView 展开/折叠回调调用，避免整表 flatten 刷新。
+    func setGroupCollapsed(id: String, collapsed: Bool) {
+        guard let node = HistoryTree.findNode(id: id, in: historyRoots)?.node, node.isGroup else { return }
+        guard (node.collapsed ?? false) != collapsed else { return }
+        node.collapsed = collapsed
+        persistHistory()
+    }
+    
+    func applySiblingOrder(parentId: String?, orderedIds: [String]) {
+        let current = HistoryTree.children(of: parentId, in: historyRoots)
+        let currentIds = HistoryTree.siblingIds(in: current)
+        guard orderedIds != currentIds else { return }
+        var nodeMap: [String: HistoryNode] = [:]
+        for node in current {
+            if let id = node.id { nodeMap[id] = node }
+        }
+        let reordered = orderedIds.compactMap { nodeMap[$0] }
+        guard reordered.count == current.count else { return }
+        commitHistoryMutation { roots in
+            HistoryTree.setChildren(reordered, of: parentId, in: &roots)
+        }
+    }
+    
+    func moveNode(id: String, toParentId: String?, atIndex index: Int) {
+        guard id != toParentId else { return }
+        if let toParentId, HistoryTree.isDescendant(nodeId: toParentId, of: id, in: historyRoots) {
+            return
+        }
+        commitHistoryMutation { roots in
+            guard let node = HistoryTree.removeNode(id: id, from: &roots) else { return }
+            _ = HistoryTree.insertNode(node, parentId: toParentId, at: index, in: &roots)
+        }
+    }
+    
+    func moveNodeIntoGroup(id: String, groupId: String) {
+        guard id != groupId else { return }
+        guard HistoryTree.findNode(id: groupId, in: historyRoots)?.node.isGroup == true else { return }
+        if HistoryTree.isDescendant(nodeId: groupId, of: id, in: historyRoots) { return }
+        commitHistoryMutation { roots in
+            guard let node = HistoryTree.removeNode(id: id, from: &roots) else { return }
+            _ = HistoryTree.insertNode(node, parentId: groupId, at: Int.max, in: &roots)
+        }
+    }
+    
+    func deleteGroup(id: String, unwrapOnly: Bool) {
+        guard let location = HistoryTree.findNode(id: id, in: historyRoots), location.node.isGroup else { return }
+        commitHistoryMutation { roots in
+            guard let removed = HistoryTree.removeNode(id: id, from: &roots) else { return }
+            if unwrapOnly, let children = removed.children, children.isEmpty == false {
+                for (offset, child) in children.enumerated() {
+                    _ = HistoryTree.insertNode(child, parentId: location.parentId, at: location.index + offset, in: &roots)
+                }
+            }
+        }
+        if selectedId == id {
+            updateHistoryListSelection(nil)
+        }
+        if unwrapOnly == false {
+            if isIdInsideSubtree(selectedId, of: location.node) {
+                updateHistoryListSelection(nil)
+            }
+            if isIdInsideSubtree(currentHistory?.id, of: location.node) {
+                currentHistory = nil
+                editor.selectedPostScriptIDsForCurrent = []
+            }
+        }
+    }
+    
+    private func isIdInsideSubtree(_ id: String?, of node: HistoryNode) -> Bool {
+        guard let id else { return false }
+        if node.id == id { return true }
+        guard let children = node.children else { return false }
+        return children.contains { isIdInsideSubtree(id, of: $0) }
+    }
+    
+    func lockedRequestCount(inSubtreeOf groupId: String) -> Int {
+        guard let node = HistoryTree.findNode(id: groupId, in: historyRoots)?.node else { return 0 }
+        return HistoryTree.countLockedRequests(in: node)
+    }
+    
+    func flattenHistoryForDisplay() -> [HistoryDisplayRow] {
+        HistoryTree.flatten(historyRoots)
     }
     
     func exportFileNamesDescription() -> String {
@@ -193,74 +505,74 @@ extension NetworkDataModel {
     }
     
     
-    /// 将 `fromName` 对应条目移动到 `toName` 所在位置（松手后调用，会触发持久化）。
-    func moveHistory(fromName: String, toName: String) {
-        guard fromName != toName,
-              let sourceIndex = historyArray.firstIndex(where: { $0.name == fromName }),
-              let destinationIndex = historyArray.firstIndex(where: { $0.name == toName }) else {
+    /// 删除指定 id 的请求历史。
+    func removeHistory(id: String) {
+        guard let location = HistoryTree.findNode(id: id, in: historyRoots), location.node.isRequest else { return }
+        commitHistoryMutation { roots in
+            _ = HistoryTree.removeNode(id: id, from: &roots)
+        }
+        if currentHistory?.id == id {
+            currentHistory = nil
+            updateHistoryListSelection(nil)
+            editor.selectedPostScriptIDsForCurrent = []
+        }
+    }
+    
+    /// 选中历史节点并加载请求到编辑区（仅 request 类型会填充表单）。
+    func selectHistory(id: String) {
+        selectionGeneration += 1
+        let generation = selectionGeneration
+        applySelection(id: id, generation: generation, loadText: false)
+    }
+    
+    private func applySelection(id: String, generation: Int, loadText: Bool) {
+        guard selectionGeneration == generation else { return }
+        
+        if loadText {
+            guard let node = HistoryTree.findNode(id: id, in: historyRoots)?.node, node.isRequest else { return }
+            editor.loadTextContent(from: node)
             return
         }
-        let item = historyArray.remove(at: sourceIndex)
-        historyArray.insert(item, at: destinationIndex)
-    }
-    
-    /// 按 UI 拖拽后的顺序写回历史（仅当顺序变化时持久化）。
-    func applyHistoryOrder(_ items: [XYItem]) {
-        let newOrder = items.compactMap { $0.name }
-        let currentOrder = historyArray.compactMap { $0.name }
-        guard newOrder != currentOrder else { return }
-        historyArray = items
-    }
-    
-    /// 删除指定名称的历史记录（`name` 为唯一键）。
-    func removeHistory(named name: String) {
-        guard let index = historyArray.firstIndex(where: { $0.name == name }) else { return }
-        historyArray.remove(at: index)
-        if currentHistory?.name == name {
-            currentHistory = nil
-            selectedPostScriptIDsForCurrent = []
-        }
-    }
-    
-    /// 设置当前请求项, 当用户选择历史记录,则会将选中内容设置为当前项目
-    /// - Parameter name: 历史条目的唯一 `name`
-    func setCurrentHistory(with name: String) {
-        for item in historyArray {
-            if item.name == name {
-                self.currentHistory = item
-                
-                self.requesName = item.name ?? ""
-                self.isLock = item.isLock ?? true
-                self.urlString = item.request?.url ?? ""
-                self.httpMethod = HttpMethod(rawValue: item.request?.method?.lowercased() ?? "") ?? .get
-                self.httpHeaders = item.request?.header ?? ""
-                self.httpParameters = item.request?.body ?? ""
-                self.httpResponse = item.response ?? ""
-                self.selectedPostScriptIDsForCurrent = item.selectedPostScriptIDs ?? []
-                break
-            }
-        }
-    }
-    
-    /// 更新历史记录列表
-    func updateHistory() {
         
-        // 每次关闭，写入最新数据
-        let items = self.historyArray.map { item in
-            item.toDictionary()
+        guard let location = HistoryTree.findNode(id: id, in: historyRoots) else { return }
+        updateHistoryListSelection(id)
+        
+        guard location.node.isRequest else {
+            currentHistory = nil
+            return
         }
-        let dict = ["item": items]
-        do {
-            let data = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
-            let jsonStr = String(data: data, encoding: .utf8)
-            try jsonStr?.write(toFile: history_path, atomically: true, encoding: .utf8)
-            
-            // showAlert(msg: jsonStr!)
-            
-        }catch{
-            // 出错了，以后再说
-            print(error)
+        
+        let node = location.node
+        currentHistory = node
+        editor.loadMetadata(from: node)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.applySelection(id: id, generation: generation, loadText: true)
         }
+    }
+    
+    func isRequestLocked(id: String) -> Bool {
+        guard let node = HistoryTree.findNode(id: id, in: historyRoots)?.node, node.isRequest else {
+            return false
+        }
+        return node.isLock ?? true
+    }
+    
+    private func syncLockToSelectedRequest() {
+        guard let selectedId,
+              let location = HistoryTree.findNode(id: selectedId, in: historyRoots),
+              location.node.isRequest else {
+            return
+        }
+        location.node.isLock = editor.isLock
+        if currentHistory?.id == selectedId {
+            currentHistory = location.node
+        }
+        persistHistory()
+    }
+    
+    private func findRequestNode(byName name: String) -> HistoryNode? {
+        HistoryTree.allRequestNodes(in: historyRoots).first { $0.name == name }
     }
     
     /// 开始发起请求
@@ -271,9 +583,9 @@ extension NetworkDataModel {
             return
         }
         
-        let urlStringApplied = applyVariables(to: urlString)
-        let headersTextApplied = applyVariables(to: httpHeaders)
-        let paramsTextApplied = applyVariables(to: httpParameters)
+        let urlStringApplied = applyVariables(to: editor.urlString)
+        let headersTextApplied = applyVariables(to: editor.httpHeaders)
+        let paramsTextApplied = applyVariables(to: editor.httpParameters)
 
         // url
         guard urlStringApplied.isEmpty == false, let url = URL(string: urlStringApplied) else {
@@ -309,20 +621,20 @@ extension NetworkDataModel {
         }
         
         let item = XYItem()
-        item.isLock = isLock
-        item.name = requesName
-        item.selectedPostScriptIDs = selectedPostScriptIDsForCurrent
+        item.isLock = editor.isLock
+        item.name = editor.requesName
+        item.selectedPostScriptIDs = editor.selectedPostScriptIDsForCurrent
         let res = XYRequest()
-        res.method = httpMethod.rawValue.uppercased()
-        res.url = urlString
-        res.header = httpHeaders
-        res.body = httpParameters
+        res.method = editor.httpMethod.rawValue.uppercased()
+        res.url = editor.urlString
+        res.header = editor.httpHeaders
+        res.body = editor.httpParameters
         //res.url = urlStringApplied
         //res.header = headersTextApplied
         //res.body = paramsTextApplied
         item.request = res
         if item.name?.isEmpty == true {
-            item.name = URL(string: urlString)?.host
+            item.name = URL(string: editor.urlString)?.host
             //item.name = URL(string: urlStringApplied)?.host
         }
         
@@ -331,9 +643,9 @@ extension NetworkDataModel {
         headerDict = hp.headers
         parameters = hp.params
         if let response = hp.response {
-            self.httpResponse = response as? String ?? ""
+            self.editor.httpResponse = response as? String ?? ""
             self.status = "complete"
-            item.response = self.httpResponse
+            item.response = self.editor.httpResponse
             self.updateHistory(with: item)
             return
         }
@@ -343,9 +655,9 @@ extension NetworkDataModel {
             self.status = "complete"
             
             item.response = result.toJsonString()
-            self.httpResponse = result.toJsonString()
+            self.editor.httpResponse = result.toJsonString()
             self.updateHistory(with: item)
-            self.runPostResponseScriptIfNeeded(for: item, responseText: self.httpResponse)
+            self.runPostResponseScriptIfNeeded(for: item, responseText: self.editor.httpResponse)
         }
         
         let onFailure: (String) -> Void = { errMsg in
@@ -354,7 +666,7 @@ extension NetworkDataModel {
             self.status = "request fail: \(message)"
         }
         
-        switch httpMethod {
+        switch editor.httpMethod {
         case .get:
             XYNetTool.get(url: url, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
         case .post:
@@ -364,26 +676,28 @@ extension NetworkDataModel {
     }
     
     
-    /// 更新历史记录
-    /// - Parameter with: 新记录
+    /// 更新历史记录：请求同名覆盖，异名新建。
     func updateHistory(with item: XYItem) {
-        var newItem: XYItem?
-        for (idx, item_his) in self.historyArray.enumerated() {
-            if item.name == item_his.name {
-                item_his.update(with: item)
-                newItem = item_his
-                self.historyArray[idx...idx] = [item]
-                break
+        if let existing = findRequestNode(byName: item.name ?? "") {
+            existing.update(with: item)
+            persistHistory()
+            if currentHistory?.id == existing.id {
+                currentHistory = existing
+            }
+            return
+        }
+        
+        let node = HistoryNode.fromXYItem(item)
+        let parentId = selectedNode?.isGroup == true ? selectedId : nil
+        commitHistoryMutation { roots in
+            if let parentId {
+                _ = HistoryTree.insertNode(node, parentId: parentId, at: Int.max, in: &roots)
+            } else {
+                roots.append(node)
             }
         }
-        
-        if newItem == nil {
-            self.historyArray.append(item)
-        }
-        
-        self.updateHistory()
         if currentHistory?.name == item.name {
-            currentHistory = item
+            currentHistory = node
         }
     }
 }
@@ -391,8 +705,8 @@ extension NetworkDataModel {
 extension NetworkDataModel {
     private func syncCurrentScriptSelection() {
         guard let currentHistory else { return }
-        currentHistory.selectedPostScriptIDs = selectedPostScriptIDsForCurrent
-        updateHistory()
+        currentHistory.selectedPostScriptIDs = editor.selectedPostScriptIDsForCurrent
+        persistHistory()
     }
 
     func addGlobalPostScript() {
@@ -419,13 +733,13 @@ extension NetworkDataModel {
     
     private func sanitizeSelectedScriptReferences() {
         let validIDs = Set(globalPostScripts.map { $0.id.uuidString })
-        let sanitizedCurrent = selectedPostScriptIDsForCurrent.filter { validIDs.contains($0) }
-        if sanitizedCurrent != selectedPostScriptIDsForCurrent {
-            selectedPostScriptIDsForCurrent = sanitizedCurrent
+        let sanitizedCurrent = editor.selectedPostScriptIDsForCurrent.filter { validIDs.contains($0) }
+        if sanitizedCurrent != editor.selectedPostScriptIDsForCurrent {
+            editor.selectedPostScriptIDsForCurrent = sanitizedCurrent
         }
         
         var hasHistoryChange = false
-        for item in historyArray {
+        for item in HistoryTree.allRequestNodes(in: historyRoots) {
             let selected = item.selectedPostScriptIDs ?? []
             let sanitized = selected.filter { validIDs.contains($0) }
             if selected != sanitized {
@@ -434,7 +748,7 @@ extension NetworkDataModel {
             }
         }
         if hasHistoryChange {
-            updateHistory()
+            persistHistory()
         }
     }
 
@@ -732,7 +1046,7 @@ extension NetworkDataModel {
         process.executableURL = URL(fileURLWithPath: "/bin/sh")
         
         // 设置命令行参数，-c 参数表示执行传递的字符串，拼接 httpHeaders 和 httpParameters 作为传入参数
-        let fullCommand = "\(script) '\(urlString)' '\(httpMethod.rawValue.uppercased())' '\(headers.toString() ?? "")' '\(params.toString() ?? "")'"
+        let fullCommand = "\(script) '\(editor.urlString)' '\(editor.httpMethod.rawValue.uppercased())' '\(headers.toString() ?? "")' '\(params.toString() ?? "")'"
         process.arguments = ["-c", fullCommand]
         
         // 将标准输出和错误输出通过管道重定向
@@ -791,6 +1105,44 @@ struct Result: Model {
     
 }
 
+// MARK: - History list actions & environment
+
+/// 历史列表操作入口（非 ObservableObject），避免列表订阅整个 NetworkDataModel。
+final class HistoryListActions {
+    private unowned let model: NetworkDataModel
+    
+    init(model: NetworkDataModel) {
+        self.model = model
+    }
+    
+    func historyRoots() -> [HistoryNode] { model.historyRoots }
+    
+    func selectHistory(id: String) { model.selectHistory(id: id) }
+    func makeRequest() { model.makeRequest() }
+    func createGroup() { model.createGroup() }
+    func toggleGroupCollapsed(id: String) { model.toggleGroupCollapsed(id: id) }
+    func setGroupCollapsed(id: String, collapsed: Bool) { model.setGroupCollapsed(id: id, collapsed: collapsed) }
+    func removeHistory(id: String) { model.removeHistory(id: id) }
+    func isRequestLocked(id: String) -> Bool { model.isRequestLocked(id: id) }
+    func canMoveNode(_ nodeId: String, intoGroup groupId: String) -> Bool {
+        model.canMoveNode(nodeId, intoGroup: groupId)
+    }
+    func moveNodeIntoGroup(id: String, groupId: String) { model.moveNodeIntoGroup(id: id, groupId: groupId) }
+    func moveNode(id: String, toParentId: String?, atIndex: Int) {
+        model.moveNode(id: id, toParentId: toParentId, atIndex: atIndex)
+    }
+    func applySiblingOrder(parentId: String?, orderedIds: [String]) {
+        model.applySiblingOrder(parentId: parentId, orderedIds: orderedIds)
+    }
+    func renameGroup(id: String, to name: String) -> String? { model.renameGroup(id: id, to: name) }
+    func deleteGroup(id: String, unwrapOnly: Bool) { model.deleteGroup(id: id, unwrapOnly: unwrapOnly) }
+    func lockedRequestCount(inSubtreeOf groupId: String) -> Int { model.lockedRequestCount(inSubtreeOf: groupId) }
+}
+
+enum HistoryListLayout {
+    static let rowHeight: CGFloat = max(28, NetworkDataModel.historyRowMinHeight)
+    static let indentPerLevel: CGFloat = 12
+}
 
 /*
  创建配置<请求地址> -- 生成配置列表
