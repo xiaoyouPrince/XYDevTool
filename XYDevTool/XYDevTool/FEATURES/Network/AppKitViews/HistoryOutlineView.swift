@@ -16,6 +16,20 @@ final class HistoryOutlineView: NSOutlineView {
     
     weak var contextMenuProvider: HistoryOutlineContextMenuProviding?
     
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        backgroundColor = .clear
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func drawBackground(inClipRect clipRect: NSRect) {
+        // 不绘制底色，由 SwiftUI 父视图统一铺色。
+    }
+    
     override func menu(for event: NSEvent) -> NSMenu? {
         let point = convert(event.locationInWindow, from: nil)
         let row = row(at: point)

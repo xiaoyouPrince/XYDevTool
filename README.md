@@ -14,7 +14,7 @@ A simple UI and powerful Mac OS application. It is a collection of tools commonl
 
 - Appicon generator: supports the generation of IOS / MacOS app icons, one click generation and export to the specified directory
 
-- Network request tool: a convenient network request tool, intended to replace postman and speed up the continuous adjustment of front and rear interfaces. Automatically record historical request records and support export / import.
+- Network request tool: A lightweight, local HTTP client inspired by Postman. Supports GET/POST, tree-organized history with groups, variable substitution, and post-response scripts. All data stays on your Mac; configs can be exported/imported as a bundle.
 
 - ...
 
@@ -48,11 +48,38 @@ Appicon generator
 Network request tool
 -----
 
-- Simple network request tool, refer to postman, but it is more concise. There is no need to check the software availability online, and all records are safer locally
-- Support custom request name / input URL / request header / request body / you can send the request directly and see the original return result
-- Support historical request data saving / exporting / importing
-- Support the deletion and locking of requests (prevent the history from being deleted by mistake, and can be deleted after unlocking)
-- ...
+A lightweight, fully local HTTP client for day-to-day API debugging—no account or cloud sync required.
+
+**Send requests**
+
+- Set name, URL, GET/POST, JSON headers and body, then Submit
+- If name is empty, the URL host is used as the request name
+- Submitting with the **same name** updates the existing entry; a **new name** creates a new history item
+- When a **group** is selected, new requests are added under that group; otherwise they are added at the root
+
+**History (tree)**
+
+- Left sidebar shows request history in a **multi-level group tree** with expand/collapse
+- Click a request to load it into the editor; select a group to create sub-groups or target new requests
+- Toolbar **+**: creates a sub-group under the selected group, or a root-level group otherwise
+- **Drag entire rows** to reorder siblings, move into/out of groups, or reparent across levels (the delete button does not start a drag)
+- Groups: double-click or right-click to rename; delete with “unwrap only” or “delete group and contents”
+- Requests: delete from the row trash icon; 🔒 lock prevents accidental deletion until unlocked
+
+**Variables & scripts** (⚙️ in the status bar)
+
+- **Variables**: use `{{key}}` in URL, headers, and body; substituted before send; preview resolved values in Settings
+- **Global post-response scripts**: run shell commands after a response; output can update variables (`$1` = response text, `$2` = variables JSON)
+- **Per-request scripts**: select a history request, then check which global scripts to run for that request (multi-select)
+
+**Config backup**
+
+- Export / import a full bundle (history, variables, scripts) for backup or migration
+
+**Notes**
+
+- Headers and body must be JSON objects
+- GET and POST only; response pane shows the body text—HTTP status code and response headers are not shown yet
 
 
 Screenshots

@@ -22,19 +22,17 @@ struct HistoryOutlineRepresentable: NSViewRepresentable {
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
-        scrollView.drawsBackground = true
-        scrollView.backgroundColor = .controlBackgroundColor
         scrollView.borderType = .noBorder
+        Self.applyTransparentChrome(to: scrollView)
         
         let outlineView = HistoryOutlineView()
         outlineView.contextMenuProvider = context.coordinator
         outlineView.headerView = nil
         outlineView.rowSizeStyle = .small
         outlineView.usesAlternatingRowBackgroundColors = false
-        outlineView.backgroundColor = .controlBackgroundColor
         outlineView.selectionHighlightStyle = .none
-        if #available(macOS 11.0, *) {
-            outlineView.style = .sourceList
+        if #available(macOS 12.0, *) {
+            outlineView.style = .fullWidth
         }
         
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("HistoryColumn"))
@@ -55,6 +53,7 @@ struct HistoryOutlineRepresentable: NSViewRepresentable {
     
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         let coordinator = context.coordinator
+        Self.applyTransparentChrome(to: scrollView)
         
         if let outlineView = scrollView.documentView as? HistoryOutlineView {
             outlineView.contextMenuProvider = coordinator
@@ -67,6 +66,17 @@ struct HistoryOutlineRepresentable: NSViewRepresentable {
         
         if coordinator.selectedId != listUI.selectedId {
             coordinator.syncSelection(to: listUI.selectedId)
+        }
+    }
+    
+    /// 透明背景，透出 SwiftUI `PanelHistoryView` 的 `sectionBackground`。
+    private static func applyTransparentChrome(to scrollView: NSScrollView) {
+        scrollView.drawsBackground = false
+        scrollView.backgroundColor = .clear
+        scrollView.contentView.drawsBackground = false
+        
+        if let outlineView = scrollView.documentView as? NSOutlineView {
+            outlineView.backgroundColor = .clear
         }
     }
 }
