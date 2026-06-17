@@ -14,7 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
+        HelpMenuController.shared.install()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
