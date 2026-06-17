@@ -27,8 +27,10 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     variableSection
+                    globalPreScriptSection
+                    preScriptSelectionSection
                     globalScriptSection
-                    scriptSection
+                    postScriptSelectionSection
                 }
                 .padding()
             }
@@ -138,12 +140,12 @@ struct SettingsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     
-    private var scriptSection: some View {
+    private var postScriptSelectionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("当前接口脚本选择")
+            Text("当前接口后置脚本")
                 .font(.title3)
                 .fontWeight(.semibold)
-            Text("从全局脚本库中勾选当前接口要执行的脚本（可多选）。")
+            Text("从全局后置脚本库中勾选当前接口要执行的脚本（可多选）。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
@@ -152,13 +154,13 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 8)
             } else if dataModel.globalPostScripts.isEmpty {
-                Text("暂无全局脚本，请先在上方“全局后置脚本库”新增。")
+                Text("暂无全局后置脚本，请先在上方“全局后置脚本库”新增。")
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 8)
             } else {
                 VStack(spacing: 8) {
                     ForEach(dataModel.globalPostScripts) { script in
-                        Toggle(isOn: bindingForScriptSelection(script.id.uuidString)) {
+                        Toggle(isOn: bindingForPostScriptSelection(script.id.uuidString)) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(script.name.isEmpty ? "未命名脚本" : script.name)
                                 Text(script.command)
@@ -168,6 +170,117 @@ struct SettingsView: View {
                             }
                         }
                         .toggleStyle(.checkbox)
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(NetworkTheme.sectionBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private var preScriptSelectionSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("当前接口前置脚本")
+                .font(.title3)
+                .fontWeight(.semibold)
+            Text("从全局前置脚本库中选择一条脚本，在发请求前执行（单选）。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            if hasSelectedRequest == false {
+                Text("未选中历史请求，无法绑定脚本。请先在左侧选择一个请求。")
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 8)
+            } else if dataModel.globalPreScripts.isEmpty {
+                Text("暂无全局前置脚本，请先在上方“全局前置脚本库”新增。")
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 8)
+            } else {
+                Picker("前置脚本", selection: preScriptSelectionBinding) {
+                    Text("无").tag(Optional<String>.none)
+                    ForEach(dataModel.globalPreScripts) { script in
+                        Text(script.name.isEmpty ? "未命名脚本" : script.name)
+                            .tag(Optional(script.id.uuidString))
+                    }
+                }
+                .pickerStyle(.radioGroup)
+                
+                if let selectedID = editorStore.selectedPreScriptIDForCurrent,
+                   let script = dataModel.globalPreScripts.first(where: { $0.id.uuidString == selectedID }) {
+                    Text(script.command)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .padding(.top, 4)
+                }
+            }
+        }
+        .padding(12)
+        .background(NetworkTheme.sectionBackground)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private var globalPreScriptSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("全局前置脚本库")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                Spacer()
+                Button("新增脚本") {
+                    dataModel.addGlobalPreScript()
+                }
+            }
+            
+            Text("脚本命令支持直接写 shell 或指定外部路径（示例：swift ~/sign.swift）。App 通过环境变量 XYDEV_PRE_REQUEST_JSON 注入请求 JSON（url/method/headersText/parametersText，{{变量}} 已替换；header/body 可为空）。stdout 输出一行 JSON：POST 用 parametersText 保序；GET 返回完整 url；代发 {\"response\":\"...\"}；失败 {\"error\":\"...\"}。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            if dataModel.globalPreScripts.isEmpty {
+                Text("暂无全局前置脚本，点击右上角“新增脚本”开始配置。")
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 12)
+            } else {
+                VStack(spacing: 10) {
+                    ForEach($dataModel.globalPreScripts) { $script in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                TextField("脚本名称（例如：接口签名）", text: $script.name)
+                                    .textFieldStyle(.roundedBorder)
+                                Button {
+                                    dataModel.removeGlobalPreScript(id: script.id)
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            CustomTextEditor(text: $script.command)
+                                .frame(minHeight: 90)
+                                .padding(6)
+                                .background(NetworkTheme.panelBackground)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                        .padding(10)
+                        .background(NetworkTheme.panelBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(NetworkTheme.panelBorder, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                     }
                 }
             }
@@ -246,7 +359,14 @@ struct SettingsView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     
-    private func bindingForScriptSelection(_ scriptID: String) -> Binding<Bool> {
+    private var preScriptSelectionBinding: Binding<String?> {
+        Binding(
+            get: { editorStore.selectedPreScriptIDForCurrent },
+            set: { editorStore.selectedPreScriptIDForCurrent = $0 }
+        )
+    }
+    
+    private func bindingForPostScriptSelection(_ scriptID: String) -> Binding<Bool> {
         Binding(
             get: {
                 editorStore.selectedPostScriptIDsForCurrent.contains(scriptID)
@@ -277,7 +397,7 @@ struct SettingsView: View {
         guard let folderURL = chooseFolder(title: "选择导入目录", prompt: "从此目录导入") else { return }
         do {
             try dataModel.importNetworkConfigs(from: folderURL)
-            showAlert(msg: "导入成功，已更新历史记录、变量和全局脚本")
+            showAlert(msg: "导入成功，已更新历史记录、变量和全局脚本（含前置/后置）")
         } catch {
             showAlert(msg: "导入失败：\(error.localizedDescription)")
         }

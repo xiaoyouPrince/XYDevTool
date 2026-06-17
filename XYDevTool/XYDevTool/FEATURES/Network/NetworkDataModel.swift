@@ -36,6 +36,30 @@ struct GlobalPostScript: Identifiable, Codable, Equatable {
     var command: String = ""
 }
 
+struct GlobalPreScript: Identifiable, Codable, Equatable {
+    var id: UUID = UUID()
+    var name: String = ""
+    var command: String = ""
+}
+
+private struct PreScriptRunResult {
+    var url: String?
+    var method: HttpMethod?
+    var headers: [String: String]?
+    /// POST 原始 Body 文本（保序，直接写入 httpBody）
+    var bodyText: String?
+    var parameters: [String: Any]?
+    var response: String?
+    var error: String?
+    
+    /// 脚本是否显式返回了 url（GET 签名场景应返回完整 URL，不再拼 query）
+    var urlOverridden: Bool = false
+    
+    static func unchanged() -> PreScriptRunResult {
+        PreScriptRunResult()
+    }
+}
+
 /// 历史列表专用 UI 状态，与编辑区字段分离，避免选中时整表重绘。
 @Observable
 final class HistoryListUIStore {
@@ -66,10 +90,17 @@ final class NetworkEditorStore {
             onScriptsChanged?()
         }
     }
+    var selectedPreScriptIDForCurrent: String? {
+        didSet {
+            guard isApplyingState == false else { return }
+            onPreScriptChanged?()
+        }
+    }
     
     fileprivate var isApplyingState = false
     fileprivate var onLockChanged: (() -> Void)?
     fileprivate var onScriptsChanged: (() -> Void)?
+    fileprivate var onPreScriptChanged: (() -> Void)?
     
     /// 先加载轻量字段，让顶栏立刻刷新。
     fileprivate func loadMetadata(from node: HistoryNode) {
@@ -79,6 +110,7 @@ final class NetworkEditorStore {
         urlString = node.request?.url ?? ""
         httpMethod = HttpMethod(rawValue: node.request?.method?.lowercased() ?? "") ?? .get
         selectedPostScriptIDsForCurrent = node.selectedPostScriptIDs ?? []
+        selectedPreScriptIDForCurrent = node.selectedPreScriptID
         isApplyingState = false
     }
     
@@ -119,11 +151,16 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     /// 名称区每加深一层缩进（pt）
     let historyIndentPerLevel: CGFloat = 12
     
-    @Published var userScript: String = ""
     @Published var globalPostScripts: [GlobalPostScript] = [] {
         didSet {
             saveGlobalPostScripts()
             sanitizeSelectedScriptReferences()
+        }
+    }
+    @Published var globalPreScripts: [GlobalPreScript] = [] {
+        didSet {
+            saveGlobalPreScripts()
+            sanitizeSelectedPreScriptReferences()
         }
     }
     @Published var variables: [NetworkVariable] = [] {
@@ -134,9 +171,11 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     private let variablesStoreKey = "xydev.network.variables"
     private let globalPostScriptsStoreKey = "xydev.network.globalPostScripts"
+    private let globalPreScriptsStoreKey = "xydev.network.globalPreScripts"
     private let exportHistoryFileName = "network_history.json"
     private let exportVariablesFileName = "network_variables.json"
     private let exportGlobalScriptsFileName = "network_global_scripts.json"
+    private let exportGlobalPreScriptsFileName = "network_global_pre_scripts.json"
     
     let historyListUI = HistoryListUIStore()
     lazy var historyActions = HistoryListActions(model: self)
@@ -146,10 +185,12 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     init() {
         editor.onLockChanged = { [weak self] in self?.syncLockToSelectedRequest() }
         editor.onScriptsChanged = { [weak self] in self?.syncCurrentScriptSelection() }
+        editor.onPreScriptChanged = { [weak self] in self?.syncCurrentPreScriptSelection() }
         loadHistoryFromDisk()
         refreshHistoryListUI()
         loadVariables()
         loadGlobalPostScripts()
+        loadGlobalPreScripts()
     }
     
     var selectedNode: HistoryNode? {
@@ -175,6 +216,9 @@ extension NetworkDataModel {
         
         let scriptsData = try encoder.encode(globalPostScripts)
         try scriptsData.write(to: folderURL.appendingPathComponent(exportGlobalScriptsFileName), options: .atomic)
+        
+        let preScriptsData = try encoder.encode(globalPreScripts)
+        try preScriptsData.write(to: folderURL.appendingPathComponent(exportGlobalPreScriptsFileName), options: .atomic)
     }
     
     func importNetworkConfigs(from folderURL: URL) throws {
@@ -202,10 +246,19 @@ extension NetworkDataModel {
         persistHistory()
         variables = importedVariables
         globalPostScripts = importedScripts
+        
+        let preScriptsURL = folderURL.appendingPathComponent(exportGlobalPreScriptsFileName)
+        if FileManager.default.fileExists(atPath: preScriptsURL.path) {
+            globalPreScripts = try decoder.decode([GlobalPreScript].self, from: Data(contentsOf: preScriptsURL))
+        } else {
+            globalPreScripts = []
+        }
+        
         currentHistory = nil
         selectedId = nil
         historyListUI.selectedId = nil
         editor.selectedPostScriptIDsForCurrent = []
+        editor.selectedPreScriptIDForCurrent = nil
     }
     
     // MARK: - History tree
@@ -462,7 +515,7 @@ extension NetworkDataModel {
     }
     
     func exportFileNamesDescription() -> String {
-        "\(exportHistoryFileName), \(exportVariablesFileName), \(exportGlobalScriptsFileName)"
+        "\(exportHistoryFileName), \(exportVariablesFileName), \(exportGlobalScriptsFileName), \(exportGlobalPreScriptsFileName)"
     }
     
     func variableResolutionPreview() -> (rows: [NetworkVariablePreview], error: String?) {
@@ -510,6 +563,7 @@ extension NetworkDataModel {
             currentHistory = nil
             updateHistoryListSelection(nil)
             editor.selectedPostScriptIDsForCurrent = []
+            editor.selectedPreScriptIDForCurrent = nil
         }
     }
     
@@ -583,7 +637,7 @@ extension NetworkDataModel {
         let paramsTextApplied = applyVariables(to: editor.httpParameters)
 
         // url
-        guard urlStringApplied.isEmpty == false, let url = URL(string: urlStringApplied) else {
+        guard urlStringApplied.isEmpty == false, URL(string: urlStringApplied) != nil else {
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
@@ -619,6 +673,7 @@ extension NetworkDataModel {
         item.isLock = editor.isLock
         item.name = editor.requesName
         item.selectedPostScriptIDs = editor.selectedPostScriptIDsForCurrent
+        item.selectedPreScriptID = editor.selectedPreScriptIDForCurrent
         let res = XYRequest()
         res.method = editor.httpMethod.rawValue.uppercased()
         res.url = editor.urlString
@@ -633,15 +688,43 @@ extension NetworkDataModel {
             //item.name = URL(string: urlStringApplied)?.host
         }
         
-        // 更正脚本, 如果直接返回 response 则直接展示
-        let hp = correct(headers: headerDict, params: parameters)
-        headerDict = hp.headers
-        parameters = hp.params
-        if let response = hp.response {
-            self.editor.httpResponse = response as? String ?? ""
-            self.status = "complete"
-            item.response = self.editor.httpResponse
-            self.updateHistory(with: item)
+        // 前置脚本：签名 / 改包 / 或脚本代发
+        let preResult = runPreScriptIfNeeded(
+            url: urlStringApplied,
+            method: editor.httpMethod,
+            headersText: headersTextApplied,
+            parametersText: paramsTextApplied,
+            headers: headerDict,
+            parameters: parameters
+        )
+        if let error = preResult.error {
+            status = "pre-script fail: \(error)"
+            showAlert(msg: "前置脚本执行失败：\(error)")
+            return
+        }
+        if let response = preResult.response {
+            editor.httpResponse = response
+            status = "complete (pre-script)"
+            item.response = response
+            updateHistory(with: item)
+            return
+        }
+        
+        // Mark: - 前置脚本未直接请求，App 继续
+        
+        var requestURLString = preResult.url ?? urlStringApplied
+        let requestMethod = preResult.method ?? editor.httpMethod
+        headerDict = preResult.headers ?? headerDict
+        
+        // POST：优先用原始 JSON 文本（UI 原文或脚本返回的 parametersText），避免 Dictionary 重序列化打乱 key 顺序
+        var requestBodyText: String? = paramsText.isEmpty ? nil : paramsTextApplied
+        if let bodyText = preResult.bodyText {
+            requestBodyText = bodyText
+        }
+        
+        guard requestURLString.isEmpty == false, let requestURL = URL(string: requestURLString) else {
+            showAlert(msg: "前置脚本返回的 URL 无效")
+            status = "pre-script fail: invalid url"
             return
         }
         
@@ -661,11 +744,17 @@ extension NetworkDataModel {
             self.status = "request fail: \(message)"
         }
         
-        switch editor.httpMethod {
+        switch requestMethod {
         case .get:
-            XYNetTool.get(url: url, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
+            // 脚本若返回完整 URL（含 query），不再从 Dictionary 拼 query，避免参数顺序丢失
+            let getParameters = preResult.urlOverridden ? [:] : parameters
+            XYNetTool.get(url: requestURL, paramters: getParameters, headers: headerDict, success: onSuccess, failure: onFailure)
         case .post:
-            XYNetTool.post(url: url, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
+            if let bodyText = requestBodyText, let bodyData = bodyText.data(using: .utf8) {
+                XYNetTool.post(url: requestURL, headers: headerDict, body: bodyData, success: onSuccess, failure: onFailure)
+            } else {
+                XYNetTool.post(url: requestURL, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
+            }
         }
 
     }
@@ -703,6 +792,12 @@ extension NetworkDataModel {
         currentHistory.selectedPostScriptIDs = editor.selectedPostScriptIDsForCurrent
         persistHistory()
     }
+    
+    private func syncCurrentPreScriptSelection() {
+        guard let currentHistory else { return }
+        currentHistory.selectedPreScriptID = editor.selectedPreScriptIDForCurrent
+        persistHistory()
+    }
 
     func addGlobalPostScript() {
         globalPostScripts.append(GlobalPostScript())
@@ -710,6 +805,14 @@ extension NetworkDataModel {
     
     func removeGlobalPostScript(id: UUID) {
         globalPostScripts.removeAll { $0.id == id }
+    }
+    
+    func addGlobalPreScript() {
+        globalPreScripts.append(GlobalPreScript())
+    }
+    
+    func removeGlobalPreScript(id: UUID) {
+        globalPreScripts.removeAll { $0.id == id }
     }
 
     private func loadGlobalPostScripts() {
@@ -726,6 +829,20 @@ extension NetworkDataModel {
         UserDefaults.standard.set(data, forKey: globalPostScriptsStoreKey)
     }
     
+    private func loadGlobalPreScripts() {
+        guard let data = UserDefaults.standard.data(forKey: globalPreScriptsStoreKey),
+              let list = try? JSONDecoder().decode([GlobalPreScript].self, from: data) else {
+            globalPreScripts = []
+            return
+        }
+        globalPreScripts = list
+    }
+    
+    private func saveGlobalPreScripts() {
+        guard let data = try? JSONEncoder().encode(globalPreScripts) else { return }
+        UserDefaults.standard.set(data, forKey: globalPreScriptsStoreKey)
+    }
+    
     private func sanitizeSelectedScriptReferences() {
         let validIDs = Set(globalPostScripts.map { $0.id.uuidString })
         let sanitizedCurrent = editor.selectedPostScriptIDsForCurrent.filter { validIDs.contains($0) }
@@ -739,6 +856,25 @@ extension NetworkDataModel {
             let sanitized = selected.filter { validIDs.contains($0) }
             if selected != sanitized {
                 item.selectedPostScriptIDs = sanitized
+                hasHistoryChange = true
+            }
+        }
+        if hasHistoryChange {
+            persistHistory()
+        }
+    }
+    
+    private func sanitizeSelectedPreScriptReferences() {
+        let validIDs = Set(globalPreScripts.map { $0.id.uuidString })
+        if let currentID = editor.selectedPreScriptIDForCurrent, validIDs.contains(currentID) == false {
+            editor.selectedPreScriptIDForCurrent = nil
+        }
+        
+        var hasHistoryChange = false
+        for item in HistoryTree.allRequestNodes(in: historyRoots) {
+            guard let selected = item.selectedPreScriptID else { continue }
+            if validIDs.contains(selected) == false {
+                item.selectedPreScriptID = nil
                 hasHistoryChange = true
             }
         }
@@ -1014,85 +1150,186 @@ extension NetworkDataModel {
         }
     }
 
-    /// 这里做更正 header 和 parameters, 为之后抽取出公用脚本准备
-    /// - Parameters:
-    ///   - headers: 用户直接设置的头
-    ///   - params: 用户直接设置的请求参数
-    /// - Returns: 处理之后的请求头和参数
-    func correct(headers: [String: String], params: [String: Any]) -> (headers: [String: String], params: [String: Any], response: Any?) {
-        if !userScript.isEmpty {
-            return runUserScript(userScript, headers: headers, params: params)
+    /// 若当前请求绑定了前置脚本，则在发包前执行；否则原样返回。
+    private func runPreScriptIfNeeded(
+        url: String,
+        method: HttpMethod,
+        headersText: String,
+        parametersText: String,
+        headers: [String: String],
+        parameters: [String: Any]
+    ) -> PreScriptRunResult {
+        guard let scriptID = editor.selectedPreScriptIDForCurrent,
+              let scriptItem = globalPreScripts.first(where: { $0.id.uuidString == scriptID }) else {
+            return .unchanged()
         }
-        return (headers, params, nil)
+        
+        let command = scriptItem.command.trimmingCharacters(in: .whitespacesAndNewlines)
+        if command.isEmpty {
+            return .unchanged()
+        }
+        
+        return runPreScript(
+            command,
+            scriptName: scriptItem.name,
+            url: url,
+            method: method,
+            headersText: headersText,
+            parametersText: parametersText,
+            headers: headers,
+            parameters: parameters
+        )
     }
     
-    // 运行用户脚本的函数
-    func runUserScript(_ script: String, headers: [String: String], params: [String: Any]) -> (headers: [String: String], params: [String: Any], response: Any?) {
-        
-        let response: Any? = nil
-        var rlt = ([String: String](), [String: Any](), response)
-        if script.isEmpty {return rlt}
+    private func runPreScript(
+        _ command: String,
+        scriptName: String,
+        url: String,
+        method: HttpMethod,
+        headersText: String,
+        parametersText: String,
+        headers: [String: String],
+        parameters: [String: Any]
+    ) -> PreScriptRunResult {
+        let requestPayload: [String: Any] = [
+            "url": url,
+            "method": method.rawValue.uppercased(),
+            "headersText": headersText,
+            "parametersText": parametersText,
+            "headers": headers,
+            "parameters": parameters
+        ]
+        let requestJSON = requestPayload.toJsonString()
         
         let process = Process()
-        let pipe = Pipe()
+        let outputPipe = Pipe()
         let errorPipe = Pipe()
         
-        // 使用 /bin/bash 来执行用户的脚本
         process.executableURL = URL(fileURLWithPath: "/bin/sh")
-        
-        // 设置命令行参数，-c 参数表示执行传递的字符串，拼接 httpHeaders 和 httpParameters 作为传入参数
-        let fullCommand = "\(script) '\(editor.urlString)' '\(editor.httpMethod.rawValue.uppercased())' '\(headers.toString() ?? "")' '\(params.toString() ?? "")'"
-        process.arguments = ["-c", fullCommand]
-        
-        // 将标准输出和错误输出通过管道重定向
-        process.standardOutput = pipe
+        // 与后置脚本一致：输入框直接写 shell 或指定外部路径。
+        // 请求 JSON 通过环境变量注入，避免 $1 含双引号时在 shell 中被截断。
+        process.arguments = ["-c", command, "xy-pre-script", requestJSON]
+        var env = ProcessInfo.processInfo.environment
+        env["XYDEV_PRE_REQUEST_JSON"] = requestJSON
+        process.environment = env
+        process.standardOutput = outputPipe
         process.standardError = errorPipe
         
         do {
             try process.run()
+            process.waitUntilExit()
         } catch {
-            print("Failed to run the script: \(error)")
-            self.status = "Failed to run the script: \(error)"
-            return rlt
+            return PreScriptRunResult(error: error.localizedDescription)
         }
         
-        // 读取标准输出
-        let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        if let outputString = String(data: outputData, encoding: .utf8) {
-            self.status = outputString
-            let outputArr = outputString.split(separator: "\n", maxSplits: 100, omittingEmptySubsequences: true)
-            for item in outputArr {
-                let params = String(item).asParams()
-                if params.isEmpty { continue }
-                if params.keys.contains("headers") && params.keys.contains("parameters") {
-                    if let h = params["headers"] as? [String: String], let p = params["parameters"] as? [String: Any] {
-                        /*
-                         如果脚本中参数经过摘要计算, 比如 md5 这类需要原样转发的数据, 则不能走此函数
-                         因为 Dictionary 本身是 hash 表, 通过 json 解码之后的 key 是无序的,造成摘要错误
-                         此场景适用于没有加密额外加密,且计算规则不想暴露的场合
-                         */
-
-                        rlt = (h, p, nil)
-                        break
-                    }
+        let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let err = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        if err.isEmpty == false {
+            return PreScriptRunResult(error: err)
+        }
+        
+        if output.isEmpty {
+            return PreScriptRunResult(error: "前置脚本[\(scriptName.isEmpty ? "未命名" : scriptName)] 无输出")
+        }
+        
+        return parsePreScriptOutput(output, scriptName: scriptName, fallbackHeaders: headers, fallbackParameters: parameters)
+    }
+    
+    private func parsePreScriptOutput(
+        _ output: String,
+        scriptName: String,
+        fallbackHeaders: [String: String],
+        fallbackParameters: [String: Any]
+    ) -> PreScriptRunResult {
+        let lines = output.split(separator: "\n", omittingEmptySubsequences: true)
+        for line in lines {
+            let text = String(line).trimmingCharacters(in: .whitespacesAndNewlines)
+            if text.isEmpty { continue }
+            
+            let params = text.asParams()
+            if params.isEmpty { continue }
+            
+            if let error = params["error"] as? String, error.isEmpty == false {
+                return PreScriptRunResult(error: error)
+            }
+            
+            if let response = params["response"] {
+                let responseText: String
+                if let str = response as? String {
+                    responseText = str
+                } else if JSONSerialization.isValidJSONObject(response),
+                          let data = try? JSONSerialization.data(withJSONObject: response, options: [.prettyPrinted]),
+                          let json = String(data: data, encoding: .utf8) {
+                    responseText = json
+                } else {
+                    responseText = "\(response)"
                 }
-                else if params.keys.contains("response") {
-                    // 脚本直接进行网络请求并返回结果. 这种情况直接将结果返回, {"code":1,"message":"关键词不能为空"}
-                    // 协议内容返回格式为 ["response": "jsonString..."]
-                    rlt = ([:], [:], params["response"])
-                    break
+                return PreScriptRunResult(response: responseText)
+            }
+            
+            var result = PreScriptRunResult()
+            if let url = params["url"] as? String {
+                result.url = url
+                result.urlOverridden = true
+            }
+            
+            if let methodText = params["method"] as? String {
+                result.method = HttpMethod(rawValue: methodText.lowercased())
+            }
+            
+            if let headersText = params["headersText"] as? String {
+                result.headers = parseHeaderDictionary(from: headersText) ?? fallbackHeaders
+            } else if let h = params["headers"] as? [String: String] {
+                result.headers = h
+            } else if let h = params["headers"] as? [String: Any] {
+                result.headers = h.reduce(into: [:]) { partialResult, entry in
+                    partialResult[entry.key] = "\(entry.value)"
                 }
             }
-            print(self.status)
+            
+            if let parametersText = params["parametersText"] as? String {
+                result.bodyText = parametersText
+                result.parameters = parseParameterDictionary(from: parametersText) ?? fallbackParameters
+            } else if let p = params["parameters"] as? [String: Any] {
+                result.parameters = p
+            }
+            
+            let hasMutation = result.urlOverridden
+                || result.method != nil
+                || result.headers != nil
+                || result.bodyText != nil
+                || result.parameters != nil
+            if hasMutation {
+                return result
+            }
         }
         
-        if let errorString = String(data: errorData, encoding: .utf8) {
-            self.status = errorString
-            print(self.status)
+        return PreScriptRunResult(error: "前置脚本[\(scriptName.isEmpty ? "未命名" : scriptName)] 输出格式无效")
+    }
+    
+    private func parseHeaderDictionary(from text: String) -> [String: String]? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return [:] }
+        guard let data = trimmed.data(using: .utf8),
+              let dict = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed) as? [String: Any] else {
+            return nil
         }
-        
-        return rlt
+        return dict.reduce(into: [:]) { partialResult, entry in
+            partialResult[entry.key] = "\(entry.value)"
+        }
+    }
+    
+    private func parseParameterDictionary(from text: String) -> [String: Any]? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return [:] }
+        guard let data = trimmed.data(using: .utf8),
+              let dict = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed) as? [String: Any] else {
+            return nil
+        }
+        return dict
     }
 }
 

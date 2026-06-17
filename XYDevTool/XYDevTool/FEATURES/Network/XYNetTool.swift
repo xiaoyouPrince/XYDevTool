@@ -124,7 +124,23 @@ public struct XYNetTool {
                            headers: [String: String]?,
                            success: @escaping AnyJsonCallback,
                            failure: @escaping ErrorCallback) {
-        send(url: url, method: .GET, paramters: paramters, headers: headers, options: .default) { result in
+        send(url: url, method: .GET, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
+            switch result {
+            case .success(let response):
+                success(response.asDictionary())
+            case .failure(let error):
+                failure(error.localizedDescription)
+            }
+        }
+    }
+    
+    /// POST 请求，使用原始 Body 字节（保序，不经 Dictionary 重序列化）。
+    public static func post(url: URL,
+                            headers: [String: String]?,
+                            body: Data,
+                            success: @escaping AnyJsonCallback,
+                            failure: @escaping ErrorCallback) {
+        send(url: url, method: .POST, paramters: [:], headers: headers, rawBody: body, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.asDictionary())
@@ -140,7 +156,7 @@ public struct XYNetTool {
                             headers: [String: String]?,
                             success: @escaping AnyJsonCallback,
                             failure: @escaping ErrorCallback) {
-        send(url: url, method: .POST, paramters: paramters, headers: headers, options: .default) { result in
+        send(url: url, method: .POST, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.asDictionary())
@@ -156,7 +172,7 @@ public struct XYNetTool {
                                 headers: [String: String]?,
                                 success: @escaping DataCallback,
                                 failure: @escaping ErrorCallback) {
-        send(url: url, method: .POST, paramters: paramters, headers: headers, options: .default) { result in
+        send(url: url, method: .POST, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.data)
@@ -174,7 +190,7 @@ public struct XYNetTool {
                                options: RequestOptions = .default,
                                success: @escaping AnyResponseCallback,
                                failure: @escaping ErrorCallback) {
-        send(url: url, method: method, paramters: paramters, headers: headers, options: options) { result in
+        send(url: url, method: method, paramters: paramters, headers: headers, rawBody: nil, options: options) { result in
             switch result {
             case .success(let response):
                 success(response)
@@ -218,9 +234,10 @@ private extension XYNetTool {
                      method: RequestType,
                      paramters: [String: Any],
                      headers: [String: String]?,
+                     rawBody: Data?,
                      options: RequestOptions,
                      completion: @escaping (Swift.Result<NetResponse, NetError>) -> Void) {
-        let request = buildRequest(url: url, method: method, paramters: paramters, headers: headers, timeout: options.timeout)
+        let request = buildRequest(url: url, method: method, paramters: paramters, headers: headers, timeout: options.timeout, rawBody: rawBody)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
         
         session.dataTask(with: request) { data, response, error in
@@ -272,7 +289,8 @@ private extension XYNetTool {
                              method: RequestType,
                              paramters: [String: Any],
                              headers: [String: String]?,
-                             timeout: TimeInterval) -> URLRequest {
+                             timeout: TimeInterval,
+                             rawBody: Data? = nil) -> URLRequest {
         var requestURL = url
         var request = URLRequest(url: url)
         request.timeoutInterval = timeout
@@ -296,11 +314,11 @@ private extension XYNetTool {
             }
             request.url = requestURL
         case .POST:
-            if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
+            if let rawBody {
+                request.httpBody = rawBody
+            } else if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
                 request.httpBody = data
-            }
-            
-            if let params = paramters as? Encodable, let data = try? JSONEncoder().encode(params) {
+            } else if let params = paramters as? Encodable, let data = try? JSONEncoder().encode(params) {
                 request.httpBody = data
             }
             
