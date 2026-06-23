@@ -670,7 +670,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B48BC72B281D07500093D91F /* Build configuration list for PBXNativeTarget "XYDevTool" */;
 			buildPhases = (
-				A235C7A560504D92863C1CD3 /* Compile Code Assets */,
 				16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */,
 				B48BC718281D074E0093D91F /* Sources */,
 				B48BC719281D074E0093D91F /* Frameworks */,
@@ -759,25 +758,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		A235C7A560504D92863C1CD3 /* Compile Code Assets */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			alwaysOutOfDate = 1;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Compile Code Assets";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			shellPath = /bin/sh;
-			showEnvVarsInLog = 0;	
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A3DC1C3}\"";
-		};
 		16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
