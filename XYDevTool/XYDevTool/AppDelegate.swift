@@ -10,7 +10,10 @@ import Cocoa
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        XYNetTool.setEventSink(XYNetToolLogAdapter.shared)
+        AppLogger.shared.startSession()
+    }
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -18,7 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+        AppLogger.shared.finishSession()
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
@@ -32,6 +35,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //    }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        AppLogger.shared.track(
+            category: .app,
+            name: "app_reopened",
+            metadata: ["hadVisibleWindows": String(flag)]
+        )
         if flag == false {
             for win in sender.windows {
                 win.makeKeyAndOrderFront(self)
@@ -42,4 +50,3 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 
 }
-

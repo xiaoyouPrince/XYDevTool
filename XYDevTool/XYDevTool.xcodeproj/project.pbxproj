@@ -130,6 +130,10 @@
 		E1A101162F90150000CB8A36 /* network-tool.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101062F90150000CB8A26 /* network-tool.md */; };
 		E1A101172F90150000CB8A37 /* custom-server.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101072F90150000CB8A27 /* custom-server.md */; };
 		E1A101182F90150000CB8A38 /* image-inspector.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101082F90150000CB8A28 /* image-inspector.md */; };
+		E1B000112F90200000CB8B11 /* AppLogEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000012F90200000CB8B01 /* AppLogEvent.swift */; };
+		E1B000122F90200000CB8B12 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000022F90200000CB8B02 /* AppLogger.swift */; };
+		E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000032F90200000CB8B03 /* LogViewer.swift */; };
+		E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -264,6 +268,10 @@
 		E1A101062F90150000CB8A26 /* network-tool.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "network-tool.md"; sourceTree = "<group>"; };
 		E1A101072F90150000CB8A27 /* custom-server.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "custom-server.md"; sourceTree = "<group>"; };
 		E1A101082F90150000CB8A28 /* image-inspector.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "image-inspector.md"; sourceTree = "<group>"; };
+		E1B000012F90200000CB8B01 /* AppLogEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogEvent.swift; sourceTree = "<group>"; };
+		E1B000022F90200000CB8B02 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		E1B000032F90200000CB8B03 /* LogViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewer.swift; sourceTree = "<group>"; };
+		E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYNetToolLogAdapter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -416,6 +424,7 @@
 				B4F61DC9282AC4CD006FAC35 /* Info.plist */,
 				B4F61DBB282A3C46006FAC35 /* Resource */,
 				B4A3ADA028217310001FD2B3 /* Third */,
+				E1B001002F90200000CB8C00 /* Core */,
 				B4F61DBA282A3C27006FAC35 /* FEATURES */,
 				B4D23BC7283D1A400081F400 /* Extensions */,
 				B43606222957F34A005A06A9 /* Protocols */,
@@ -569,6 +578,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
+				E1B001022F90200000CB8C02 /* LogViewer */,
 				E1A100052F90150000CB8A05 /* Help */,
 				BE66A95A2DA5316A00EF6D1C /* ImageInspector */,
 				B424ED5F2CB4456800B02C3E /* CustomServer */,
@@ -661,6 +671,32 @@
 				E1A101082F90150000CB8A28 /* image-inspector.md */,
 			);
 			path = Help;
+			sourceTree = "<group>";
+		};
+		E1B001002F90200000CB8C00 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				E1B001012F90200000CB8C01 /* Logging */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		E1B001012F90200000CB8C01 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				E1B000012F90200000CB8B01 /* AppLogEvent.swift */,
+				E1B000022F90200000CB8B02 /* AppLogger.swift */,
+				E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
+		E1B001022F90200000CB8C02 /* LogViewer */ = {
+			isa = PBXGroup;
+			children = (
+				E1B000032F90200000CB8B03 /* LogViewer.swift */,
+			);
+			path = LogViewer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -896,6 +932,10 @@
 				E1A100142F90150000CB8A14 /* HelpMenuController.swift in Sources */,
 				E1A100162F90150000CB8A16 /* HelpMarkdownRenderer.swift in Sources */,
 				E1A100172F90150000CB8A17 /* HelpWebView.swift in Sources */,
+				E1B000112F90200000CB8B11 /* AppLogEvent.swift in Sources */,
+				E1B000122F90200000CB8B12 /* AppLogger.swift in Sources */,
+				E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */,
+				E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */,
 				B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */,
 				B48A9A5B292FB96500DD7333 /* ConstraintMultiplierTarget.swift in Sources */,
 			);

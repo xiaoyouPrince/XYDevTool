@@ -5,13 +5,55 @@
 //  Created by 渠晓友 on 2022/4/26.
 //
 
+import Foundation
+
 /*
  一个简单的网络工具，统一请求构建、发送和响应解析。
  */
 
+public enum XYNetToolEventLevel {
+    case info
+    case error
+}
+
+public enum XYNetToolEventResult {
+    case success
+    case failure
+}
+
+public struct XYNetToolEvent {
+    public let name: String
+    public let level: XYNetToolEventLevel
+    public let result: XYNetToolEventResult?
+    public let metadata: [String: String]
+
+    public init(
+        name: String,
+        level: XYNetToolEventLevel = .info,
+        result: XYNetToolEventResult? = nil,
+        metadata: [String: String]
+    ) {
+        self.name = name
+        self.level = level
+        self.result = result
+        self.metadata = metadata
+    }
+}
+
+/// 网络工具只产生事件，不依赖具体日志框架。宿主可按需注入实现。
+public protocol XYNetToolEventSink: AnyObject {
+    func receive(_ event: XYNetToolEvent)
+}
+
 public typealias NetTool = XYNetTool
 public struct XYNetTool {
+    private static weak var eventSink: XYNetToolEventSink?
+
     private init () {}
+
+    public static func setEventSink(_ sink: XYNetToolEventSink?) {
+        eventSink = sink
+    }
     
     public typealias AnyJsonCallback = ([String: Any]) -> Void
     public typealias DataCallback = (Data) -> Void
@@ -41,10 +83,13 @@ public struct XYNetTool {
         public let parsedBody: ParsedBody
         
         public func asDictionary() -> [String: Any] {
+            let stringHeaders = headers.reduce(into: [String: String]()) { result, pair in
+                result[String(describing: pair.key)] = String(describing: pair.value)
+            }
             var result: [String: Any] = [
                 "_statusCode": statusCode ?? -1,
                 "_mimeType": mimeType ?? "",
-                "_headers": headers
+                "_headers": stringHeaders
             ]
             
             switch parsedBody {
@@ -239,6 +284,19 @@ private extension XYNetTool {
                      completion: @escaping (Swift.Result<NetResponse, NetError>) -> Void) {
         let request = buildRequest(url: url, method: method, paramters: paramters, headers: headers, timeout: options.timeout, rawBody: rawBody)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
+
+        let requestBody = logBody(request.httpBody)
+        emit(
+            name: "url_session_task_started",
+            metadata: [
+                "url": request.url?.absoluteString ?? url.absoluteString,
+                "method": request.httpMethod ?? method.rawValue,
+                "headers": logJSONString(request.allHTTPHeaderFields ?? [:]),
+                "body": requestBody.value,
+                "bodyEncoding": requestBody.encoding,
+                "timeout": String(request.timeoutInterval)
+            ]
+        )
         
         session.dataTask(with: request) { data, response, error in
             let result: Swift.Result<NetResponse, NetError>
@@ -249,6 +307,16 @@ private extension XYNetTool {
             }
             
             if let error = error {
+                emit(
+                    name: "url_session_task_failed",
+                    level: .error,
+                    result: .failure,
+                    metadata: [
+                        "url": request.url?.absoluteString ?? url.absoluteString,
+                        "method": request.httpMethod ?? method.rawValue,
+                        "error": error.localizedDescription
+                    ]
+                )
                 result = .failure(.requestFailed(error.localizedDescription))
                 return
             }
@@ -261,6 +329,25 @@ private extension XYNetTool {
             let body = data ?? Data()
             let httpResponse = response as? HTTPURLResponse
             let statusCode = httpResponse?.statusCode
+
+            let responseBody = logBody(body)
+            let responseHeaders = (httpResponse?.allHeaderFields ?? [:]).reduce(into: [String: String]()) { result, pair in
+                result[String(describing: pair.key)] = String(describing: pair.value)
+            }
+            emit(
+                name: "url_session_response_received",
+                result: .success,
+                metadata: [
+                    "url": response.url?.absoluteString ?? request.url?.absoluteString ?? url.absoluteString,
+                    "method": request.httpMethod ?? method.rawValue,
+                    "statusCode": statusCode.map(String.init) ?? "",
+                    "mimeType": response.mimeType ?? "",
+                    "headers": logJSONString(responseHeaders),
+                    "body": responseBody.value,
+                    "bodyEncoding": responseBody.encoding,
+                    "bodyBytes": String(body.count)
+                ]
+            )
             
             if options.validateStatusCode,
                let statusCode = statusCode,
@@ -355,6 +442,34 @@ private extension XYNetTool {
     static func responseText(from data: Data) -> String? {
         String(data: data, encoding: .utf8) ?? String(data: data, encoding: .ascii)
     }
+
+    static func emit(
+        name: String,
+        level: XYNetToolEventLevel = .info,
+        result: XYNetToolEventResult? = nil,
+        metadata: [String: String]
+    ) {
+        eventSink?.receive(
+            XYNetToolEvent(name: name, level: level, result: result, metadata: metadata)
+        )
+    }
+
+    static func logJSONString(_ object: Any) -> String {
+        guard JSONSerialization.isValidJSONObject(object),
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]),
+              let text = String(data: data, encoding: .utf8) else {
+            return "{}"
+        }
+        return text
+    }
+
+    static func logBody(_ data: Data?) -> (value: String, encoding: String) {
+        guard let data, data.isEmpty == false else { return ("", "empty") }
+        if let text = String(data: data, encoding: .utf8) {
+            return (text, "utf8")
+        }
+        return (data.base64EncodedString(), "base64")
+    }
     
     static func parseJSONBody(data: Data, response: URLResponse) -> ParsedBody? {
         let mimeType = response.mimeType?.lowercased() ?? ""
@@ -387,4 +502,3 @@ private extension XYNetTool {
         return .binary(data)
     }
 }
-

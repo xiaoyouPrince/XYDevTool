@@ -31,6 +31,9 @@ final class HelpMenuController: NSObject {
         addMenuItem(to: helpMenu, title: "JSON 格式化说明", action: #selector(showJSONFormatterHelp(_:)))
         addMenuItem(to: helpMenu, title: "JSON 转 Model 说明", action: #selector(showJSON2ModelHelp(_:)))
         helpMenu.addItem(.separator())
+        addMenuItem(to: helpMenu, title: "运行日志…", action: #selector(showRuntimeLogs(_:)))
+        addMenuItem(to: helpMenu, title: "在 Finder 中显示日志", action: #selector(revealRuntimeLogs(_:)))
+        helpMenu.addItem(.separator())
         addMenuItem(to: helpMenu, title: "检查更新…", action: #selector(openReleases(_:)))
         addMenuItem(to: helpMenu, title: "GitHub 仓库", action: #selector(openGitHub(_:)))
     }
@@ -87,6 +90,14 @@ final class HelpMenuController: NSObject {
     
     @objc private func showJSON2ModelHelp(_ sender: Any?) {
         show(topic: .json2Model)
+    }
+
+    @objc private func showRuntimeLogs(_ sender: Any?) {
+        LogViewerController.shared.show()
+    }
+
+    @objc private func revealRuntimeLogs(_ sender: Any?) {
+        AppLogger.shared.revealLogDirectory()
     }
     
     @objc private func openGitHub(_ sender: Any?) {

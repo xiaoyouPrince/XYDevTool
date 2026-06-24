@@ -12,20 +12,38 @@ class ViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        AppLogger.shared.track(category: .navigation, name: "home_viewed")
         checkVersion()
     }
     
     private func checkVersion() {
+        let operation = AppLogger.shared.begin(category: .update, name: "version_check")
         UpgradeUtils.newestVersion { (version) in
-            guard let tagName = version?.tag_name,
-                  let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-                  let newVersion = Int(tagName.replacingOccurrences(of: ".", with: "")),
-                  let currentVeriosn = Int(bundleVersion.replacingOccurrences(of: ".", with: "")) else {
+            guard let version else {
+                operation.finish(result: .failure, metadata: ["stage": "load_release"])
                 return
             }
-            
-            if newVersion > currentVeriosn {
+
+            guard let tagName = version.tag_name,
+                  let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+                  let newVersion = Int(
+                    tagName
+                        .trimmingCharacters(in: CharacterSet(charactersIn: "vV"))
+                        .replacingOccurrences(of: ".", with: "")
+                  ),
+                  let currentVeriosn = Int(bundleVersion.replacingOccurrences(of: ".", with: "")) else {
+                operation.finish(result: .failure, metadata: ["stage": "parse_version"])
+                return
+            }
+
+            let updateAvailable = newVersion > currentVeriosn
+            operation.finish(
+                result: .success,
+                metadata: ["updateAvailable": String(updateAvailable)]
+            )
+
+            if updateAvailable {
                 let upgradeVc = UpgradeViewController()
                 upgradeVc.versionInfo = version
                 upgradeVc.currentVer = bundleVersion
@@ -41,21 +59,33 @@ class ViewController: NSViewController {
     }
     
     @IBAction func jsonFormatterClick(_ sender: Any) {
+        trackFeatureOpened("json_formatter")
         openJsonFormatterWindow()
     }
     
 
     @IBAction func networkClick(_ sender: Any) {
+        trackFeatureOpened("network")
         openNetworkWindow()
     }
     
     
     @IBAction func customServerClick(_ sender: Any) {
+        trackFeatureOpened("custom_server")
         openNewWindow(with: NSRect(x: 0, y: 0, width: 800, height: 600), title: "自定义服务器", contentView: CustomServerView())
     }
     
     @IBAction func imageInspectorClick(_ sender: Any) {
+        trackFeatureOpened("image_inspector")
         openNewWindow(with: NSRect(x: 0, y: 0, width: 800, height: 600), title: "ImageInspector", contentView: ImageInspector())
+    }
+
+    private func trackFeatureOpened(_ feature: String) {
+        AppLogger.shared.track(
+            category: .navigation,
+            name: "feature_opened",
+            metadata: ["feature": feature]
+        )
     }
 }
 
@@ -121,4 +151,3 @@ extension ViewController {
         windowController.showWindow(self)
     }
 }
-
