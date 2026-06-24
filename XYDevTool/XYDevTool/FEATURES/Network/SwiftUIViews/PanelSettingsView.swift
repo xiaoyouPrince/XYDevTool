@@ -13,6 +13,7 @@ struct SettingsView: View {
     @EnvironmentObject var dataModel: NetworkDataModel
     @Environment(NetworkEditorStore.self) private var editorStore
     @Environment(\.presentationMode) var presentationMode
+    private let logger = Logger(category: "network")
     
     private var hasSelectedRequest: Bool {
         dataModel.isSelectedRequest
@@ -385,15 +386,15 @@ struct SettingsView: View {
     
     private func exportConfigs() {
         guard let folderURL = chooseFolder(title: "选择导出目录", prompt: "导出到此目录") else {
-            AppLogger.shared.track(category: .network, name: "config_export", result: .cancelled)
+            logger.event("config_export", result: "cancelled")
             return
         }
-        let operation = AppLogger.shared.begin(category: .network, name: "config_export")
+        let operation = logger.begin("config_export")
         do {
             try dataModel.exportNetworkConfigs(to: folderURL)
             operation.finish(
-                result: .success,
-                metadata: [
+                result: "success",
+                fields: [
                     "requestCount": String(dataModel.historyListUI.requestCount),
                     "variableCount": String(dataModel.variables.count),
                     "preScriptCount": String(dataModel.globalPreScripts.count),
@@ -402,22 +403,22 @@ struct SettingsView: View {
             )
             showAlert(msg: "导出成功：\(dataModel.exportFileNamesDescription())")
         } catch {
-            operation.finish(result: .failure, metadata: ["stage": "write_files"])
+            operation.finish(result: "failure", fields: ["stage": "write_files"])
             showAlert(msg: "导出失败：\(error.localizedDescription)")
         }
     }
     
     private func importConfigs() {
         guard let folderURL = chooseFolder(title: "选择导入目录", prompt: "从此目录导入") else {
-            AppLogger.shared.track(category: .network, name: "config_import", result: .cancelled)
+            logger.event("config_import", result: "cancelled")
             return
         }
-        let operation = AppLogger.shared.begin(category: .network, name: "config_import")
+        let operation = logger.begin("config_import")
         do {
             try dataModel.importNetworkConfigs(from: folderURL)
             operation.finish(
-                result: .success,
-                metadata: [
+                result: "success",
+                fields: [
                     "requestCount": String(dataModel.historyListUI.requestCount),
                     "variableCount": String(dataModel.variables.count),
                     "preScriptCount": String(dataModel.globalPreScripts.count),
@@ -426,7 +427,7 @@ struct SettingsView: View {
             )
             showAlert(msg: "导入成功，已更新历史记录、变量和全局脚本（含前置/后置）")
         } catch {
-            operation.finish(result: .failure, metadata: ["stage": "read_files"])
+            operation.finish(result: "failure", fields: ["stage": "read_files"])
             showAlert(msg: "导入失败：\(error.localizedDescription)")
         }
     }

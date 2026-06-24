@@ -10,18 +10,21 @@ import SwiftUI
 
 class ViewController: NSViewController {
 
+    private let navigationLogger = Logger(category: "navigation")
+    private let updateLogger = Logger(category: "update")
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        AppLogger.shared.track(category: .navigation, name: "home_viewed")
+        navigationLogger.event("home.viewed")
         checkVersion()
     }
     
     private func checkVersion() {
-        let operation = AppLogger.shared.begin(category: .update, name: "version_check")
+        let operation = updateLogger.begin("version.check")
         UpgradeUtils.newestVersion { (version) in
             guard let version else {
-                operation.finish(result: .failure, metadata: ["stage": "load_release"])
+                operation.finish(result: "failure", fields: ["stage": "load_release"])
                 return
             }
 
@@ -33,14 +36,14 @@ class ViewController: NSViewController {
                         .replacingOccurrences(of: ".", with: "")
                   ),
                   let currentVeriosn = Int(bundleVersion.replacingOccurrences(of: ".", with: "")) else {
-                operation.finish(result: .failure, metadata: ["stage": "parse_version"])
+                operation.finish(result: "failure", fields: ["stage": "parse_version"])
                 return
             }
 
             let updateAvailable = newVersion > currentVeriosn
             operation.finish(
-                result: .success,
-                metadata: ["updateAvailable": String(updateAvailable)]
+                result: "success",
+                fields: ["updateAvailable": String(updateAvailable)]
             )
 
             if updateAvailable {
@@ -81,10 +84,9 @@ class ViewController: NSViewController {
     }
 
     private func trackFeatureOpened(_ feature: String) {
-        AppLogger.shared.track(
-            category: .navigation,
-            name: "feature_opened",
-            metadata: ["feature": feature]
+        navigationLogger.event(
+            "feature.opened",
+            fields: ["feature": feature]
         )
     }
 }

@@ -10,9 +10,12 @@ import Cocoa
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    private let logger = Logger(category: "app")
+
     func applicationWillFinishLaunching(_ notification: Notification) {
-        XYNetTool.setEventSink(XYNetToolLogAdapter.shared)
-        AppLogger.shared.startSession()
+        LoggingSystem.configure(handler: LocalLogService.shared)
+        XYNetTool.delegate = XYNetToolLogAdapter.shared
+        LocalLogService.shared.startSession()
     }
 
 
@@ -21,7 +24,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        AppLogger.shared.finishSession()
+        LocalLogService.shared.finishSession()
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
@@ -35,10 +38,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //    }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        AppLogger.shared.track(
-            category: .app,
-            name: "app_reopened",
-            metadata: ["hadVisibleWindows": String(flag)]
+        logger.event(
+            "app.reopened",
+            fields: ["hadVisibleWindows": String(flag)]
         )
         if flag == false {
             for win in sender.windows {

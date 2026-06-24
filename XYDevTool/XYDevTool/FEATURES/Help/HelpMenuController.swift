@@ -97,7 +97,7 @@ final class HelpMenuController: NSObject {
     }
 
     @objc private func revealRuntimeLogs(_ sender: Any?) {
-        AppLogger.shared.revealLogDirectory()
+        LocalLogService.shared.revealLogDirectory()
     }
     
     @objc private func openGitHub(_ sender: Any?) {

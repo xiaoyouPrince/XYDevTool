@@ -11,6 +11,7 @@ final class LogViewerController: NSObject {
     static let shared = LogViewerController()
 
     private var window: NSWindow?
+    private let logger = Logger(category: "logs")
 
     func show() {
         if let window {
@@ -34,7 +35,7 @@ final class LogViewerController: NSObject {
         newWindow.makeKeyAndOrderFront(nil)
         window = newWindow
 
-        AppLogger.shared.track(category: .logs, name: "log_viewer_opened")
+        logger.event("viewer.opened")
         NSApp.activate(ignoringOtherApps: true)
     }
 }
@@ -50,7 +51,7 @@ final class LogViewerViewModel: ObservableObject {
 
     var filteredEvents: [AppLogEvent] {
         events.filter { event in
-            let matchesCategory = categoryFilter == "all" || event.category.rawValue == categoryFilter
+            let matchesCategory = categoryFilter == "all" || event.category == categoryFilter
             let matchesLevel = levelFilter == "all" || event.level.rawValue == levelFilter
             let search = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             let matchesSearch = search.isEmpty
@@ -67,6 +68,10 @@ final class LogViewerViewModel: ObservableObject {
         return events.first { $0.id == selectedEventID }
     }
 
+    var categories: [String] {
+        Array(Set(events.map(\.category))).sorted()
+    }
+
     var summary: AppLogSummary {
         AppLogSummary.make(from: filteredEvents)
     }
@@ -77,7 +82,7 @@ final class LogViewerViewModel: ObservableObject {
 
     func reload() {
         isLoading = true
-        AppLogger.shared.loadEvents { [weak self] events in
+        LocalLogService.shared.loadEvents { [weak self] events in
             self?.events = events
             self?.isLoading = false
             if let selected = self?.selectedEventID,
@@ -88,7 +93,7 @@ final class LogViewerViewModel: ObservableObject {
     }
 
     func clear() {
-        AppLogger.shared.clearLogs { [weak self] in
+        LocalLogService.shared.clearLogs { [weak self] in
             self?.reload()
         }
     }
@@ -156,15 +161,15 @@ struct LogViewerView: View {
         HStack(spacing: 10) {
             Picker("模块", selection: $viewModel.categoryFilter) {
                 Text("全部模块").tag("all")
-                ForEach(AppLogCategory.allCases) { category in
-                    Text(category.title).tag(category.rawValue)
+                ForEach(viewModel.categories, id: \.self) { category in
+                    Text(Self.categoryTitle(category)).tag(category)
                 }
             }
             .frame(width: 180)
 
             Picker("级别", selection: $viewModel.levelFilter) {
                 Text("全部级别").tag("all")
-                ForEach(AppLogLevel.allCases) { level in
+                ForEach(LogLevel.allCases) { level in
                     Text(level.title).tag(level.rawValue)
                 }
             }
@@ -174,7 +179,7 @@ struct LogViewerView: View {
                 .textFieldStyle(.roundedBorder)
 
             Button("刷新") { viewModel.reload() }
-            Button("在 Finder 中显示") { AppLogger.shared.revealLogDirectory() }
+            Button("在 Finder 中显示") { LocalLogService.shared.revealLogDirectory() }
             Button("清除") { showClearConfirmation = true }
         }
         .padding(12)
@@ -188,7 +193,7 @@ struct LogViewerView: View {
                     .foregroundStyle(.secondary)
                     .frame(width: 145, alignment: .leading)
 
-                Text(event.category.title)
+                Text(Self.categoryTitle(event.category))
                     .font(.caption)
                     .frame(width: 90, alignment: .leading)
 
@@ -198,7 +203,7 @@ struct LogViewerView: View {
                     HStack(spacing: 6) {
                         Text(event.level.title)
                         if let result = event.result {
-                            Text(result.title)
+                            Text(Self.resultTitle(result))
                         }
                         if let duration = event.durationMS {
                             Text(String(format: "%.0f ms", duration))
@@ -225,12 +230,12 @@ struct LogViewerView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     detailRow("事件", event.name)
                     detailRow("时间", Self.timestampFormatter.string(from: event.timestamp))
-                    detailRow("模块", event.category.title)
+                    detailRow("模块", Self.categoryTitle(event.category))
                     detailRow("级别", event.level.title)
                     detailRow("会话", event.sessionID.uuidString)
                     detailRow("顺序", String(event.sequence))
                     if let result = event.result {
-                        detailRow("结果", result.title)
+                        detailRow("结果", Self.resultTitle(result))
                     }
                     if let duration = event.durationMS {
                         detailRow("耗时", String(format: "%.2f ms", duration))
@@ -266,4 +271,29 @@ struct LogViewerView: View {
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         return formatter
     }()
+
+    private static func categoryTitle(_ category: String) -> String {
+        switch category {
+        case "app": return "App"
+        case "navigation": return "使用路径"
+        case "network": return "网络请求"
+        case "json_formatter": return "JSON 格式化"
+        case "json2model": return "JSON 转 Model"
+        case "app_icon": return "AppIcon"
+        case "custom_server": return "自定义服务器"
+        case "image_inspector": return "图片查看器"
+        case "update": return "版本检查"
+        case "logs": return "日志工具"
+        default: return category
+        }
+    }
+
+    private static func resultTitle(_ result: String) -> String {
+        switch result {
+        case "success": return "成功"
+        case "failure": return "失败"
+        case "cancelled": return "取消"
+        default: return result
+        }
+    }
 }

@@ -1,52 +1,14 @@
 //
-//  AppLogger.swift
+//  LocalLogService.swift
 //  XYDevTool
 //
 
 import AppKit
 import Foundation
 
-final class AppLogOperation {
-    private let category: AppLogCategory
-    private let name: String
-    private let startedAt = ProcessInfo.processInfo.systemUptime
-    private let initialMetadata: [String: String]
-    private let lock = NSLock()
-    private var isFinished = false
-
-    init(category: AppLogCategory, name: String, metadata: [String: String]) {
-        self.category = category
-        self.name = name
-        self.initialMetadata = metadata
-    }
-
-    func finish(
-        result: AppLogResult,
-        level: AppLogLevel? = nil,
-        metadata: [String: String] = [:]
-    ) {
-        lock.lock()
-        guard isFinished == false else {
-            lock.unlock()
-            return
-        }
-        isFinished = true
-        lock.unlock()
-
-        let duration = (ProcessInfo.processInfo.systemUptime - startedAt) * 1_000
-        AppLogger.shared.track(
-            category: category,
-            name: name,
-            level: level ?? (result == .failure ? .error : .info),
-            result: result,
-            durationMS: duration,
-            metadata: initialMetadata.merging(metadata) { _, new in new }
-        )
-    }
-}
-
-final class AppLogger {
-    static let shared = AppLogger()
+/// XYDevTool 的本地文件后端，同时向日志查看 UI 提供文件管理能力。
+final class LocalLogService: LogHandler {
+    static let shared = LocalLogService()
 
     private let queue = DispatchQueue(label: "com.xiaoyou.XYDevTool.app-logger")
     private let store = AppLogStore()
@@ -65,6 +27,18 @@ final class AppLogger {
 
     private init() {}
 
+    func isEnabled(for level: LogLevel) -> Bool {
+        true
+    }
+
+    func log(_ record: LogRecord) {
+        queue.async { [weak self] in
+            guard let self else { return }
+            self.beginSessionIfNeeded()
+            self.append(record)
+        }
+    }
+
     func startSession() {
         queue.sync {
             beginSessionIfNeeded()
@@ -74,46 +48,21 @@ final class AppLogger {
     func finishSession() {
         queue.sync {
             guard sessionStarted else { return }
-            let duration = (ProcessInfo.processInfo.systemUptime - sessionStartedAt) * 1_000
             append(
-                category: .app,
-                name: "app_finished",
-                result: .success,
-                durationMS: duration
+                LogRecord(
+                    level: .info,
+                    category: "app",
+                    name: "app.finished",
+                    message: "",
+                    traceID: nil,
+                    result: "success",
+                    durationMS: (ProcessInfo.processInfo.systemUptime - sessionStartedAt) * 1_000,
+                    fields: [:]
+                )
             )
             store.clearActiveSession()
             sessionStarted = false
         }
-    }
-
-    func track(
-        category: AppLogCategory,
-        name: String,
-        level: AppLogLevel = .info,
-        result: AppLogResult? = nil,
-        durationMS: Double? = nil,
-        metadata: [String: String] = [:]
-    ) {
-        queue.async { [weak self] in
-            guard let self else { return }
-            self.beginSessionIfNeeded()
-            self.append(
-                category: category,
-                name: name,
-                level: level,
-                result: result,
-                durationMS: durationMS,
-                metadata: metadata
-            )
-        }
-    }
-
-    func begin(
-        category: AppLogCategory,
-        name: String,
-        metadata: [String: String] = [:]
-    ) -> AppLogOperation {
-        AppLogOperation(category: category, name: name, metadata: metadata)
     }
 
     func loadEvents(limit: Int = 5_000, completion: @escaping ([AppLogEvent]) -> Void) {
@@ -144,30 +93,27 @@ final class AppLogger {
         }
     }
 
-    private func append(
-        category: AppLogCategory,
-        name: String,
-        level: AppLogLevel = .info,
-        result: AppLogResult? = nil,
-        durationMS: Double? = nil,
-        metadata: [String: String] = [:]
-    ) {
+    private func append(_ record: LogRecord) {
         sequence += 1
-        let event = AppLogEvent(
-            id: UUID(),
-            timestamp: Date(),
-            sessionID: sessionID,
-            sequence: sequence,
-            level: level,
-            category: category,
-            name: name,
-            result: result,
-            durationMS: durationMS,
-            metadata: metadata,
-            appVersion: appVersion,
-            buildVersion: buildVersion
+        store.append(
+            AppLogEvent(
+                id: UUID(),
+                timestamp: Date(),
+                sessionID: sessionID,
+                sequence: sequence,
+                level: record.level,
+                category: record.category,
+                name: record.name,
+                message: record.message.isEmpty ? nil : record.message,
+                traceID: record.traceID,
+                result: record.result,
+                durationMS: record.durationMS,
+                metadata: record.fields,
+                appVersion: appVersion,
+                buildVersion: buildVersion,
+                schemaVersion: 1
+            )
         )
-        store.append(event)
     }
 
     private func beginSessionIfNeeded() {
@@ -178,21 +124,33 @@ final class AppLogger {
         let previousSessionID = store.activeSessionID()
         store.markSessionActive(sessionID)
         append(
-            category: .app,
-            name: "app_started",
-            metadata: [
-                "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
-                "processorCount": String(ProcessInfo.processInfo.processorCount)
-            ]
+            LogRecord(
+                level: .info,
+                category: "app",
+                name: "app.started",
+                message: "",
+                traceID: nil,
+                result: nil,
+                durationMS: nil,
+                fields: [
+                    "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
+                    "processorCount": String(ProcessInfo.processInfo.processorCount)
+                ]
+            )
         )
 
         if let previousSessionID, previousSessionID != sessionID {
             append(
-                category: .app,
-                name: "previous_session_abnormally_terminated",
-                level: .warning,
-                result: .failure,
-                metadata: ["previousSessionID": previousSessionID.uuidString]
+                LogRecord(
+                    level: .warning,
+                    category: "app",
+                    name: "app.previous_session_abnormally_terminated",
+                    message: "",
+                    traceID: nil,
+                    result: "failure",
+                    durationMS: nil,
+                    fields: ["previousSessionID": previousSessionID.uuidString]
+                )
             )
         }
     }

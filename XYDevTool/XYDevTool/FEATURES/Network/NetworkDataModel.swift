@@ -130,6 +130,8 @@ final class NetworkEditorStore {
 }
 
 class NetworkDataModel: ObservableObject, BaseDataProtocol {
+
+    private let logger = Logger(category: "network")
     
     /// 历史列表行内上下 padding、行尾删除按钮边长
     static let historyRowVerticalPadding: CGFloat = 3
@@ -424,7 +426,7 @@ extension NetworkDataModel {
         location.node.name = trimmed
         refreshHistoryListUI()
         persistHistory()
-        AppLogger.shared.track(category: .network, name: "history_group_renamed", result: .success)
+        logger.event("history_group_renamed", result: "success")
         return nil
     }
     
@@ -467,11 +469,10 @@ extension NetworkDataModel {
             guard let node = HistoryTree.removeNode(id: id, from: &roots) else { return }
             _ = HistoryTree.insertNode(node, parentId: toParentId, at: index, in: &roots)
         }
-        AppLogger.shared.track(
-            category: .network,
-            name: "history_moved",
-            result: .success,
-            metadata: ["destination": toParentId == nil ? "root" : "group"]
+        logger.event(
+            "history_moved",
+            result: "success",
+            fields: ["destination": toParentId == nil ? "root" : "group"]
         )
     }
     
@@ -507,11 +508,10 @@ extension NetworkDataModel {
                 editor.selectedPostScriptIDsForCurrent = []
             }
         }
-        AppLogger.shared.track(
-            category: .network,
-            name: "history_group_deleted",
-            result: .success,
-            metadata: ["keptChildren": String(unwrapOnly)]
+        logger.event(
+            "history_group_deleted",
+            result: "success",
+            fields: ["keptChildren": String(unwrapOnly)]
         )
     }
     
@@ -578,7 +578,7 @@ extension NetworkDataModel {
             editor.selectedPostScriptIDsForCurrent = []
             editor.selectedPreScriptIDForCurrent = nil
         }
-        AppLogger.shared.track(category: .network, name: "history_request_deleted", result: .success)
+        logger.event("history_request_deleted", result: "success")
     }
     
     /// 选中历史节点并加载请求到编辑区（仅 request 类型会填充表单）。
@@ -586,10 +586,9 @@ extension NetworkDataModel {
         selectionGeneration += 1
         let generation = selectionGeneration
         let nodeType = HistoryTree.findNode(id: id, in: historyRoots)?.node.isGroup == true ? "group" : "request"
-        AppLogger.shared.track(
-            category: .network,
-            name: "history_selected",
-            metadata: ["type": nodeType]
+        logger.event(
+            "history_selected",
+            fields: ["type": nodeType]
         )
         applySelection(id: id, generation: generation, loadText: false)
     }
@@ -654,10 +653,9 @@ extension NetworkDataModel {
             .map(\.name)
             .joined(separator: ",")
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "request_input_received",
-            metadata: [
+        logger.event(
+            "request_input_received",
+            fields: [
                 "requestName": editor.requesName,
                 "url": editor.urlString,
                 "method": editor.httpMethod.rawValue.uppercased(),
@@ -669,10 +667,9 @@ extension NetworkDataModel {
             ]
         )
 
-        let requestOperation = AppLogger.shared.begin(
-            category: .network,
-            name: "request",
-            metadata: [
+        let requestOperation = logger.begin(
+            "request",
+            fields: [
                 "method": editor.httpMethod.rawValue.uppercased(),
                 "hasPreScript": String(editor.selectedPreScriptIDForCurrent != nil),
                 "postScriptCount": String(editor.selectedPostScriptIDsForCurrent.count)
@@ -681,14 +678,13 @@ extension NetworkDataModel {
 
         if let variableError = validateVariablesBeforeRequest() {
             status = "request fail: \(variableError)"
-            AppLogger.shared.track(
-                category: .network,
-                name: "request_validation_failed",
+            logger.event(
+                "request_validation_failed",
                 level: .error,
-                result: .failure,
-                metadata: ["stage": "variables", "error": variableError]
+                result: "failure",
+                fields: ["stage": "variables", "error": variableError]
             )
-            requestOperation.finish(result: .failure, metadata: ["stage": "variable_validation"])
+            requestOperation.finish(result: "failure", fields: ["stage": "variable_validation"])
             showAlert(msg: variableError)
             return
         }
@@ -697,11 +693,10 @@ extension NetworkDataModel {
         let headersTextApplied = applyVariables(to: editor.httpHeaders)
         let paramsTextApplied = applyVariables(to: editor.httpParameters)
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "request_variables_applied",
-            result: .success,
-            metadata: [
+        logger.event(
+            "request_variables_applied",
+            result: "success",
+            fields: [
                 "url": urlStringApplied,
                 "headers": headersTextApplied,
                 "parameters": paramsTextApplied
@@ -710,14 +705,13 @@ extension NetworkDataModel {
 
         // url
         guard urlStringApplied.isEmpty == false, URL(string: urlStringApplied) != nil else {
-            AppLogger.shared.track(
-                category: .network,
-                name: "request_validation_failed",
+            logger.event(
+                "request_validation_failed",
                 level: .error,
-                result: .failure,
-                metadata: ["stage": "url", "url": urlStringApplied]
+                result: "failure",
+                fields: ["stage": "url", "url": urlStringApplied]
             )
-            requestOperation.finish(result: .failure, metadata: ["stage": "url_validation"])
+            requestOperation.finish(result: "failure", fields: ["stage": "url_validation"])
             showAlert(msg: "网址有误，输入正确的网址")
             return
         }
@@ -729,14 +723,13 @@ extension NetworkDataModel {
             guard let headersData = headersText.data(using: .utf8),
                   let dict = try? JSONSerialization.jsonObject(with: headersData, options: .fragmentsAllowed) as? [String: Any] else {
                 status = "request fail: Header 不是合法 JSON 对象"
-                AppLogger.shared.track(
-                    category: .network,
-                    name: "request_validation_failed",
+                logger.event(
+                    "request_validation_failed",
                     level: .error,
-                    result: .failure,
-                    metadata: ["stage": "headers", "headers": headersTextApplied]
+                    result: "failure",
+                    fields: ["stage": "headers", "headers": headersTextApplied]
                 )
-                requestOperation.finish(result: .failure, metadata: ["stage": "header_validation"])
+                requestOperation.finish(result: "failure", fields: ["stage": "header_validation"])
                 showAlert(msg: "请求头格式错误：请输入 JSON 对象，例如 {\"Authorization\":\"Bearer xxx\"}")
                 return
             }
@@ -751,14 +744,13 @@ extension NetworkDataModel {
             guard let paramsData = paramsText.data(using: .utf8),
                   let dict = try? JSONSerialization.jsonObject(with: paramsData, options: .fragmentsAllowed) as? [String: Any] else {
                 status = "request fail: Parameters 不是合法 JSON 对象"
-                AppLogger.shared.track(
-                    category: .network,
-                    name: "request_validation_failed",
+                logger.event(
+                    "request_validation_failed",
                     level: .error,
-                    result: .failure,
-                    metadata: ["stage": "parameters", "parameters": paramsTextApplied]
+                    result: "failure",
+                    fields: ["stage": "parameters", "parameters": paramsTextApplied]
                 )
-                requestOperation.finish(result: .failure, metadata: ["stage": "parameter_validation"])
+                requestOperation.finish(result: "failure", fields: ["stage": "parameter_validation"])
                 showAlert(msg: "请求参数格式错误：请输入 JSON 对象，例如 {\"page\":1,\"size\":20}")
                 return
             }
@@ -785,10 +777,9 @@ extension NetworkDataModel {
         }
         
         // 前置脚本：签名 / 改包 / 或脚本代发
-        AppLogger.shared.track(
-            category: .network,
-            name: editor.selectedPreScriptIDForCurrent == nil ? "pre_script_skipped" : "pre_script_started",
-            metadata: [
+        logger.event(
+            editor.selectedPreScriptIDForCurrent == nil ? "pre_script_skipped" : "pre_script_started",
+            fields: [
                 "script": selectedPreScriptName,
                 "url": urlStringApplied,
                 "method": editor.httpMethod.rawValue.uppercased(),
@@ -806,14 +797,13 @@ extension NetworkDataModel {
         )
         if let error = preResult.error {
             status = "pre-script fail: \(error)"
-            AppLogger.shared.track(
-                category: .network,
-                name: "pre_script_finished",
+            logger.event(
+                "pre_script_finished",
                 level: .error,
-                result: .failure,
-                metadata: ["script": selectedPreScriptName, "error": error]
+                result: "failure",
+                fields: ["script": selectedPreScriptName, "error": error]
             )
-            requestOperation.finish(result: .failure, metadata: ["stage": "pre_script"])
+            requestOperation.finish(result: "failure", fields: ["stage": "pre_script"])
             showAlert(msg: "前置脚本执行失败：\(error)")
             return
         }
@@ -822,19 +812,18 @@ extension NetworkDataModel {
             status = "complete (pre-script)"
             item.response = response
             updateHistory(with: item)
-            AppLogger.shared.track(
-                category: .network,
-                name: "pre_script_finished",
-                result: .success,
-                metadata: [
+            logger.event(
+                "pre_script_finished",
+                result: "success",
+                fields: [
                     "script": selectedPreScriptName,
                     "mode": "script_response",
                     "response": response
                 ]
             )
             requestOperation.finish(
-                result: .success,
-                metadata: [
+                result: "success",
+                fields: [
                     "mode": "pre_script_response",
                     "responseBytes": String(response.utf8.count)
                 ]
@@ -854,11 +843,10 @@ extension NetworkDataModel {
             requestBodyText = bodyText
         }
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "pre_script_finished",
-            result: .success,
-            metadata: [
+        logger.event(
+            "pre_script_finished",
+            result: "success",
+            fields: [
                 "script": selectedPreScriptName,
                 "mode": editor.selectedPreScriptIDForCurrent == nil ? "skipped" : "continue_request",
                 "url": requestURLString,
@@ -870,20 +858,19 @@ extension NetworkDataModel {
         )
         
         guard requestURLString.isEmpty == false, let requestURL = URL(string: requestURLString) else {
-            AppLogger.shared.track(
-                category: .network,
-                name: "request_validation_failed",
+            logger.event(
+                "request_validation_failed",
                 level: .error,
-                result: .failure,
-                metadata: ["stage": "pre_script_url", "url": requestURLString]
+                result: "failure",
+                fields: ["stage": "pre_script_url", "url": requestURLString]
             )
             showAlert(msg: "前置脚本返回的 URL 无效")
             status = "pre-script fail: invalid url"
-            requestOperation.finish(result: .failure, metadata: ["stage": "pre_script_url_validation"])
+            requestOperation.finish(result: "failure", fields: ["stage": "pre_script_url_validation"])
             return
         }
         
-        let onSuccess: ([String: Any]) -> Void = { result in
+        let onSuccess: ([String: Any]) -> Void = { [self] result in
             print("XYNetTool 请求成功 - \n\(result)")
             self.status = "complete"
 
@@ -891,11 +878,10 @@ extension NetworkDataModel {
             item.response = responseText
             self.editor.httpResponse = responseText
             self.updateHistory(with: item)
-            AppLogger.shared.track(
-                category: .network,
-                name: "response_received",
-                result: .success,
-                metadata: [
+            logger.event(
+                "response_received",
+                result: "success",
+                fields: [
                     "url": requestURL.absoluteString,
                     "method": requestMethod.rawValue.uppercased(),
                     "response": responseText
@@ -903,8 +889,8 @@ extension NetworkDataModel {
             )
             self.runPostResponseScriptIfNeeded(for: item, responseText: self.editor.httpResponse)
             requestOperation.finish(
-                result: .success,
-                metadata: [
+                result: "success",
+                fields: [
                     "mode": "app_request",
                     "method": requestMethod.rawValue.uppercased(),
                     "requestBytes": String(requestBodyText?.utf8.count ?? 0),
@@ -913,34 +899,32 @@ extension NetworkDataModel {
             )
         }
         
-        let onFailure: (String) -> Void = { errMsg in
+        let onFailure: (String) -> Void = { [self] errMsg in
             print("XYNetTool 请求失败 - \n\(errMsg)")
             let message = errMsg.isEmpty ? "未知错误" : errMsg
             self.status = "request fail: \(message)"
-            AppLogger.shared.track(
-                category: .network,
-                name: "request_failed",
+            logger.event(
+                "request_failed",
                 level: .error,
-                result: .failure,
-                metadata: [
+                result: "failure",
+                fields: [
                     "url": requestURL.absoluteString,
                     "method": requestMethod.rawValue.uppercased(),
                     "error": message
                 ]
             )
             requestOperation.finish(
-                result: .failure,
-                metadata: [
+                result: "failure",
+                fields: [
                     "stage": "transport",
                     "method": requestMethod.rawValue.uppercased()
                 ]
             )
         }
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "request_started",
-            metadata: [
+        logger.event(
+            "request_started",
+            fields: [
                 "url": requestURL.absoluteString,
                 "method": requestMethod.rawValue.uppercased(),
                 "headers": headerDict.toJsonString(),
@@ -1151,22 +1135,20 @@ extension NetworkDataModel {
     private func runPostResponseScriptIfNeeded(for item: XYItem, responseText: String) {
         let selectedIDs = item.selectedPostScriptIDs ?? []
         if selectedIDs.isEmpty {
-            AppLogger.shared.track(
-                category: .network,
-                name: "post_script_skipped",
-                metadata: ["response": responseText]
+            logger.event(
+                "post_script_skipped",
+                fields: ["response": responseText]
             )
             return
         }
         
         let scriptsToRun = globalPostScripts.filter { selectedIDs.contains($0.id.uuidString) }
         if scriptsToRun.isEmpty {
-            AppLogger.shared.track(
-                category: .network,
-                name: "post_scripts_finished",
+            logger.event(
+                "post_scripts_finished",
                 level: .warning,
-                result: .failure,
-                metadata: ["error": "no_valid_script_selected", "response": responseText]
+                result: "failure",
+                fields: ["error": "no_valid_script_selected", "response": responseText]
             )
             DispatchQueue.main.async {
                 self.status = "post-script skipped: no valid script selected"
@@ -1176,27 +1158,25 @@ extension NetworkDataModel {
         
         let variablesJSON = variableDictionary().toJsonString()
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "post_scripts_started",
-            metadata: [
+        logger.event(
+            "post_scripts_started",
+            fields: [
                 "scripts": scriptsToRun.map(\.name).joined(separator: ","),
                 "response": responseText,
                 "variables": variablesJSON
             ]
         )
         
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [self] in
             var mergedUpdates: [String: String] = [:]
             
             for scriptItem in scriptsToRun {
                 let script = scriptItem.command.trimmingCharacters(in: .whitespacesAndNewlines)
                 if script.isEmpty { continue }
 
-                AppLogger.shared.track(
-                    category: .network,
-                    name: "post_script_started",
-                    metadata: [
+                logger.event(
+                    "post_script_started",
+                    fields: [
                         "script": scriptItem.name,
                         "command": script,
                         "response": responseText,
@@ -1216,12 +1196,11 @@ extension NetworkDataModel {
                     try process.run()
                     process.waitUntilExit()
                 } catch {
-                    AppLogger.shared.track(
-                        category: .network,
-                        name: "post_script_finished",
+                    logger.event(
+                        "post_script_finished",
                         level: .error,
-                        result: .failure,
-                        metadata: ["script": scriptItem.name, "error": error.localizedDescription]
+                        result: "failure",
+                        fields: ["script": scriptItem.name, "error": error.localizedDescription]
                     )
                     DispatchQueue.main.async {
                         self.status = "post-script[\(scriptItem.name)] fail: \(error.localizedDescription)"
@@ -1235,12 +1214,11 @@ extension NetworkDataModel {
                 let err = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 
                 if err.isEmpty == false {
-                    AppLogger.shared.track(
-                        category: .network,
-                        name: "post_script_finished",
+                    logger.event(
+                        "post_script_finished",
                         level: .error,
-                        result: .failure,
-                        metadata: ["script": scriptItem.name, "stderr": err, "output": output]
+                        result: "failure",
+                        fields: ["script": scriptItem.name, "stderr": err, "output": output]
                     )
                     DispatchQueue.main.async {
                         self.status = "post-script[\(scriptItem.name)] fail: \(err)"
@@ -1249,23 +1227,21 @@ extension NetworkDataModel {
                 }
                 
                 if output.isEmpty {
-                    AppLogger.shared.track(
-                        category: .network,
-                        name: "post_script_finished",
-                        result: .success,
-                        metadata: ["script": scriptItem.name, "output": ""]
+                    logger.event(
+                        "post_script_finished",
+                        result: "success",
+                        fields: ["script": scriptItem.name, "output": ""]
                     )
                     continue
                 }
                 
                 let updates = self.parseVariableUpdates(from: output)
                 if updates.isEmpty {
-                    AppLogger.shared.track(
-                        category: .network,
-                        name: "post_script_finished",
+                    logger.event(
+                        "post_script_finished",
                         level: .error,
-                        result: .failure,
-                        metadata: [
+                        result: "failure",
+                        fields: [
                             "script": scriptItem.name,
                             "error": "invalid_output",
                             "output": output
@@ -1280,11 +1256,10 @@ extension NetworkDataModel {
                 for (key, value) in updates {
                     mergedUpdates[key] = value
                 }
-                AppLogger.shared.track(
-                    category: .network,
-                    name: "post_script_finished",
-                    result: .success,
-                    metadata: [
+                logger.event(
+                    "post_script_finished",
+                    result: "success",
+                    fields: [
                         "script": scriptItem.name,
                         "output": output,
                         "variableUpdates": updates.toJsonString()
@@ -1293,11 +1268,10 @@ extension NetworkDataModel {
             }
             
             if mergedUpdates.isEmpty {
-                AppLogger.shared.track(
-                    category: .network,
-                    name: "post_scripts_finished",
-                    result: .success,
-                    metadata: ["variableUpdates": "{}"]
+                logger.event(
+                    "post_scripts_finished",
+                    result: "success",
+                    fields: ["variableUpdates": "{}"]
                 )
                 DispatchQueue.main.async {
                     self.status = "complete (post-script no update)"
@@ -1305,11 +1279,10 @@ extension NetworkDataModel {
                 return
             }
             
-            AppLogger.shared.track(
-                category: .network,
-                name: "post_scripts_finished",
-                result: .success,
-                metadata: ["variableUpdates": mergedUpdates.toJsonString()]
+            logger.event(
+                "post_scripts_finished",
+                result: "success",
+                fields: ["variableUpdates": mergedUpdates.toJsonString()]
             )
             DispatchQueue.main.async {
                 self.applyVariableUpdates(mergedUpdates)
@@ -1494,10 +1467,9 @@ extension NetworkDataModel {
         ]
         let requestJSON = requestPayload.toJsonString()
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "pre_script_process_started",
-            metadata: [
+        logger.event(
+            "pre_script_process_started",
+            fields: [
                 "script": scriptName,
                 "command": command,
                 "request": requestJSON
@@ -1522,12 +1494,11 @@ extension NetworkDataModel {
             try process.run()
             process.waitUntilExit()
         } catch {
-            AppLogger.shared.track(
-                category: .network,
-                name: "pre_script_process_finished",
+            logger.event(
+                "pre_script_process_finished",
                 level: .error,
-                result: .failure,
-                metadata: ["script": scriptName, "error": error.localizedDescription]
+                result: "failure",
+                fields: ["script": scriptName, "error": error.localizedDescription]
             )
             return PreScriptRunResult(error: error.localizedDescription)
         }
@@ -1537,12 +1508,11 @@ extension NetworkDataModel {
         let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let err = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
-        AppLogger.shared.track(
-            category: .network,
-            name: "pre_script_process_finished",
+        logger.event(
+            "pre_script_process_finished",
             level: err.isEmpty ? .info : .error,
-            result: err.isEmpty ? .success : .failure,
-            metadata: [
+            result: err.isEmpty ? "success" : "failure",
+            fields: [
                 "script": scriptName,
                 "terminationStatus": String(process.terminationStatus),
                 "stdout": output,

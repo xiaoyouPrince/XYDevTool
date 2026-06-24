@@ -131,9 +131,10 @@
 		E1A101172F90150000CB8A37 /* custom-server.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101072F90150000CB8A27 /* custom-server.md */; };
 		E1A101182F90150000CB8A38 /* image-inspector.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101082F90150000CB8A28 /* image-inspector.md */; };
 		E1B000112F90200000CB8B11 /* AppLogEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000012F90200000CB8B01 /* AppLogEvent.swift */; };
-		E1B000122F90200000CB8B12 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000022F90200000CB8B02 /* AppLogger.swift */; };
+		E1B000122F90200000CB8B12 /* LocalLogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000022F90200000CB8B02 /* LocalLogService.swift */; };
 		E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000032F90200000CB8B03 /* LogViewer.swift */; };
 		E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */; };
+		E1B000152F90200000CB8B15 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000052F90200000CB8B05 /* Logger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -269,9 +270,10 @@
 		E1A101072F90150000CB8A27 /* custom-server.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "custom-server.md"; sourceTree = "<group>"; };
 		E1A101082F90150000CB8A28 /* image-inspector.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "image-inspector.md"; sourceTree = "<group>"; };
 		E1B000012F90200000CB8B01 /* AppLogEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogEvent.swift; sourceTree = "<group>"; };
-		E1B000022F90200000CB8B02 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		E1B000022F90200000CB8B02 /* LocalLogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogService.swift; sourceTree = "<group>"; };
 		E1B000032F90200000CB8B03 /* LogViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewer.swift; sourceTree = "<group>"; };
 		E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYNetToolLogAdapter.swift; sourceTree = "<group>"; };
+		E1B000052F90200000CB8B05 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -684,8 +686,9 @@
 		E1B001012F90200000CB8C01 /* Logging */ = {
 			isa = PBXGroup;
 			children = (
+				E1B000052F90200000CB8B05 /* Logger.swift */,
 				E1B000012F90200000CB8B01 /* AppLogEvent.swift */,
-				E1B000022F90200000CB8B02 /* AppLogger.swift */,
+				E1B000022F90200000CB8B02 /* LocalLogService.swift */,
 				E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */,
 			);
 			path = Logging;
@@ -933,9 +936,10 @@
 				E1A100162F90150000CB8A16 /* HelpMarkdownRenderer.swift in Sources */,
 				E1A100172F90150000CB8A17 /* HelpWebView.swift in Sources */,
 				E1B000112F90200000CB8B11 /* AppLogEvent.swift in Sources */,
-				E1B000122F90200000CB8B12 /* AppLogger.swift in Sources */,
+				E1B000122F90200000CB8B12 /* LocalLogService.swift in Sources */,
 				E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */,
 				E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */,
+				E1B000152F90200000CB8B15 /* Logger.swift in Sources */,
 				B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */,
 				B48A9A5B292FB96500DD7333 /* ConstraintMultiplierTarget.swift in Sources */,
 			);
