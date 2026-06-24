@@ -648,22 +648,13 @@ extension NetworkDataModel {
         let selectedPreScriptName = editor.selectedPreScriptIDForCurrent.flatMap { selectedID in
             globalPreScripts.first { $0.id.uuidString == selectedID }?.name
         } ?? ""
-        let selectedPostScriptNames = globalPostScripts
-            .filter { editor.selectedPostScriptIDsForCurrent.contains($0.id.uuidString) }
-            .map(\.name)
-            .joined(separator: ",")
-
         logger.event(
             "request_input_received",
             fields: [
                 "requestName": editor.requesName,
-                "url": editor.urlString,
                 "method": editor.httpMethod.rawValue.uppercased(),
-                "headers": editor.httpHeaders,
-                "parameters": editor.httpParameters,
-                "variables": variableDictionary().toJsonString(),
-                "preScript": selectedPreScriptName,
-                "postScripts": selectedPostScriptNames
+                "hasPreScript": String(selectedPreScriptName.isEmpty == false),
+                "postScriptCount": String(editor.selectedPostScriptIDsForCurrent.count)
             ]
         )
 
@@ -693,16 +684,6 @@ extension NetworkDataModel {
         let headersTextApplied = applyVariables(to: editor.httpHeaders)
         let paramsTextApplied = applyVariables(to: editor.httpParameters)
 
-        logger.event(
-            "request_variables_applied",
-            result: "success",
-            fields: [
-                "url": urlStringApplied,
-                "headers": headersTextApplied,
-                "parameters": paramsTextApplied
-            ]
-        )
-
         // url
         guard urlStringApplied.isEmpty == false, URL(string: urlStringApplied) != nil else {
             logger.event(
@@ -727,7 +708,7 @@ extension NetworkDataModel {
                     "request_validation_failed",
                     level: .error,
                     result: "failure",
-                    fields: ["stage": "headers", "headers": headersTextApplied]
+                    fields: ["stage": "headers"]
                 )
                 requestOperation.finish(result: "failure", fields: ["stage": "header_validation"])
                 showAlert(msg: "请求头格式错误：请输入 JSON 对象，例如 {\"Authorization\":\"Bearer xxx\"}")
@@ -748,7 +729,7 @@ extension NetworkDataModel {
                     "request_validation_failed",
                     level: .error,
                     result: "failure",
-                    fields: ["stage": "parameters", "parameters": paramsTextApplied]
+                    fields: ["stage": "parameters"]
                 )
                 requestOperation.finish(result: "failure", fields: ["stage": "parameter_validation"])
                 showAlert(msg: "请求参数格式错误：请输入 JSON 对象，例如 {\"page\":1,\"size\":20}")
@@ -781,10 +762,7 @@ extension NetworkDataModel {
             editor.selectedPreScriptIDForCurrent == nil ? "pre_script_skipped" : "pre_script_started",
             fields: [
                 "script": selectedPreScriptName,
-                "url": urlStringApplied,
-                "method": editor.httpMethod.rawValue.uppercased(),
-                "headers": headersTextApplied,
-                "parameters": paramsTextApplied
+                "method": editor.httpMethod.rawValue.uppercased()
             ]
         )
         let preResult = runPreScriptIfNeeded(
@@ -817,8 +795,7 @@ extension NetworkDataModel {
                 result: "success",
                 fields: [
                     "script": selectedPreScriptName,
-                    "mode": "script_response",
-                    "response": response
+                    "mode": "script_response"
                 ]
             )
             requestOperation.finish(
@@ -849,11 +826,7 @@ extension NetworkDataModel {
             fields: [
                 "script": selectedPreScriptName,
                 "mode": editor.selectedPreScriptIDForCurrent == nil ? "skipped" : "continue_request",
-                "url": requestURLString,
-                "method": requestMethod.rawValue.uppercased(),
-                "headers": headerDict.toJsonString(),
-                "parameters": preResult.parameters?.toJsonString() ?? parameters.toJsonString(),
-                "body": requestBodyText ?? ""
+                "method": requestMethod.rawValue.uppercased()
             ]
         )
         
@@ -878,15 +851,6 @@ extension NetworkDataModel {
             item.response = responseText
             self.editor.httpResponse = responseText
             self.updateHistory(with: item)
-            logger.event(
-                "response_received",
-                result: "success",
-                fields: [
-                    "url": requestURL.absoluteString,
-                    "method": requestMethod.rawValue.uppercased(),
-                    "response": responseText
-                ]
-            )
             self.runPostResponseScriptIfNeeded(for: item, responseText: self.editor.httpResponse)
             requestOperation.finish(
                 result: "success",
@@ -903,35 +867,15 @@ extension NetworkDataModel {
             print("XYNetTool 请求失败 - \n\(errMsg)")
             let message = errMsg.isEmpty ? "未知错误" : errMsg
             self.status = "request fail: \(message)"
-            logger.event(
-                "request_failed",
-                level: .error,
-                result: "failure",
-                fields: [
-                    "url": requestURL.absoluteString,
-                    "method": requestMethod.rawValue.uppercased(),
-                    "error": message
-                ]
-            )
             requestOperation.finish(
                 result: "failure",
                 fields: [
                     "stage": "transport",
-                    "method": requestMethod.rawValue.uppercased()
+                    "method": requestMethod.rawValue.uppercased(),
+                    "error": message
                 ]
             )
         }
-
-        logger.event(
-            "request_started",
-            fields: [
-                "url": requestURL.absoluteString,
-                "method": requestMethod.rawValue.uppercased(),
-                "headers": headerDict.toJsonString(),
-                "parameters": parameters.toJsonString(),
-                "body": requestBodyText ?? ""
-            ]
-        )
         
         switch requestMethod {
         case .get:
@@ -1135,10 +1079,7 @@ extension NetworkDataModel {
     private func runPostResponseScriptIfNeeded(for item: XYItem, responseText: String) {
         let selectedIDs = item.selectedPostScriptIDs ?? []
         if selectedIDs.isEmpty {
-            logger.event(
-                "post_script_skipped",
-                fields: ["response": responseText]
-            )
+            logger.event("post_script_skipped")
             return
         }
         
@@ -1148,7 +1089,7 @@ extension NetworkDataModel {
                 "post_scripts_finished",
                 level: .warning,
                 result: "failure",
-                fields: ["error": "no_valid_script_selected", "response": responseText]
+                fields: ["error": "no_valid_script_selected"]
             )
             DispatchQueue.main.async {
                 self.status = "post-script skipped: no valid script selected"
@@ -1162,8 +1103,7 @@ extension NetworkDataModel {
             "post_scripts_started",
             fields: [
                 "scripts": scriptsToRun.map(\.name).joined(separator: ","),
-                "response": responseText,
-                "variables": variablesJSON
+                "scriptCount": String(scriptsToRun.count)
             ]
         )
         
@@ -1176,12 +1116,7 @@ extension NetworkDataModel {
 
                 logger.event(
                     "post_script_started",
-                    fields: [
-                        "script": scriptItem.name,
-                        "command": script,
-                        "response": responseText,
-                        "variables": variablesJSON
-                    ]
+                    fields: ["script": scriptItem.name]
                 )
                 
                 let process = Process()
@@ -1244,7 +1179,7 @@ extension NetworkDataModel {
                         fields: [
                             "script": scriptItem.name,
                             "error": "invalid_output",
-                            "output": output
+                            "outputBytes": String(output.utf8.count)
                         ]
                     )
                     DispatchQueue.main.async {
@@ -1261,17 +1196,17 @@ extension NetworkDataModel {
                     result: "success",
                     fields: [
                         "script": scriptItem.name,
-                        "output": output,
-                        "variableUpdates": updates.toJsonString()
+                        "updatedVariableCount": String(updates.count),
+                        "updatedVariableKeys": updates.keys.sorted().joined(separator: ",")
                     ]
                 )
             }
             
             if mergedUpdates.isEmpty {
                 logger.event(
-                    "post_scripts_finished",
-                    result: "success",
-                    fields: ["variableUpdates": "{}"]
+                "post_scripts_finished",
+                result: "success",
+                fields: ["updatedVariableCount": "0"]
                 )
                 DispatchQueue.main.async {
                     self.status = "complete (post-script no update)"
@@ -1282,7 +1217,10 @@ extension NetworkDataModel {
             logger.event(
                 "post_scripts_finished",
                 result: "success",
-                fields: ["variableUpdates": mergedUpdates.toJsonString()]
+                fields: [
+                    "updatedVariableCount": String(mergedUpdates.count),
+                    "updatedVariableKeys": mergedUpdates.keys.sorted().joined(separator: ",")
+                ]
             )
             DispatchQueue.main.async {
                 self.applyVariableUpdates(mergedUpdates)
@@ -1469,11 +1407,7 @@ extension NetworkDataModel {
 
         logger.event(
             "pre_script_process_started",
-            fields: [
-                "script": scriptName,
-                "command": command,
-                "request": requestJSON
-            ]
+            fields: ["script": scriptName]
         )
         
         let process = Process()
@@ -1515,7 +1449,7 @@ extension NetworkDataModel {
             fields: [
                 "script": scriptName,
                 "terminationStatus": String(process.terminationStatus),
-                "stdout": output,
+                "outputBytes": String(output.utf8.count),
                 "stderr": err
             ]
         )

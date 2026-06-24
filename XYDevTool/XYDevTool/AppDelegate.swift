@@ -13,6 +13,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(category: "app")
 
     func applicationWillFinishLaunching(_ notification: Notification) {
+        // App 可在这里调整安全选项，或追加其他 LogBackendPlugin。
+        let logSecurityOptions = LogSecurityOptions.default
+        LocalLogService.shared.configure(
+            plugins: [LogPrivacyPlugin(options: logSecurityOptions)]
+        )
         LoggingSystem.configure(handler: LocalLogService.shared)
         XYNetTool.delegate = XYNetToolLogAdapter.shared
         LocalLogService.shared.startSession()

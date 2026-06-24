@@ -16,6 +16,7 @@ final class LocalLogService: LogHandler {
     private let sessionStartedAt = ProcessInfo.processInfo.systemUptime
     private var sequence = 0
     private var sessionStarted = false
+    private var plugins: [LogBackendPlugin] = [LogPrivacyPlugin()]
 
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
@@ -26,6 +27,13 @@ final class LocalLogService: LogHandler {
     }
 
     private init() {}
+
+    /// 应在 App 启动、开始写日志前完成配置。传入空数组可关闭全部后端插件。
+    func configure(plugins: [LogBackendPlugin]) {
+        queue.sync {
+            self.plugins = plugins
+        }
+    }
 
     func isEnabled(for level: LogLevel) -> Bool {
         true
@@ -94,6 +102,10 @@ final class LocalLogService: LogHandler {
     }
 
     private func append(_ record: LogRecord) {
+        guard let record = plugins.reduce(Optional(record), { current, plugin in
+            current.flatMap(plugin.process)
+        }) else { return }
+
         sequence += 1
         store.append(
             AppLogEvent(

@@ -10,10 +10,6 @@ final class XYNetToolLogAdapter: XYNetToolDelegate {
     static let shared = XYNetToolLogAdapter()
 
     private let logger = Logger(category: "network")
-    private let maximumBodyLength = 32 * 1_024
-    private let sensitiveHeaderNames = [
-        "authorization", "cookie", "set-cookie", "proxy-authorization", "x-api-key"
-    ]
 
     private init() {}
 
@@ -36,11 +32,12 @@ final class XYNetToolLogAdapter: XYNetToolDelegate {
         var fields = requestFields(request)
         fields["durationMs"] = String(format: "%.2f", duration * 1_000)
         fields["mimeType"] = response?.mimeType ?? ""
-        fields["responseBytes"] = String(data?.count ?? 0)
+        let responseBytes = data.map { Int64($0.count) } ?? response?.expectedContentLength ?? 0
+        fields["responseBytes"] = String(responseBytes)
 
         if let httpResponse = response as? HTTPURLResponse {
             fields["statusCode"] = String(httpResponse.statusCode)
-            fields["responseHeaders"] = jsonString(redactedHeaders(httpResponse.allHeaderFields))
+            fields["responseHeaders"] = jsonString(stringHeaders(httpResponse.allHeaderFields))
         }
 
         if let data {
@@ -81,7 +78,7 @@ final class XYNetToolLogAdapter: XYNetToolDelegate {
         return [
             "url": request.url?.absoluteString ?? "",
             "method": request.httpMethod ?? "",
-            "headers": jsonString(redactedHeaders(request.allHTTPHeaderFields ?? [:])),
+            "headers": jsonString(request.allHTTPHeaderFields ?? [:]),
             "requestBody": body.value,
             "requestBodyEncoding": body.encoding,
             "requestBodyTruncated": String(body.truncated),
@@ -90,17 +87,10 @@ final class XYNetToolLogAdapter: XYNetToolDelegate {
         ]
     }
 
-    private func redactedHeaders(_ headers: [AnyHashable: Any]) -> [String: String] {
+    private func stringHeaders(_ headers: [AnyHashable: Any]) -> [String: String] {
         headers.reduce(into: [:]) { result, pair in
-            let key = String(describing: pair.key)
-            result[key] = sensitiveHeaderNames.contains(key.lowercased())
-                ? "<redacted>"
-                : String(describing: pair.value)
+            result[String(describing: pair.key)] = String(describing: pair.value)
         }
-    }
-
-    private func redactedHeaders(_ headers: [String: String]) -> [String: String] {
-        redactedHeaders(Dictionary(uniqueKeysWithValues: headers.map { (AnyHashable($0.key), $0.value as Any) }))
     }
 
     private func jsonString(_ object: Any) -> String {
@@ -114,11 +104,9 @@ final class XYNetToolLogAdapter: XYNetToolDelegate {
 
     private func bodyText(_ data: Data?) -> (value: String, encoding: String, truncated: Bool) {
         guard let data, data.isEmpty == false else { return ("", "empty", false) }
-        let truncated = data.count > maximumBodyLength
-        let visibleData = data.prefix(maximumBodyLength)
-        if let text = String(data: visibleData, encoding: .utf8) {
-            return (text, "utf8", truncated)
+        if let text = String(data: data, encoding: .utf8) {
+            return (text, "utf8", false)
         }
-        return (Data(visibleData).base64EncodedString(), "base64", truncated)
+        return (data.base64EncodedString(), "base64", false)
     }
 }

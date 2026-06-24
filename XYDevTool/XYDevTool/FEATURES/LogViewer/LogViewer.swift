@@ -139,7 +139,7 @@ struct LogViewerView: View {
                 value: viewModel.summary.averageDurationMS.map { String(format: "%.0f ms", $0) } ?? "—"
             )
             Spacer()
-            Label("包含完整请求与响应，仅保存在本机", systemImage: "lock.doc")
+            Label("请求与响应日志经过安全过滤，仅保存在本机", systemImage: "lock.doc")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             if viewModel.isLoading {

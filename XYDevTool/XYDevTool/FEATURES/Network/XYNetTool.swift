@@ -230,22 +230,39 @@ public struct XYNetTool {
                                 completion: @escaping DownloadDataCallback) {
         let request = buildRequest(url: url, method: .GET, paramters: paramters, headers: headers, timeout: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
-        
-        session.downloadTask(with: request) { tmpFileUrl, _, error in
-            DispatchQueue.main.async {
-                if let tmpFileUrl = tmpFileUrl {
-                    do {
-                        if FileManager.default.fileExists(atPath: saveToUrl.path) {
-                            try FileManager.default.removeItem(at: saveToUrl)
-                        }
-                        try FileManager.default.moveItem(at: tmpFileUrl, to: saveToUrl)
-                        completion(saveToUrl, nil)
-                    } catch {
-                        completion(nil, error)
+        let requestID = UUID().uuidString
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        delegate?.netToolWillSend(request, requestID: requestID)
+
+        session.downloadTask(with: request) { tmpFileUrl, response, error in
+            var downloadedURL: URL?
+            var completionError = error
+
+            if let tmpFileUrl, completionError == nil {
+                do {
+                    if FileManager.default.fileExists(atPath: saveToUrl.path) {
+                        try FileManager.default.removeItem(at: saveToUrl)
                     }
-                } else {
-                    completion(nil, error)
+                    try FileManager.default.moveItem(at: tmpFileUrl, to: saveToUrl)
+                    downloadedURL = saveToUrl
+                } catch {
+                    completionError = error
                 }
+            } else if completionError == nil {
+                completionError = NetError.invalidResponse
+            }
+
+            delegate?.netToolDidComplete(
+                request,
+                data: nil,
+                response: response,
+                error: completionError,
+                requestID: requestID,
+                duration: ProcessInfo.processInfo.systemUptime - startedAt
+            )
+
+            DispatchQueue.main.async {
+                completion(downloadedURL, completionError)
             }
         }.resume()
     }

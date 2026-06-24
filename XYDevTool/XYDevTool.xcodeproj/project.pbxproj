@@ -135,6 +135,7 @@
 		E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000032F90200000CB8B03 /* LogViewer.swift */; };
 		E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */; };
 		E1B000152F90200000CB8B15 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000052F90200000CB8B05 /* Logger.swift */; };
+		E1B000162F90200000CB8B16 /* LogPrivacyPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -274,6 +275,7 @@
 		E1B000032F90200000CB8B03 /* LogViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewer.swift; sourceTree = "<group>"; };
 		E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYNetToolLogAdapter.swift; sourceTree = "<group>"; };
 		E1B000052F90200000CB8B05 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPrivacyPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -687,6 +689,7 @@
 			isa = PBXGroup;
 			children = (
 				E1B000052F90200000CB8B05 /* Logger.swift */,
+				E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */,
 				E1B000012F90200000CB8B01 /* AppLogEvent.swift */,
 				E1B000022F90200000CB8B02 /* LocalLogService.swift */,
 				E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */,
@@ -940,6 +943,7 @@
 				E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */,
 				E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */,
 				E1B000152F90200000CB8B15 /* Logger.swift in Sources */,
+				E1B000162F90200000CB8B16 /* LogPrivacyPlugin.swift in Sources */,
 				B4DA90772C2C2805000A6667 /* NetworkPanelView.swift in Sources */,
 				B48A9A5B292FB96500DD7333 /* ConstraintMultiplierTarget.swift in Sources */,
 			);
