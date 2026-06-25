@@ -56,6 +56,8 @@ final class LogViewerViewModel: ObservableObject {
             let search = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             let matchesSearch = search.isEmpty
                 || event.name.lowercased().contains(search)
+                || event.message.lowercased().contains(search)
+                || event.traceID?.lowercased().contains(search) == true
                 || event.metadata.contains { key, value in
                     key.lowercased().contains(search) || value.lowercased().contains(search)
                 }
@@ -112,10 +114,12 @@ struct LogViewerView: View {
 
             HSplitView {
                 eventList
-                    .frame(minWidth: 580)
+                    .frame(minWidth: 580, maxWidth: .infinity, maxHeight: .infinity)
                 eventDetail
-                    .frame(minWidth: 300)
+                    .frame(minWidth: 300, idealWidth: 380, maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .layoutPriority(1)
         }
         .frame(minWidth: 900, minHeight: 560)
         .confirmationDialog(
@@ -234,6 +238,12 @@ struct LogViewerView: View {
                     detailRow("级别", event.level.title)
                     detailRow("会话", event.sessionID.uuidString)
                     detailRow("顺序", String(event.sequence))
+                    if event.message.isEmpty == false {
+                        detailRow("消息", event.message)
+                    }
+                    if let traceID = event.traceID {
+                        detailRow("Trace ID", traceID)
+                    }
                     if let result = event.result {
                         detailRow("结果", Self.resultTitle(result))
                     }
@@ -258,13 +268,27 @@ struct LogViewerView: View {
     }
 
     private func detailRow(_ title: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
+        let isTruncated = value.count > Self.maximumPreviewLength
+        let preview = isTruncated
+            ? String(value.prefix(Self.maximumPreviewLength)) + "…"
+            : value
+
+        return VStack(alignment: .leading, spacing: 3) {
             Text(title).font(.caption).foregroundStyle(.secondary)
-            Text(value)
+            Text(preview)
                 .font(.system(.body, design: .monospaced))
                 .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if isTruncated {
+                Text("内容过长，面板仅预览前 \(Self.maximumPreviewLength) 个字符；完整内容请查看日志文件。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
+
+    private static let maximumPreviewLength = 12_000
 
     private static let timestampFormatter: DateFormatter = {
         let formatter = DateFormatter()

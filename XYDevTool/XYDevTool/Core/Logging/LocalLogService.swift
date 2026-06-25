@@ -116,14 +116,13 @@ final class LocalLogService: LogHandler {
                 level: record.level,
                 category: record.category,
                 name: record.name,
-                message: record.message.isEmpty ? nil : record.message,
+                message: record.message,
                 traceID: record.traceID,
                 result: record.result,
                 durationMS: record.durationMS,
                 metadata: record.fields,
                 appVersion: appVersion,
-                buildVersion: buildVersion,
-                schemaVersion: 1
+                buildVersion: buildVersion
             )
         )
     }
@@ -194,6 +193,7 @@ private final class AppLogStore {
     private let maximumTotalSize: UInt64 = 100 * 1_024 * 1_024
     private let retentionDays = 14
     private let activeSessionFileName = "active-session.json"
+    private let eventFilePrefix = "events-"
 
     init() {
         if let overridePath = ProcessInfo.processInfo.environment["XYDEVTOOL_LOG_DIRECTORY"],
@@ -292,7 +292,7 @@ private final class AppLogStore {
 
         while true {
             let suffix = index == 0 ? "" : "-\(index)"
-            let candidate = logDirectoryURL.appendingPathComponent("events-\(date)\(suffix).jsonl")
+            let candidate = logDirectoryURL.appendingPathComponent("\(eventFilePrefix)\(date)\(suffix).jsonl")
             let attributes = try? fileManager.attributesOfItem(atPath: candidate.path)
             let size = (attributes?[.size] as? NSNumber)?.uint64Value ?? 0
             if size < maximumFileSize { return candidate }
@@ -307,7 +307,9 @@ private final class AppLogStore {
             includingPropertiesForKeys: keys,
             options: [.skipsHiddenFiles]
         )) ?? []
-        return urls.filter { $0.lastPathComponent.hasPrefix("events-") && $0.pathExtension == "jsonl" }
+        return urls.filter {
+            $0.lastPathComponent.hasPrefix(eventFilePrefix) && $0.pathExtension == "jsonl"
+        }
     }
 
     private func removeExpiredFiles() {

@@ -6,7 +6,6 @@
 import Foundation
 
 /// 本地 JSONL 文件使用的持久化模型。
-/// 新增字段均为可选，确保能够继续读取旧版本日志。
 struct AppLogEvent: Codable, Identifiable, Hashable {
     let id: UUID
     let timestamp: Date
@@ -15,14 +14,13 @@ struct AppLogEvent: Codable, Identifiable, Hashable {
     let level: LogLevel
     let category: String
     let name: String
-    let message: String?
+    let message: String
     let traceID: String?
     let result: String?
     let durationMS: Double?
     let metadata: [String: String]
     let appVersion: String
     let buildVersion: String
-    let schemaVersion: Int?
 }
 
 struct AppLogSummary {
