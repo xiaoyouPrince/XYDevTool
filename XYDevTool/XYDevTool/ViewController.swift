@@ -83,6 +83,11 @@ class ViewController: NSViewController {
         openNewWindow(with: NSRect(x: 0, y: 0, width: 800, height: 600), title: "ImageInspector", contentView: ImageInspector())
     }
 
+    @IBAction func qrCodeClick(_ sender: Any) {
+        trackFeatureOpened("qr_code")
+        openNewWindow(with: NSRect(x: 0, y: 0, width: 1000, height: 680), title: "QRCode", contentView: QRCodeView())
+    }
+
     private func trackFeatureOpened(_ feature: String) {
         navigationLogger.event(
             "feature.opened",

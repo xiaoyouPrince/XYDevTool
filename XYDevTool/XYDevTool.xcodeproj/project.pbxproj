@@ -136,6 +136,7 @@
 		E1B000142F90200000CB8B14 /* XYNetToolLogAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */; };
 		E1B000152F90200000CB8B15 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000052F90200000CB8B05 /* Logger.swift */; };
 		E1B000162F90200000CB8B16 /* LogPrivacyPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */; };
+		E1C000112F90400000CB8D11 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C000012F90400000CB8D01 /* QRCodeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -276,6 +277,7 @@
 		E1B000042F90200000CB8B04 /* XYNetToolLogAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XYNetToolLogAdapter.swift; sourceTree = "<group>"; };
 		E1B000052F90200000CB8B05 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPrivacyPlugin.swift; sourceTree = "<group>"; };
+		E1C000012F90400000CB8D01 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -582,6 +584,7 @@
 		B4F61DBA282A3C27006FAC35 /* FEATURES */ = {
 			isa = PBXGroup;
 			children = (
+				E1C000022F90400000CB8D02 /* QRCode */,
 				E1B001022F90200000CB8C02 /* LogViewer */,
 				E1A100052F90150000CB8A05 /* Help */,
 				BE66A95A2DA5316A00EF6D1C /* ImageInspector */,
@@ -593,6 +596,14 @@
 				B4F61DB9282A3C08006FAC35 /* JSONFormatter */,
 			);
 			path = FEATURES;
+			sourceTree = "<group>";
+		};
+		E1C000022F90400000CB8D02 /* QRCode */ = {
+			isa = PBXGroup;
+			children = (
+				E1C000012F90400000CB8D01 /* QRCodeView.swift */,
+			);
+			path = QRCode;
 			sourceTree = "<group>";
 		};
 		B4F61DBB282A3C46006FAC35 /* Resource */ = {
@@ -932,6 +943,7 @@
 				B454C78A2837DF30008F07B7 /* UpgradeUtils.swift in Sources */,
 				B4CC2CBB2C67D5BA000F4F16 /* Dictionary+XYAdd.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
+				E1C000112F90400000CB8D11 /* QRCodeView.swift in Sources */,
 				E1A100112F90150000CB8A11 /* HelpTopic.swift in Sources */,
 				E1A100122F90150000CB8A12 /* HelpDocumentStore.swift in Sources */,
 				E1A100132F90150000CB8A13 /* HelpView.swift in Sources */,
