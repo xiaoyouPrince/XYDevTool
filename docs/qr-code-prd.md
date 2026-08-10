@@ -99,4 +99,5 @@ XYDevTool 当前已包含 JSON、网络请求、图片查看、AppIcon 等开发
 1. MVP 已实现：Text、URL、WiFi、Email、SMS、Phone、vCard。
 2. MVP 已实现：二维码预览、复制图片、复制内容、PNG 导出、图片识别。
 3. MVP 已实现：容错级别、静区边距、导出尺寸。
-4. 后续版本待实现：样式定制、Logo、SVG、历史记录、批量生成、App/deeplink 模板、Event 日历。
+4. 后续版本已实现：App/deeplink 模板、Event 日历。
+5. 后续版本待实现：样式定制、Logo、SVG、历史记录、批量生成。

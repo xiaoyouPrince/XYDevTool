@@ -19,6 +19,8 @@ enum QRCodeContentType: String, CaseIterable, Identifiable {
     case sms = "SMS"
     case phone = "Phone"
     case vCard = "vCard"
+    case appLink = "App Link"
+    case event = "Event"
 
     var id: String { rawValue }
 }
@@ -57,6 +59,14 @@ enum QRCodeWiFiEncryption: String, CaseIterable, Identifiable {
     }
 }
 
+enum QRCodeAppLinkKind: String, CaseIterable, Identifiable {
+    case scheme = "App Scheme"
+    case universalLink = "Universal Link"
+    case appStore = "App Store URL"
+
+    var id: String { rawValue }
+}
+
 struct QRCodeFormState {
     var plainText = "Hello QRCode"
     var url = "https://example.com"
@@ -77,6 +87,16 @@ struct QRCodeFormState {
     var vCardEmail = ""
     var vCardAddress = ""
     var vCardWebsite = ""
+    var appLinkKind: QRCodeAppLinkKind = .scheme
+    var appSchemeURL = "myapp://path"
+    var appUniversalLink = "https://example.com/app/path"
+    var appStoreURL = "https://apps.apple.com/app/id0000000000"
+    var eventTitle = ""
+    var eventLocation = ""
+    var eventStartDate = Date()
+    var eventEndDate = Date().addingTimeInterval(3600)
+    var eventAllDay = false
+    var eventNotes = ""
 }
 
 struct QRCodeView: View {
@@ -208,6 +228,37 @@ struct QRCodeView: View {
             labeledTextField("Email", text: $form.vCardEmail, placeholder: "Optional")
             labeledTextField("Address", text: $form.vCardAddress, placeholder: "Optional")
             labeledTextField("Website", text: $form.vCardWebsite, placeholder: "Optional")
+        case .appLink:
+            Picker("Link type", selection: $form.appLinkKind) {
+                ForEach(QRCodeAppLinkKind.allCases) { item in
+                    Text(item.rawValue).tag(item)
+                }
+            }
+            .onChange(of: form.appLinkKind) { refreshQRCode() }
+
+            switch form.appLinkKind {
+            case .scheme:
+                labeledTextField("App Scheme", text: $form.appSchemeURL, placeholder: "myapp://path?key=value")
+            case .universalLink:
+                labeledTextField("Universal Link", text: $form.appUniversalLink, placeholder: "https://example.com/app/path")
+            case .appStore:
+                labeledTextField("App Store URL", text: $form.appStoreURL, placeholder: "https://apps.apple.com/app/id123456789")
+            }
+        case .event:
+            labeledTextField("Title", text: $form.eventTitle, placeholder: "Required")
+            labeledTextField("Location", text: $form.eventLocation, placeholder: "Optional")
+            Toggle("All-day event", isOn: $form.eventAllDay)
+                .onChange(of: form.eventAllDay) { refreshQRCode() }
+            DatePicker("Start", selection: $form.eventStartDate)
+                .onChange(of: form.eventStartDate) {
+                    if form.eventEndDate < form.eventStartDate {
+                        form.eventEndDate = form.eventStartDate.addingTimeInterval(3600)
+                    }
+                    refreshQRCode()
+                }
+            DatePicker("End", selection: $form.eventEndDate)
+                .onChange(of: form.eventEndDate) { refreshQRCode() }
+            labeledTextEditor("Notes", text: $form.eventNotes, minHeight: 100)
         }
     }
 
@@ -380,6 +431,10 @@ struct QRCodeView: View {
             return "tel:\(form.phone)"
         case .vCard:
             return vCardContent()
+        case .appLink:
+            return appLinkContent()
+        case .event:
+            return eventContent()
         }
     }
 
@@ -434,9 +489,71 @@ struct QRCodeView: View {
         .joined(separator: "\n")
     }
 
+    private func appLinkContent() -> String {
+        switch form.appLinkKind {
+        case .scheme:
+            return form.appSchemeURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        case .universalLink:
+            return normalizedURL(form.appUniversalLink)
+        case .appStore:
+            return normalizedURL(form.appStoreURL)
+        }
+    }
+
+    private func eventContent() -> String {
+        let startDate = form.eventStartDate
+        let endDate = max(form.eventEndDate, startDate)
+        let title = form.eventTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//XYDevTool//QRCode Event//EN",
+            "BEGIN:VEVENT",
+            "UID:\(eventUID())",
+            "DTSTAMP:\(formatICalendarDate(Date(), allDay: false))",
+            "DTSTART\(form.eventAllDay ? ";VALUE=DATE" : ""):\(formatICalendarDate(startDate, allDay: form.eventAllDay))",
+            "DTEND\(form.eventAllDay ? ";VALUE=DATE" : ""):\(formatICalendarDate(endDate, allDay: form.eventAllDay))",
+            title.isEmpty ? nil : "SUMMARY:\(escapeICalendar(title))",
+            form.eventLocation.isEmpty ? nil : "LOCATION:\(escapeICalendar(form.eventLocation))",
+            form.eventNotes.isEmpty ? nil : "DESCRIPTION:\(escapeICalendar(form.eventNotes))",
+            "END:VEVENT",
+            "END:VCALENDAR"
+        ]
+        .compactMap { $0 }
+        .joined(separator: "\r\n")
+    }
+
     private func escapeVCard(_ value: String) -> String {
         value
             .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: ",", with: "\\,")
+            .replacingOccurrences(of: ";", with: "\\;")
+    }
+
+    private func eventUID() -> String {
+        let source = "\(form.eventTitle)|\(form.eventLocation)|\(form.eventStartDate.timeIntervalSince1970)|\(form.eventEndDate.timeIntervalSince1970)"
+        let safe = source
+            .unicodeScalars
+            .map { CharacterSet.alphanumerics.contains($0) ? String($0) : "-" }
+            .joined()
+            .trimmingCharacters(in: CharacterSet(charactersIn: "-"))
+        return "\(safe.isEmpty ? "event" : safe)@xydevtool.local"
+    }
+
+    private func formatICalendarDate(_ date: Date, allDay: Bool) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = allDay ? TimeZone.current : TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = allDay ? "yyyyMMdd" : "yyyyMMdd'T'HHmmss'Z'"
+        return formatter.string(from: date)
+    }
+
+    private func escapeICalendar(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\r\n", with: "\\n")
             .replacingOccurrences(of: "\n", with: "\\n")
             .replacingOccurrences(of: ",", with: "\\,")
             .replacingOccurrences(of: ";", with: "\\;")
