@@ -5,12 +5,31 @@
 //  Created by 渠晓友 on 2022/4/26.
 //
 
+import Foundation
+
 /*
  一个简单的网络工具，统一请求构建、发送和响应解析。
  */
 
+/// 暴露真实网络请求生命周期。Delegate 可用于日志、调试或性能统计，
+/// XYNetTool 不关心外部如何使用这些数据。
+public protocol XYNetToolDelegate: AnyObject {
+    func netToolWillSend(_ request: URLRequest, requestID: String)
+
+    func netToolDidComplete(
+        _ request: URLRequest,
+        data: Data?,
+        response: URLResponse?,
+        error: Error?,
+        requestID: String,
+        duration: TimeInterval
+    )
+}
+
 public typealias NetTool = XYNetTool
 public struct XYNetTool {
+    public static weak var delegate: XYNetToolDelegate?
+
     private init () {}
     
     public typealias AnyJsonCallback = ([String: Any]) -> Void
@@ -41,10 +60,13 @@ public struct XYNetTool {
         public let parsedBody: ParsedBody
         
         public func asDictionary() -> [String: Any] {
+            let stringHeaders = headers.reduce(into: [String: String]()) { result, pair in
+                result[String(describing: pair.key)] = String(describing: pair.value)
+            }
             var result: [String: Any] = [
                 "_statusCode": statusCode ?? -1,
                 "_mimeType": mimeType ?? "",
-                "_headers": headers
+                "_headers": stringHeaders
             ]
             
             switch parsedBody {
@@ -124,7 +146,23 @@ public struct XYNetTool {
                            headers: [String: String]?,
                            success: @escaping AnyJsonCallback,
                            failure: @escaping ErrorCallback) {
-        send(url: url, method: .GET, paramters: paramters, headers: headers, options: .default) { result in
+        send(url: url, method: .GET, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
+            switch result {
+            case .success(let response):
+                success(response.asDictionary())
+            case .failure(let error):
+                failure(error.localizedDescription)
+            }
+        }
+    }
+    
+    /// POST 请求，使用原始 Body 字节（保序，不经 Dictionary 重序列化）。
+    public static func post(url: URL,
+                            headers: [String: String]?,
+                            body: Data,
+                            success: @escaping AnyJsonCallback,
+                            failure: @escaping ErrorCallback) {
+        send(url: url, method: .POST, paramters: [:], headers: headers, rawBody: body, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.asDictionary())
@@ -140,7 +178,7 @@ public struct XYNetTool {
                             headers: [String: String]?,
                             success: @escaping AnyJsonCallback,
                             failure: @escaping ErrorCallback) {
-        send(url: url, method: .POST, paramters: paramters, headers: headers, options: .default) { result in
+        send(url: url, method: .POST, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.asDictionary())
@@ -156,7 +194,7 @@ public struct XYNetTool {
                                 headers: [String: String]?,
                                 success: @escaping DataCallback,
                                 failure: @escaping ErrorCallback) {
-        send(url: url, method: .POST, paramters: paramters, headers: headers, options: .default) { result in
+        send(url: url, method: .POST, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.data)
@@ -174,7 +212,7 @@ public struct XYNetTool {
                                options: RequestOptions = .default,
                                success: @escaping AnyResponseCallback,
                                failure: @escaping ErrorCallback) {
-        send(url: url, method: method, paramters: paramters, headers: headers, options: options) { result in
+        send(url: url, method: method, paramters: paramters, headers: headers, rawBody: nil, options: options) { result in
             switch result {
             case .success(let response):
                 success(response)
@@ -192,22 +230,39 @@ public struct XYNetTool {
                                 completion: @escaping DownloadDataCallback) {
         let request = buildRequest(url: url, method: .GET, paramters: paramters, headers: headers, timeout: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
-        
-        session.downloadTask(with: request) { tmpFileUrl, _, error in
-            DispatchQueue.main.async {
-                if let tmpFileUrl = tmpFileUrl {
-                    do {
-                        if FileManager.default.fileExists(atPath: saveToUrl.path) {
-                            try FileManager.default.removeItem(at: saveToUrl)
-                        }
-                        try FileManager.default.moveItem(at: tmpFileUrl, to: saveToUrl)
-                        completion(saveToUrl, nil)
-                    } catch {
-                        completion(nil, error)
+        let requestID = UUID().uuidString
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        delegate?.netToolWillSend(request, requestID: requestID)
+
+        session.downloadTask(with: request) { tmpFileUrl, response, error in
+            var downloadedURL: URL?
+            var completionError = error
+
+            if let tmpFileUrl, completionError == nil {
+                do {
+                    if FileManager.default.fileExists(atPath: saveToUrl.path) {
+                        try FileManager.default.removeItem(at: saveToUrl)
                     }
-                } else {
-                    completion(nil, error)
+                    try FileManager.default.moveItem(at: tmpFileUrl, to: saveToUrl)
+                    downloadedURL = saveToUrl
+                } catch {
+                    completionError = error
                 }
+            } else if completionError == nil {
+                completionError = NetError.invalidResponse
+            }
+
+            delegate?.netToolDidComplete(
+                request,
+                data: nil,
+                response: response,
+                error: completionError,
+                requestID: requestID,
+                duration: ProcessInfo.processInfo.systemUptime - startedAt
+            )
+
+            DispatchQueue.main.async {
+                completion(downloadedURL, completionError)
             }
         }.resume()
     }
@@ -218,12 +273,25 @@ private extension XYNetTool {
                      method: RequestType,
                      paramters: [String: Any],
                      headers: [String: String]?,
+                     rawBody: Data?,
                      options: RequestOptions,
                      completion: @escaping (Swift.Result<NetResponse, NetError>) -> Void) {
-        let request = buildRequest(url: url, method: method, paramters: paramters, headers: headers, timeout: options.timeout)
+        let request = buildRequest(url: url, method: method, paramters: paramters, headers: headers, timeout: options.timeout, rawBody: rawBody)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
+        let requestID = UUID().uuidString
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        delegate?.netToolWillSend(request, requestID: requestID)
         
         session.dataTask(with: request) { data, response, error in
+            delegate?.netToolDidComplete(
+                request,
+                data: data,
+                response: response,
+                error: error,
+                requestID: requestID,
+                duration: ProcessInfo.processInfo.systemUptime - startedAt
+            )
+
             let result: Swift.Result<NetResponse, NetError>
             defer {
                 DispatchQueue.main.async {
@@ -244,7 +312,7 @@ private extension XYNetTool {
             let body = data ?? Data()
             let httpResponse = response as? HTTPURLResponse
             let statusCode = httpResponse?.statusCode
-            
+
             if options.validateStatusCode,
                let statusCode = statusCode,
                (200 ... 299).contains(statusCode) == false {
@@ -272,7 +340,8 @@ private extension XYNetTool {
                              method: RequestType,
                              paramters: [String: Any],
                              headers: [String: String]?,
-                             timeout: TimeInterval) -> URLRequest {
+                             timeout: TimeInterval,
+                             rawBody: Data? = nil) -> URLRequest {
         var requestURL = url
         var request = URLRequest(url: url)
         request.timeoutInterval = timeout
@@ -296,11 +365,11 @@ private extension XYNetTool {
             }
             request.url = requestURL
         case .POST:
-            if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
+            if let rawBody {
+                request.httpBody = rawBody
+            } else if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {
                 request.httpBody = data
-            }
-            
-            if let params = paramters as? Encodable, let data = try? JSONEncoder().encode(params) {
+            } else if let params = paramters as? Encodable, let data = try? JSONEncoder().encode(params) {
                 request.httpBody = data
             }
             
@@ -337,7 +406,7 @@ private extension XYNetTool {
     static func responseText(from data: Data) -> String? {
         String(data: data, encoding: .utf8) ?? String(data: data, encoding: .ascii)
     }
-    
+
     static func parseJSONBody(data: Data, response: URLResponse) -> ParsedBody? {
         let mimeType = response.mimeType?.lowercased() ?? ""
         if mimeType.contains("json") == false && mimeType != "text/javascript" {
@@ -369,4 +438,3 @@ private extension XYNetTool {
         return .binary(data)
     }
 }
-

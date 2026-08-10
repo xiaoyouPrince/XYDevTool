@@ -67,6 +67,8 @@ class XYItem: Model, Hashable {
     var postResponseScript: String?
     /// 当前请求选择执行的全局脚本 ID 列表
     var selectedPostScriptIDs: [String]?
+    /// 当前请求绑定的全局前置脚本 ID（单选）
+    var selectedPreScriptID: String?
     
     func update(with item: XYItem) {
         name = item.name
@@ -76,6 +78,7 @@ class XYItem: Model, Hashable {
         enablePostScript = item.enablePostScript
         postResponseScript = item.postResponseScript
         selectedPostScriptIDs = item.selectedPostScriptIDs
+        selectedPreScriptID = item.selectedPreScriptID
     }
 }
 
@@ -104,6 +107,7 @@ class HistoryNode: Model {
     var enablePostScript: Bool?
     var postResponseScript: String?
     var selectedPostScriptIDs: [String]?
+    var selectedPreScriptID: String?
     
     var nodeType: HistoryNodeType {
         get { HistoryNodeType(rawValue: type ?? HistoryNodeType.request.rawValue) ?? .request }
@@ -134,6 +138,7 @@ class HistoryNode: Model {
         node.enablePostScript = item.enablePostScript
         node.postResponseScript = item.postResponseScript
         node.selectedPostScriptIDs = item.selectedPostScriptIDs
+        node.selectedPreScriptID = item.selectedPreScriptID
         return node
     }
     
@@ -146,6 +151,7 @@ class HistoryNode: Model {
         item.enablePostScript = enablePostScript
         item.postResponseScript = postResponseScript
         item.selectedPostScriptIDs = selectedPostScriptIDs
+        item.selectedPreScriptID = selectedPreScriptID
         return item
     }
     
@@ -157,6 +163,7 @@ class HistoryNode: Model {
         enablePostScript = item.enablePostScript
         postResponseScript = item.postResponseScript
         selectedPostScriptIDs = item.selectedPostScriptIDs
+        selectedPreScriptID = item.selectedPreScriptID
     }
 }
 
