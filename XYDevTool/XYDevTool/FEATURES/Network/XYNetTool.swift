@@ -39,7 +39,7 @@ public struct XYNetTool {
     public typealias AnyResponseCallback = (NetResponse) -> Void
     
     public enum RequestType: String {
-        case GET, POST
+        case GET, POST, PUT
     }
     
     public enum ParsedBody {
@@ -179,6 +179,38 @@ public struct XYNetTool {
                             success: @escaping AnyJsonCallback,
                             failure: @escaping ErrorCallback) {
         send(url: url, method: .POST, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
+            switch result {
+            case .success(let response):
+                success(response.asDictionary())
+            case .failure(let error):
+                failure(error.localizedDescription)
+            }
+        }
+    }
+
+    /// PUT 请求，使用原始 Body 字节（保序，不经 Dictionary 重序列化）。
+    public static func put(url: URL,
+                           headers: [String: String]?,
+                           body: Data,
+                           success: @escaping AnyJsonCallback,
+                           failure: @escaping ErrorCallback) {
+        send(url: url, method: .PUT, paramters: [:], headers: headers, rawBody: body, options: .default) { result in
+            switch result {
+            case .success(let response):
+                success(response.asDictionary())
+            case .failure(let error):
+                failure(error.localizedDescription)
+            }
+        }
+    }
+
+    /// PUT 请求，兼容旧接口，返回字典。
+    public static func put(url: URL,
+                           paramters: [String: Any],
+                           headers: [String: String]?,
+                           success: @escaping AnyJsonCallback,
+                           failure: @escaping ErrorCallback) {
+        send(url: url, method: .PUT, paramters: paramters, headers: headers, rawBody: nil, options: .default) { result in
             switch result {
             case .success(let response):
                 success(response.asDictionary())
@@ -364,7 +396,8 @@ private extension XYNetTool {
                 }
             }
             request.url = requestURL
-        case .POST:
+        case .POST, .PUT:
+            // PUT 与 POST 一样走 JSON body（非 query）
             if let rawBody {
                 request.httpBody = rawBody
             } else if let data = try? JSONSerialization.data(withJSONObject: paramters, options: .fragmentsAllowed) {

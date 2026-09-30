@@ -9,7 +9,7 @@
 import SwiftUI
 
 enum HttpMethod: String, CaseIterable, Identifiable {
-    case get, post
+    case get, post, put
     var id: Self { self }
 }
 

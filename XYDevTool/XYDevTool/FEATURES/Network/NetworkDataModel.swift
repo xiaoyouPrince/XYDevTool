@@ -814,7 +814,7 @@ extension NetworkDataModel {
         let requestMethod = preResult.method ?? editor.httpMethod
         headerDict = preResult.headers ?? headerDict
         
-        // POST：优先用原始 JSON 文本（UI 原文或脚本返回的 parametersText），避免 Dictionary 重序列化打乱 key 顺序
+        // POST/PUT：优先用原始 JSON 文本（UI 原文或脚本返回的 parametersText），避免 Dictionary 重序列化打乱 key 顺序
         var requestBodyText: String? = paramsText.isEmpty ? nil : paramsTextApplied
         if let bodyText = preResult.bodyText {
             requestBodyText = bodyText
@@ -887,6 +887,12 @@ extension NetworkDataModel {
                 XYNetTool.post(url: requestURL, headers: headerDict, body: bodyData, success: onSuccess, failure: onFailure)
             } else {
                 XYNetTool.post(url: requestURL, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
+            }
+        case .put:
+            if let bodyText = requestBodyText, let bodyData = bodyText.data(using: .utf8) {
+                XYNetTool.put(url: requestURL, headers: headerDict, body: bodyData, success: onSuccess, failure: onFailure)
+            } else {
+                XYNetTool.put(url: requestURL, paramters: parameters, headers: headerDict, success: onSuccess, failure: onFailure)
             }
         }
 

@@ -4,7 +4,7 @@
 
 ## 发请求
 
-1. 填写 **请求名称**、**URL**，选择 **GET / POST**
+1. 填写 **请求名称**、**URL**，选择 **GET / POST / PUT**
 2. 在请求头 / 请求参数区输入 **JSON 对象**
 3. 点击 **Submit** 发送
 
@@ -61,7 +61,7 @@ App 通过环境变量 **`XYDEV_PRE_REQUEST_JSON`** 注入请求 JSON，内容�
 
 ### 签名注意
 
-- POST 请用 **`parametersText`** 返回签名后的 JSON 字符串
+- POST / PUT 请用 **`parametersText`** 返回签名后的 JSON 字符串
 - 不要只返回 `parameters` 对象，否则可能经 Dictionary 重序列化导致顺序变化、验签失败
 
 ## 后置脚本（响应后）
@@ -84,5 +84,5 @@ App 通过环境变量 **`XYDEV_PRE_REQUEST_JSON`** 注入请求 JSON，内容�
 
 ## 限制
 
-- 仅 GET / POST；POST 默认 JSON body
+- 支持 GET / POST / PUT；POST、PUT 默认 JSON body
 - 响应区展示 body 原文，暂未展示 HTTP 状态码与响应头

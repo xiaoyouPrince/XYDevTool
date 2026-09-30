@@ -14,7 +14,7 @@ A simple UI and powerful Mac OS application. It is a collection of tools commonl
 
 - Appicon generator: supports the generation of IOS / MacOS app icons, one click generation and export to the specified directory
 
-- Network request tool: A lightweight, local HTTP client inspired by Postman. Supports GET/POST, tree-organized history with groups, variable substitution, and post-response scripts. All data stays on your Mac; configs can be exported/imported as a bundle.
+- Network request tool: A lightweight, local HTTP client inspired by Postman. Supports GET/POST/PUT, tree-organized history with groups, variable substitution, and post-response scripts. All data stays on your Mac; configs can be exported/imported as a bundle.
 
 - ...
 
@@ -52,7 +52,7 @@ A lightweight, fully local HTTP client for day-to-day API debugging—no account
 
 **Send requests**
 
-- Set name, URL, GET/POST, JSON headers and body, then Submit
+- Set name, URL, GET/POST/PUT, JSON headers and body, then Submit
 - If name is empty, the URL host is used as the request name
 - Submitting with the **same name** updates the existing entry; a **new name** creates a new history item
 - When a **group** is selected, new requests are added under that group; otherwise they are added at the root
@@ -79,7 +79,7 @@ A lightweight, fully local HTTP client for day-to-day API debugging—no account
 **Notes**
 
 - Headers and body must be JSON objects
-- GET and POST only; response pane shows the body text—HTTP status code and response headers are not shown yet
+- GET, POST, and PUT; response pane shows the body text—HTTP status code and response headers are not shown yet
 
 
 Screenshots
