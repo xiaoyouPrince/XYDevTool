@@ -143,6 +143,7 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     }
     
     let editor = NetworkEditorStore()
+    let mockController = NetworkMockController()
     var historyRoots: [HistoryNode] = []
     private(set) var selectedId: String?
     @Published var status: String = "Ready"
@@ -322,6 +323,7 @@ extension NetworkDataModel {
         historyListUI.requestCount = HistoryTree.allRequestNodes(in: historyRoots).count
         historyListUI.selectedId = selectedId
         historyListUI.treeRevision += 1
+        mockController.reloadRoutes(from: historyRoots)
     }
     
     /// 当前选中节点是否为请求（供设置页等判断脚本绑定）。

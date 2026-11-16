@@ -139,6 +139,11 @@
 		E1B000152F90200000CB8B15 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000052F90200000CB8B05 /* Logger.swift */; };
 		E1B000162F90200000CB8B16 /* LogPrivacyPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */; };
 		E1C000112F90400000CB8D11 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C000012F90400000CB8D01 /* QRCodeView.swift */; };
+		E1M000112F91000000CB8E11 /* MockModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000012F91000000CB8E01 /* MockModels.swift */; };
+		E1M000122F91000000CB8E12 /* MockResponseAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000022F91000000CB8E02 /* MockResponseAssembler.swift */; };
+		E1M000132F91000000CB8E13 /* MockHTTPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000032F91000000CB8E03 /* MockHTTPServer.swift */; };
+		E1M000142F91000000CB8E14 /* NetworkMockController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000042F91000000CB8E04 /* NetworkMockController.swift */; };
+		E1M000152F91000000CB8E15 /* PanelMockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000052F91000000CB8E05 /* PanelMockView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -282,6 +287,11 @@
 		E1B000052F90200000CB8B05 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		E1B000062F90200000CB8B06 /* LogPrivacyPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogPrivacyPlugin.swift; sourceTree = "<group>"; };
 		E1C000012F90400000CB8D01 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
+		E1M000012F91000000CB8E01 /* MockModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockModels.swift; sourceTree = "<group>"; };
+		E1M000022F91000000CB8E02 /* MockResponseAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponseAssembler.swift; sourceTree = "<group>"; };
+		E1M000032F91000000CB8E03 /* MockHTTPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHTTPServer.swift; sourceTree = "<group>"; };
+		E1M000042F91000000CB8E04 /* NetworkMockController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMockController.swift; sourceTree = "<group>"; };
+		E1M000052F91000000CB8E05 /* PanelMockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMockView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -558,12 +568,24 @@
 				B4DA907F2C2C4C1C000A6667 /* PanelRequestView.swift */,
 				B4DA90812C2C4C31000A6667 /* PanelResponceView.swift */,
 				B4DA90832C2C4C46000A6667 /* PanelStatusView.swift */,
+				E1M000052F91000000CB8E05 /* PanelMockView.swift */,
 				B418953F2C66742100C8CC86 /* CustomTextEditor.swift */,
 				B41895772C667C5400C8CC86 /* VDividerView.swift */,
 				B41895792C667E1B00C8CC86 /* HDividerView.swift */,
 				B424ED4E2CA7087300B02C3E /* PanelSettingsView.swift */,
 			);
 			path = SwiftUIViews;
+			sourceTree = "<group>";
+		};
+		E1M000002F91000000CB8E00 /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				E1M000012F91000000CB8E01 /* MockModels.swift */,
+				E1M000022F91000000CB8E02 /* MockResponseAssembler.swift */,
+				E1M000032F91000000CB8E03 /* MockHTTPServer.swift */,
+				E1M000042F91000000CB8E04 /* NetworkMockController.swift */,
+			);
+			path = Mock;
 			sourceTree = "<group>";
 		};
 		B4EC92D1295602F9005FC62E /* View */ = {
@@ -644,6 +666,7 @@
 			isa = PBXGroup;
 			children = (
 				B4DA907B2C2C4375000A6667 /* NetworkDataModel.swift */,
+				E1M000002F91000000CB8E00 /* Mock */,
 				B4A1B00B2F90123400CB8A0B /* AppKitViews */,
 				B4DA90782C2C2CF7000A6667 /* SwiftUIViews */,
 				B4EC92D1295602F9005FC62E /* View */,
@@ -953,6 +976,11 @@
 				B4CC2CBB2C67D5BA000F4F16 /* Dictionary+XYAdd.swift in Sources */,
 				B48BC720281D074E0093D91F /* AppDelegate.swift in Sources */,
 				E1C000112F90400000CB8D11 /* QRCodeView.swift in Sources */,
+				E1M000112F91000000CB8E11 /* MockModels.swift in Sources */,
+				E1M000122F91000000CB8E12 /* MockResponseAssembler.swift in Sources */,
+				E1M000132F91000000CB8E13 /* MockHTTPServer.swift in Sources */,
+				E1M000142F91000000CB8E14 /* NetworkMockController.swift in Sources */,
+				E1M000152F91000000CB8E15 /* PanelMockView.swift in Sources */,
 				E1A100112F90150000CB8A11 /* HelpTopic.swift in Sources */,
 				E1A100122F90150000CB8A12 /* HelpDocumentStore.swift in Sources */,
 				E1A100132F90150000CB8A13 /* HelpView.swift in Sources */,

@@ -66,6 +66,8 @@ If command-line Xcode tries to write under `~/Library/Developer/Xcode/DerivedDat
 | App Help docs | `XYDevTool/XYDevTool/Resource/Help/` |
 | QRCode | `XYDevTool/XYDevTool/FEATURES/QRCode/` |
 | QRCode PRD | `docs/qr-code-prd.md` |
+| Network Mock | `XYDevTool/XYDevTool/FEATURES/Network/Mock/` |
+| Network Mock PRD | `.prd/network/mock-server-v1.md` |
 | Release script | `release.sh` |
 
 ## Documentation Maintenance

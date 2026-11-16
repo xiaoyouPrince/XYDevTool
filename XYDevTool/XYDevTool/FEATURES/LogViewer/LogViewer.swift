@@ -301,6 +301,7 @@ struct LogViewerView: View {
         case "app": return "App"
         case "navigation": return "使用路径"
         case "network": return "网络请求"
+        case "network_mock": return "Mock 服务"
         case "json_formatter": return "JSON 格式化"
         case "json2model": return "JSON 转 Model"
         case "app_icon": return "AppIcon"

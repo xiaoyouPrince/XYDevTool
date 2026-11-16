@@ -28,9 +28,11 @@ description: >-
 | Header/Body 编辑 | `SwiftUIViews/PanelRequestView.swift` |
 | 响应展示 | `SwiftUIViews/PanelResponceView.swift` |
 | 变量/脚本/导入导出 | `SwiftUIViews/PanelSettingsView.swift` |
+| Mock 服务 | `FEATURES/Network/Mock/` + `SwiftUIViews/PanelMockView.swift` |
 | 打开窗口 | `ViewController.swift` → `openNetworkWindow()` |
 | 历史路径协议 | `Protocols/BaseDataProtocol.swift` |
 | AppKit 迁移 PRD | `.prd/network/history-appkit-migration.md` |
+| Mock PRD | `.prd/network/mock-server-v1.md` |
 
 ## 架构（当前）
 
@@ -40,9 +42,10 @@ NetworkHostingRoot
   │    ├─ PanelTopView              (@Observable NetworkEditorStore)
   │    ├─ PanelHistoryView          (SwiftUI 顶栏 + HistoryOutlineRepresentable)
   │    ├─ PanelRequestView / PanelResponceView
-  │    └─ PanelStatusView → SettingsView
+  │    └─ PanelStatusView → SettingsView / PanelMockView
   │
-  ├─ NetworkDataModel               (historyRoots, makeRequest, …)
+  ├─ NetworkDataModel               (historyRoots, makeRequest, mockController, …)
+  ├─ Mock/*                         (路由表、HTTP 监听、响应剥离)
   ├─ HistoryListUIStore             (selectedId, requestCount, treeRevision)
   └─ NetworkEditorStore             (表单字段，与列表分离)
 

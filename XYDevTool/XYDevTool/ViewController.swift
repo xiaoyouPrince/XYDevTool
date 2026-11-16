@@ -6,7 +6,12 @@
 //
 
 import Cocoa
+import ObjectiveC
 import SwiftUI
+
+private enum AssociatedKeys {
+    static var networkDataModel: UInt8 = 0
+}
 
 class ViewController: NSViewController {
 
@@ -135,8 +140,16 @@ extension ViewController {
             NetworkHostingRoot(dataModel: dataModel)
         )
         newWindow.contentView = hostingController.view
+        newWindow.delegate = dataModel.mockController
         
         let windowController = NSWindowController(window: newWindow)
+        // Keep dataModel alive with the window (SwiftUI tree + mock window delegate).
+        objc_setAssociatedObject(
+            newWindow,
+            &AssociatedKeys.networkDataModel,
+            dataModel,
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        ) // retains model for window.delegate lifecycle
         windowController.showWindow(self)
     }
     
