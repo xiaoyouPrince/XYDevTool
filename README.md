@@ -14,7 +14,7 @@ A simple UI and powerful Mac OS application. It is a collection of tools commonl
 
 - Appicon generator: supports the generation of IOS / MacOS app icons, one click generation and export to the specified directory
 
-- Network request tool: A lightweight, local HTTP client inspired by Postman. Supports GET/POST/PUT, tree-organized history with groups, variable substitution, and post-response scripts. All data stays on your Mac; configs can be exported/imported as a bundle.
+- Network request tool: A lightweight, local HTTP client inspired by Postman. Supports GET/POST/PUT, tree-organized history with groups, variable substitution, and pre/post scripts. History and configs stay on your Mac and can be exported/imported as a bundle.
 
 - QRCode: Generate and decode common static QR codes locally (Text / URL / WiFi / Email / SMS / Phone / vCard / App Link / Event), with preview, copy, PNG export, and image recognition
 
@@ -52,13 +52,14 @@ Appicon generator
 Network request tool
 -----
 
-A lightweight, fully local HTTP client for day-to-day API debugging—no account or cloud sync required.
+A lightweight, local HTTP client for day-to-day API debugging: history / variables / scripts stay on your Mac with no account or cloud sync. Sending a request still requires reaching the target API.
 
 **Send requests**
 
-- Set name, URL, GET/POST/PUT, JSON headers and body, then Submit
+- Set name, URL, GET/POST/PUT; headers and parameters are JSON (may be empty), then Submit
+- For GET, “parameters” become URL query items; for POST / PUT they are the JSON body (adds `Content-Type: application/json` when missing)
 - If name is empty, the URL host is used as the request name
-- Submitting with the **same name** updates the existing entry; a **new name** creates a new history item
+- The **same name** updates an existing entry **globally** (across groups); a **new name** creates a history item
 - When a **group** is selected, new requests are added under that group; otherwise they are added at the root
 
 **History (tree)**
@@ -68,22 +69,24 @@ A lightweight, fully local HTTP client for day-to-day API debugging—no account
 - Toolbar **+**: creates a sub-group under the selected group, or a root-level group otherwise
 - **Drag entire rows** to reorder siblings, move into/out of groups, or reparent across levels (the delete button does not start a drag)
 - Groups: double-click or right-click to rename; delete with “unwrap only” or “delete group and contents”
-- Requests: delete from the row trash icon; 🔒 lock prevents accidental deletion until unlocked
+- Requests: delete from the row trash icon. Lock is the **🔒 toggle next to Name** (on by default); unlock before deleting. Deleting a group “with contents” may ask to force-delete locked items
 
 **Variables & scripts** (⚙️ in the status bar)
 
 - **Variables**: use `{{key}}` in URL, headers, and body; substituted before send; preview resolved values in Settings
-- **Global post-response scripts**: run shell commands after a response; output can update variables (`$1` = response text, `$2` = variables JSON)
-- **Per-request scripts**: select a history request, then check which global scripts to run for that request (multi-select)
+- **Global pre-request scripts**: rewrite / sign / proxy the request before send; select a history item first, then bind one script
+- **Global post-response scripts**: run shell commands after a response; output can update variables (`$1` = response text, `$2` = variables JSON); multi-select per request
+- **Binding prerequisite**: a history request must be selected before pre/post scripts can be bound in Settings
 
 **Config backup**
 
-- Export / import a full bundle (history, variables, scripts) for backup or migration
+- Export / import a folder with four JSON files: `network_history.json`, `network_variables.json`, `network_global_scripts.json` (post), `network_global_pre_scripts.json` (pre; optional on import—missing clears the pre-script library)
 
 **Notes**
 
-- Headers and body must be JSON objects
-- GET, POST, and PUT; response pane shows the body text—HTTP status code and response headers are not shown yet
+- Headers and parameters must be JSON objects; invalid JSON is blocked
+- GET / POST / PUT only (no dedicated status panel); a successful response is a synthesized JSON that often includes `_statusCode` / `_headers`
+- Full script protocol and UI details: App Help → Network tool
 
 QRCode
 -----
