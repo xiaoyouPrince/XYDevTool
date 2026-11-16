@@ -18,7 +18,7 @@ If these files conflict, prefer current source code and App Help documents over 
 
 ## Project Shape
 
-XYDevTool is a macOS developer tool app. Main features include JSON formatting, JSON-to-model generation, AppIcon generation, network request debugging, custom local server, image inspector, help docs, and local log viewing.
+XYDevTool is a macOS developer tool app. Main features include JSON formatting, JSON-to-model generation, AppIcon generation, network request debugging, custom local server, image inspector, QRCode generate/decode, help docs, and local log viewing.
 
 The app is an Xcode/CocoaPods project. Use the workspace as the main entry:
 
@@ -64,6 +64,8 @@ If command-line Xcode tries to write under `~/Library/Developer/Xcode/DerivedDat
 | Network AppKit history tree | `XYDevTool/XYDevTool/FEATURES/Network/AppKitViews/` |
 | Network SwiftUI panels | `XYDevTool/XYDevTool/FEATURES/Network/SwiftUIViews/` |
 | App Help docs | `XYDevTool/XYDevTool/Resource/Help/` |
+| QRCode | `XYDevTool/XYDevTool/FEATURES/QRCode/` |
+| QRCode PRD | `docs/qr-code-prd.md` |
 | Release script | `release.sh` |
 
 ## Documentation Maintenance

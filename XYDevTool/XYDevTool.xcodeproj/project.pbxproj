@@ -130,6 +130,8 @@
 		E1A101162F90150000CB8A36 /* network-tool.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101062F90150000CB8A26 /* network-tool.md */; };
 		E1A101172F90150000CB8A37 /* custom-server.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101072F90150000CB8A27 /* custom-server.md */; };
 		E1A101182F90150000CB8A38 /* image-inspector.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101082F90150000CB8A28 /* image-inspector.md */; };
+		E1A101192F90150000CB8A39 /* qr-code.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A101092F90150000CB8A29 /* qr-code.md */; };
+		E1A1011A2F90150000CB8A3A /* log-viewer.md in Resources */ = {isa = PBXBuildFile; fileRef = E1A1010A2F90150000CB8A2A /* log-viewer.md */; };
 		E1B000112F90200000CB8B11 /* AppLogEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000012F90200000CB8B01 /* AppLogEvent.swift */; };
 		E1B000122F90200000CB8B12 /* LocalLogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000022F90200000CB8B02 /* LocalLogService.swift */; };
 		E1B000132F90200000CB8B13 /* LogViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B000032F90200000CB8B03 /* LogViewer.swift */; };
@@ -271,6 +273,8 @@
 		E1A101062F90150000CB8A26 /* network-tool.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "network-tool.md"; sourceTree = "<group>"; };
 		E1A101072F90150000CB8A27 /* custom-server.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "custom-server.md"; sourceTree = "<group>"; };
 		E1A101082F90150000CB8A28 /* image-inspector.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "image-inspector.md"; sourceTree = "<group>"; };
+		E1A101092F90150000CB8A29 /* qr-code.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "qr-code.md"; sourceTree = "<group>"; };
+		E1A1010A2F90150000CB8A2A /* log-viewer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "log-viewer.md"; sourceTree = "<group>"; };
 		E1B000012F90200000CB8B01 /* AppLogEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogEvent.swift; sourceTree = "<group>"; };
 		E1B000022F90200000CB8B02 /* LocalLogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLogService.swift; sourceTree = "<group>"; };
 		E1B000032F90200000CB8B03 /* LogViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewer.swift; sourceTree = "<group>"; };
@@ -684,6 +688,8 @@
 				E1A101062F90150000CB8A26 /* network-tool.md */,
 				E1A101072F90150000CB8A27 /* custom-server.md */,
 				E1A101082F90150000CB8A28 /* image-inspector.md */,
+				E1A101092F90150000CB8A29 /* qr-code.md */,
+				E1A1010A2F90150000CB8A2A /* log-viewer.md */,
 			);
 			path = Help;
 			sourceTree = "<group>";
@@ -803,6 +809,8 @@
 				E1A101162F90150000CB8A36 /* network-tool.md in Resources */,
 				E1A101172F90150000CB8A37 /* custom-server.md in Resources */,
 				E1A101182F90150000CB8A38 /* image-inspector.md in Resources */,
+				E1A101192F90150000CB8A39 /* qr-code.md in Resources */,
+				E1A1011A2F90150000CB8A3A /* log-viewer.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

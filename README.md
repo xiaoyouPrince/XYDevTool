@@ -16,6 +16,10 @@ A simple UI and powerful Mac OS application. It is a collection of tools commonl
 
 - Network request tool: A lightweight, local HTTP client inspired by Postman. Supports GET/POST/PUT, tree-organized history with groups, variable substitution, and post-response scripts. All data stays on your Mac; configs can be exported/imported as a bundle.
 
+- QRCode: Generate and decode common static QR codes locally (Text / URL / WiFi / Email / SMS / Phone / vCard / App Link / Event), with preview, copy, PNG export, and image recognition
+
+- Runtime logs: Inspect local app logs from the Help menu, filter by module/level; network-related logs are privacy-filtered and stay on your Mac
+
 - ...
 
 Functions & Features
@@ -80,6 +84,23 @@ A lightweight, fully local HTTP client for day-to-day API debugging—no account
 
 - Headers and body must be JSON objects
 - GET, POST, and PUT; response pane shows the body text—HTTP status code and response headers are not shown yet
+
+QRCode
+-----
+
+A local QR toolkit—no account or network required.
+
+- Content types: Text, URL, WiFi, Email, SMS, Phone, vCard, App Link, Event
+- Options: error correction, quiet zone, export size (256 / 512 / 1024)
+- Preview, copy image, copy payload, export PNG; import an image to decode a QR code
+- Not yet: color styles, logo embedding, SVG export, history, batch generation
+
+Runtime logs
+-----
+
+- **Help → Runtime Logs…** opens the viewer; **Reveal Logs in Finder** opens the log directory
+- Filter by module/level and search events; long fields are truncated in the panel—full text is in the log files
+- Request/response related logs are privacy-filtered and stored only on your Mac
 
 
 Screenshots

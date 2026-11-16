@@ -26,6 +26,10 @@ struct HelpView: View {
                     topicRow(.networkTool)
                     topicRow(.customServer)
                     topicRow(.imageInspector)
+                    topicRow(.qrCode)
+                }
+                Section("诊断") {
+                    topicRow(.logViewer)
                 }
             }
             .listStyle(.sidebar)

@@ -14,6 +14,8 @@ enum HelpTopic: String, CaseIterable, Identifiable, Hashable {
     case networkTool
     case customServer
     case imageInspector
+    case qrCode
+    case logViewer
     
     var id: String { rawValue }
     
@@ -27,6 +29,8 @@ enum HelpTopic: String, CaseIterable, Identifiable, Hashable {
         case .networkTool: return "网络请求工具"
         case .customServer: return "自定义服务器"
         case .imageInspector: return "图片查看器"
+        case .qrCode: return "QRCode"
+        case .logViewer: return "运行日志"
         }
     }
     
@@ -40,6 +44,8 @@ enum HelpTopic: String, CaseIterable, Identifiable, Hashable {
         case .networkTool: return "network-tool"
         case .customServer: return "custom-server"
         case .imageInspector: return "image-inspector"
+        case .qrCode: return "qr-code"
+        case .logViewer: return "log-viewer"
         }
     }
     
