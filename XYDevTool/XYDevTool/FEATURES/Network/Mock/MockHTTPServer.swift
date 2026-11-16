@@ -27,6 +27,20 @@ final class MockHTTPServer {
     struct RequestInfo {
         let method: String
         let path: String
+        let query: String?
+        
+        var pathAndQuery: String {
+            if let query, query.isEmpty == false {
+                return "\(path)?\(query)"
+            }
+            return path
+        }
+    }
+    
+    struct RuntimeSettings {
+        var delayMS: Int
+        var corsEnabled: Bool
+        var matchQuery: Bool
     }
     
     typealias Handler = (_ request: RequestInfo) -> (status: Int, contentType: String, body: Data, hitName: String?)
@@ -35,12 +49,18 @@ final class MockHTTPServer {
     private var listener: NWListener?
     private var connections: [ObjectIdentifier: NWConnection] = [:]
     private var handler: Handler?
+    private var runtime = RuntimeSettings(delayMS: 0, corsEnabled: true, matchQuery: false)
     
     var isRunning: Bool {
         listener != nil
     }
     
-    func start(port: UInt16, handler: @escaping Handler) throws {
+    func start(
+        port: UInt16,
+        localhostOnly: Bool,
+        settings: RuntimeSettings,
+        handler: @escaping Handler
+    ) throws {
         try queue.sync {
             guard listener == nil else { throw ServerError.alreadyRunning }
             guard port > 0 else { throw ServerError.invalidPort }
@@ -50,10 +70,17 @@ final class MockHTTPServer {
             
             let parameters = NWParameters.tcp
             parameters.allowLocalEndpointReuse = true
+            if localhostOnly {
+                parameters.requiredLocalEndpoint = NWEndpoint.hostPort(
+                    host: NWEndpoint.Host("127.0.0.1"),
+                    port: nwPort
+                )
+            }
             
             do {
                 let listener = try NWListener(using: parameters, on: nwPort)
                 self.handler = handler
+                self.runtime = settings
                 self.listener = listener
                 
                 listener.stateUpdateHandler = { [weak self] state in
@@ -82,6 +109,12 @@ final class MockHTTPServer {
                 self.listener = nil
                 throw ServerError.listenerFailed(error.localizedDescription)
             }
+        }
+    }
+    
+    func updateRuntimeSettings(_ settings: RuntimeSettings) {
+        queue.async {
+            self.runtime = settings
         }
     }
     
@@ -196,24 +229,29 @@ final class MockHTTPServer {
         let method = parts[0].uppercased()
         let target = parts[1]
         let path = Self.pathOnly(from: target)
+        let query = runtime.matchQuery ? Self.queryOnly(from: target) : nil
         
         if method == "OPTIONS" {
+            var extra: [String] = []
+            if runtime.corsEnabled {
+                extra = [
+                    "Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS",
+                    "Access-Control-Allow-Headers: *"
+                ]
+            }
             send(
                 status: 204,
                 contentType: "text/plain",
                 body: Data(),
                 on: connection,
-                extraHeaders: [
-                    "Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS",
-                    "Access-Control-Allow-Headers: *"
-                ]
+                extraHeaders: extra
             )
             return
         }
         
         let response: (status: Int, contentType: String, body: Data, hitName: String?)
         if let handler {
-            response = handler(RequestInfo(method: method, path: path))
+            response = handler(RequestInfo(method: method, path: path, query: query))
         } else {
             response = (
                 503,
@@ -221,6 +259,11 @@ final class MockHTTPServer {
                 Data(#"{"error":"server_unavailable"}"#.utf8),
                 nil
             )
+        }
+        
+        let delayMS = max(0, runtime.delayMS)
+        if delayMS > 0 {
+            Thread.sleep(forTimeInterval: Double(delayMS) / 1000.0)
         }
         
         send(
@@ -239,19 +282,19 @@ final class MockHTTPServer {
         extraHeaders: [String] = []
     ) {
         let reason = Self.reasonPhrase(for: status)
-        let header = (
-            [
-                "HTTP/1.1 \(status) \(reason)",
-                "Content-Type: \(contentType)",
-                "Content-Length: \(body.count)",
-                "Access-Control-Allow-Origin: *",
-                "Connection: close"
-            ]
-            + extraHeaders
-            + ["", ""]
-        ).joined(separator: "\r\n")
+        var lines = [
+            "HTTP/1.1 \(status) \(reason)",
+            "Content-Type: \(contentType)",
+            "Content-Length: \(body.count)",
+            "Connection: close"
+        ]
+        if runtime.corsEnabled {
+            lines.insert("Access-Control-Allow-Origin: *", at: 3)
+        }
+        lines.append(contentsOf: extraHeaders)
+        lines.append(contentsOf: ["", ""])
         
-        var payload = Data(header.utf8)
+        var payload = Data(lines.joined(separator: "\r\n").utf8)
         payload.append(body)
         
         connection.send(content: payload, completion: .contentProcessed { _ in
@@ -270,6 +313,14 @@ final class MockHTTPServer {
         return MockRouteTable.normalizedPath(from: withoutQuery) ?? (withoutQuery.hasPrefix("/") ? withoutQuery : "/" + withoutQuery)
     }
     
+    static func queryOnly(from target: String) -> String? {
+        if target.hasPrefix("http://") || target.hasPrefix("https://"),
+           let url = URL(string: target) {
+            return MockRouteTable.normalizedQuery(from: url.absoluteString)
+        }
+        return MockRouteTable.normalizedQuery(from: target)
+    }
+    
     private static func reasonPhrase(for status: Int) -> String {
         switch status {
         case 200: return "OK"
@@ -278,6 +329,7 @@ final class MockHTTPServer {
         case 404: return "Not Found"
         case 413: return "Payload Too Large"
         case 500: return "Internal Server Error"
+        case 502: return "Bad Gateway"
         case 503: return "Service Unavailable"
         default: return "OK"
         }

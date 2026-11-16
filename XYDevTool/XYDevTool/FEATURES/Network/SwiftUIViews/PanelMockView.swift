@@ -28,7 +28,7 @@ struct PanelMockView: View {
             Spacer(minLength: 0)
         }
         .padding(16)
-        .frame(minWidth: 560, minHeight: 460)
+        .frame(minWidth: 600, minHeight: 520)
         .onAppear {
             mock.refreshLocalIPs()
             mock.reloadRoutes(from: dataModel.historyRoots)
@@ -68,11 +68,12 @@ struct PanelMockView: View {
                     }
                 }
                 .frame(width: 160)
-                .disabled(mock.localIPs.isEmpty)
+                .disabled(mock.localIPs.isEmpty || mock.localhostOnly)
                 
                 Button("刷新 IP") {
                     mock.refreshLocalIPs()
                 }
+                .disabled(mock.localhostOnly)
                 
                 Spacer()
                 
@@ -101,6 +102,48 @@ struct PanelMockView: View {
                 Spacer()
             }
             
+            HStack(spacing: 16) {
+                Toggle("匹配 Query", isOn: Binding(
+                    get: { mock.matchQuery },
+                    set: { mock.setMatchQuery($0) }
+                ))
+                .toggleStyle(.checkbox)
+                .help("开启后 Method+Path+Query 才算命中；关闭则忽略 query")
+                
+                Toggle("仅本机", isOn: Binding(
+                    get: { mock.localhostOnly },
+                    set: { mock.setLocalhostOnly($0) }
+                ))
+                .toggleStyle(.checkbox)
+                .help("只监听 127.0.0.1，局域网不可访问；切换时若正在运行会自动重启")
+                
+                Toggle("CORS", isOn: Binding(
+                    get: { mock.corsEnabled },
+                    set: { mock.setCorsEnabled($0) }
+                ))
+                .toggleStyle(.checkbox)
+                .help("是否返回 Access-Control-Allow-Origin: *")
+                
+                HStack(spacing: 4) {
+                    Text("延迟")
+                    TextField(
+                        "0",
+                        text: Binding(
+                            get: { String(mock.delayMS) },
+                            set: { mock.setDelayMS(Int($0) ?? 0) }
+                        )
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 64)
+                    Text("ms")
+                        .foregroundStyle(.secondary)
+                }
+                .help("响应前额外等待，上限 30000ms")
+                
+                Spacer()
+            }
+            .font(.caption)
+            
             if let error = mock.lastError, error.isEmpty == false {
                 Text(error)
                     .foregroundStyle(.red)
@@ -111,7 +154,9 @@ struct PanelMockView: View {
     
     private var warning: some View {
         Label(
-            "调试用途：开启后会向局域网暴露当前历史中的接口响应数据。右键路由可复制或自定义返回。",
+            mock.localhostOnly
+                ? "仅本机模式：只有本机可访问。右键路由可复制或自定义返回。"
+                : "调试用途：开启后会向局域网暴露当前历史中的接口响应数据。右键路由可复制或自定义返回。",
             systemImage: "exclamationmark.triangle"
         )
         .font(.caption)
@@ -187,7 +232,7 @@ struct PanelMockView: View {
                 .frame(width: 48, alignment: .leading)
                 .foregroundStyle(route.isEnabled ? Color.primary : Color.secondary)
             
-            Text(route.path)
+            Text(route.displayPath)
                 .font(.system(.body, design: .monospaced))
                 .lineLimit(1)
                 .foregroundStyle(route.isEnabled ? Color.primary : Color.secondary)
@@ -272,11 +317,11 @@ private struct MockConflictSheet: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("选择 Mock 来源")
                 .font(.headline)
-            Text("\(route.method) \(route.path)")
+            Text("\(route.method) \(route.displayPath)")
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(.secondary)
             
-            Text("同 Method+Path 有多条历史时，可指定当前生效的一条。")
+            Text("同 Method+Path（及 Query，若已开启）有多条历史时，可指定当前生效的一条。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
@@ -325,7 +370,7 @@ private struct MockOverrideSheet: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("自定义返回")
                 .font(.headline)
-            Text("\(route.method) \(route.path)")
+            Text("\(route.method) \(route.displayPath)")
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(.secondary)
             Text("仅影响 Mock 回放，不会修改网络历史中的真实响应。")

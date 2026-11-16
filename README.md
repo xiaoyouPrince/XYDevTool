@@ -77,7 +77,7 @@ A lightweight, local HTTP client for day-to-day API debugging: history / variabl
 - **Global pre-request scripts**: rewrite / sign / proxy the request before send; select a history item first, then bind one script
 - **Global post-response scripts**: run shell commands after a response; output can update variables (`$1` = response text, `$2` = variables JSON); multi-select per request
 - **Binding prerequisite**: a history request must be selected before pre/post scripts can be bound in Settings
-- **Mock server**: status-bar **Mock** starts local HTTP replay by Method+Path; per-route toggle, conflict winner, copy curl, and custom override (does not edit history)
+- **Mock server**: local HTTP replay with route toggles, conflict winner, copy curl, custom override; optional query match, localhost-only, delay, CORS
 
 **Config backup**
 
