@@ -15,27 +15,38 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     @Published var selectedIP: String = "127.0.0.1"
     @Published var lastError: String?
     @Published var statusText = "Mock 未启动"
+    @Published private(set) var preferences = MockPreferences.empty
     
     private let server = MockHTTPServer()
     private let logger = Logger(category: "network_mock")
     private var routeMap: [String: MockRoute] = [:]
+    private var latestRoots: [HistoryNode] = []
     private let maxLogs = 50
+    private let preferencesKey = "xydev.network.mockPreferences"
     
     var conflictCount: Int {
         routes.filter(\.isConflict).count
+    }
+    
+    var enabledRouteCount: Int {
+        routes.filter(\.isEnabled).count
     }
     
     var baseURL: String {
         "http://\(selectedIP):\(normalizedPortString())"
     }
     
+    override init() {
+        super.init()
+        preferences = loadPreferences()
+    }
+    
     func reloadRoutes(from roots: [HistoryNode]) {
-        let built = MockRouteTable.build(from: roots)
+        latestRoots = roots
+        let built = MockRouteTable.build(from: roots, preferences: preferences)
         routes = built
-        routeMap = Dictionary(uniqueKeysWithValues: built.map { ("\($0.method) \($0.path)", $0) })
-        if isRunning {
-            statusText = "Mock 运行中 · \(routes.count) 条路由"
-        }
+        routeMap = Dictionary(uniqueKeysWithValues: built.map { ($0.routeKey, $0) })
+        refreshStatusText()
     }
     
     func refreshLocalIPs() {
@@ -67,13 +78,13 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
                 )
             }
             isRunning = true
-            statusText = "Mock 运行中 · \(routes.count) 条路由"
+            refreshStatusText()
             logger.event(
                 "mock.started",
                 result: "success",
                 fields: [
                     "port": String(port),
-                    "routes": String(routes.count)
+                    "routes": String(enabledRouteCount)
                 ]
             )
         } catch {
@@ -96,9 +107,68 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         logger.event("mock.stopped", result: "success")
     }
     
-    func copyBaseURL() {
+    // MARK: - Route actions
+    
+    func setRouteEnabled(_ route: MockRoute, enabled: Bool) {
+        var disabled = preferences.disabledKeySet
+        if enabled {
+            disabled.remove(route.routeKey)
+        } else {
+            disabled.insert(route.routeKey)
+        }
+        preferences.disabledKeys = Array(disabled).sorted()
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func selectConflictWinner(routeKey: String, sourceId: String) {
+        preferences.preferredSourceIds[routeKey] = sourceId
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func saveOverride(routeKey: String, override: MockRouteOverride) {
+        preferences.overrides[routeKey] = override
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func clearOverride(routeKey: String) {
+        preferences.overrides.removeValue(forKey: routeKey)
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func override(for routeKey: String) -> MockRouteOverride? {
+        preferences.overrides[routeKey]
+    }
+    
+    func copyToPasteboard(_ string: String) {
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(baseURL, forType: .string)
+        NSPasteboard.general.setString(string, forType: .string)
+    }
+    
+    func copyBaseURL() {
+        copyToPasteboard(baseURL)
+    }
+    
+    func copyPath(for route: MockRoute) {
+        copyToPasteboard(route.path)
+    }
+    
+    func copyFullURL(for route: MockRoute) {
+        copyToPasteboard("\(baseURL)\(route.path)")
+    }
+    
+    func copyCurl(for route: MockRoute) {
+        let url = "\(baseURL)\(route.path)"
+        let curl: String
+        if route.method == "GET" {
+            curl = "curl -X GET '\(url)'"
+        } else {
+            curl = "curl -X \(route.method) '\(url)' -H 'Content-Type: application/json' -d '{}'"
+        }
+        copyToPasteboard(curl)
     }
     
     // MARK: - NSWindowDelegate
@@ -113,12 +183,14 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         let key = "\(request.method) \(request.path)"
         
         return DispatchQueue.main.sync {
-            if let route = self.routeMap[key] {
+            if let route = self.routeMap[key], route.isEnabled {
+                let response = self.resolvedResponse(for: route)
                 self.appendLog(
                     method: request.method,
                     path: request.path,
-                    statusCode: route.statusCode,
-                    hitName: route.sourceName
+                    statusCode: response.statusCode,
+                    hitName: route.hasCustomOverride ? "\(route.sourceName) (自定义)" : route.sourceName,
+                    hint: nil
                 )
                 self.logger.event(
                     "mock.hit",
@@ -126,23 +198,28 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
                         "method": request.method,
                         "path": request.path,
                         "name": route.sourceName,
-                        "status": String(route.statusCode)
+                        "status": String(response.statusCode)
                     ]
                 )
-                return (route.statusCode, route.contentType, route.body, route.sourceName)
+                return (response.statusCode, response.contentType, response.body, route.sourceName)
             }
             
-            let bodyObject: [String: Any] = [
+            let hint = self.methodMismatchHint(method: request.method, path: request.path)
+            var bodyObject: [String: Any] = [
                 "error": "mock_not_found",
                 "method": request.method,
                 "path": request.path
             ]
+            if let hint {
+                bodyObject["hint"] = hint
+            }
             let body = (try? JSONSerialization.data(withJSONObject: bodyObject)) ?? Data(#"{"error":"mock_not_found"}"#.utf8)
             self.appendLog(
                 method: request.method,
                 path: request.path,
                 statusCode: 404,
-                hitName: nil
+                hitName: nil,
+                hint: hint
             )
             self.logger.event(
                 "mock.miss",
@@ -155,12 +232,39 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         }
     }
     
-    private func appendLog(method: String, path: String, statusCode: Int, hitName: String?) {
+    private func resolvedResponse(for route: MockRoute) -> (statusCode: Int, contentType: String, body: Data) {
+        if let override = preferences.overrides[route.routeKey] {
+            let data = override.bodyText.data(using: .utf8) ?? Data()
+            return (override.statusCode, override.contentType, data)
+        }
+        if let active = route.activeCandidate {
+            return (active.statusCode, active.contentType, active.body)
+        }
+        return (200, "application/json", Data("{}".utf8))
+    }
+    
+    private func methodMismatchHint(method: String, path: String) -> String? {
+        let others = routes
+            .filter { $0.path == path && $0.method != method && $0.isEnabled }
+            .map(\.method)
+        guard others.isEmpty == false else { return nil }
+        let joined = others.sorted().joined(separator: "/")
+        return "同 path 存在 \(joined) 路由，当前请求是 \(method)"
+    }
+    
+    private func appendLog(
+        method: String,
+        path: String,
+        statusCode: Int,
+        hitName: String?,
+        hint: String?
+    ) {
         let entry = MockAccessLog(
             method: method,
             path: path,
             statusCode: statusCode,
-            hitName: hitName
+            hitName: hitName,
+            hint: hint
         )
         accessLogs.insert(entry, at: 0)
         if accessLogs.count > maxLogs {
@@ -168,9 +272,32 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         }
     }
     
+    private func refreshStatusText() {
+        guard isRunning else {
+            if statusText.hasPrefix("启动失败") == false {
+                statusText = "Mock 未启动"
+            }
+            return
+        }
+        statusText = "Mock 运行中 · \(enabledRouteCount)/\(routes.count) 条路由"
+    }
+    
     private func normalizedPortString() -> String {
         let trimmed = portText.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? "18080" : trimmed
+    }
+    
+    private func loadPreferences() -> MockPreferences {
+        guard let data = UserDefaults.standard.data(forKey: preferencesKey),
+              let decoded = try? JSONDecoder().decode(MockPreferences.self, from: data) else {
+            return .empty
+        }
+        return decoded
+    }
+    
+    private func persistPreferences() {
+        guard let data = try? JSONEncoder().encode(preferences) else { return }
+        UserDefaults.standard.set(data, forKey: preferencesKey)
     }
     
     private static func localIPv4Addresses() -> [String] {

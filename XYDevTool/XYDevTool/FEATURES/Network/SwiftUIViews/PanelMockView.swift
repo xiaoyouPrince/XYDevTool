@@ -9,6 +9,9 @@ struct PanelMockView: View {
     @EnvironmentObject private var dataModel: NetworkDataModel
     @ObservedObject var mock: NetworkMockController
     
+    @State private var conflictRoute: MockRoute?
+    @State private var overrideRoute: MockRoute?
+    
     private let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss"
@@ -25,10 +28,16 @@ struct PanelMockView: View {
             Spacer(minLength: 0)
         }
         .padding(16)
-        .frame(minWidth: 520, minHeight: 420)
+        .frame(minWidth: 560, minHeight: 460)
         .onAppear {
             mock.refreshLocalIPs()
             mock.reloadRoutes(from: dataModel.historyRoots)
+        }
+        .sheet(item: $conflictRoute) { route in
+            MockConflictSheet(route: route, mock: mock)
+        }
+        .sheet(item: $overrideRoute) { route in
+            MockOverrideSheet(route: route, mock: mock)
         }
     }
     
@@ -102,7 +111,7 @@ struct PanelMockView: View {
     
     private var warning: some View {
         Label(
-            "调试用途：开启后会向局域网暴露当前历史中的接口响应数据",
+            "调试用途：开启后会向局域网暴露当前历史中的接口响应数据。右键路由可复制或自定义返回。",
             systemImage: "exclamationmark.triangle"
         )
         .font(.caption)
@@ -131,28 +140,81 @@ struct PanelMockView: View {
                     .foregroundStyle(.secondary)
             } else {
                 List(mock.routes) { route in
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(route.method)
-                            .font(.caption.monospaced())
-                            .frame(width: 48, alignment: .leading)
-                        Text(route.path)
-                            .font(.system(.body, design: .monospaced))
-                            .lineLimit(1)
-                        Spacer()
-                        Text(route.sourceName)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                        if route.isConflict {
-                            Text("冲突")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                    routeRow(route)
+                        .contextMenu {
+                            Button("复制路径") {
+                                mock.copyPath(for: route)
+                            }
+                            Button("复制完整 URL") {
+                                mock.copyFullURL(for: route)
+                            }
+                            Button("复制 curl") {
+                                mock.copyCurl(for: route)
+                            }
+                            Divider()
+                            if route.isConflict {
+                                Button("选择冲突来源…") {
+                                    conflictRoute = route
+                                }
+                            }
+                            Button("自定义返回…") {
+                                overrideRoute = route
+                            }
+                            if route.hasCustomOverride {
+                                Button("清除自定义返回", role: .destructive) {
+                                    mock.clearOverride(routeKey: route.routeKey)
+                                }
+                            }
                         }
-                    }
                 }
                 .listStyle(.inset)
-                .frame(minHeight: 140, maxHeight: 180)
+                .frame(minHeight: 160, maxHeight: 200)
             }
         }
+    }
+    
+    private func routeRow(_ route: MockRoute) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            Toggle("", isOn: Binding(
+                get: { route.isEnabled },
+                set: { mock.setRouteEnabled(route, enabled: $0) }
+            ))
+            .labelsHidden()
+            .toggleStyle(.checkbox)
+            
+            Text(route.method)
+                .font(.caption.monospaced())
+                .frame(width: 48, alignment: .leading)
+                .foregroundStyle(route.isEnabled ? Color.primary : Color.secondary)
+            
+            Text(route.path)
+                .font(.system(.body, design: .monospaced))
+                .lineLimit(1)
+                .foregroundStyle(route.isEnabled ? Color.primary : Color.secondary)
+            
+            Spacer()
+            
+            Text(route.sourceName)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            
+            if route.hasCustomOverride {
+                Text("自定义")
+                    .font(.caption2)
+                    .foregroundStyle(.blue)
+            }
+            
+            if route.isConflict {
+                Button("冲突") {
+                    conflictRoute = route
+                }
+                .buttonStyle(.plain)
+                .font(.caption2)
+                .foregroundStyle(.orange)
+            }
+        }
+        .contentShape(Rectangle())
+        .opacity(route.isEnabled ? 1 : 0.55)
     }
     
     private var logSection: some View {
@@ -166,29 +228,185 @@ struct PanelMockView: View {
                     .foregroundStyle(.secondary)
             } else {
                 List(mock.accessLogs) { log in
-                    HStack(spacing: 8) {
-                        Text(timeFormatter.string(from: log.timestamp))
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.secondary)
-                            .frame(width: 60, alignment: .leading)
-                        Text(log.method)
-                            .font(.caption.monospaced())
-                            .frame(width: 48, alignment: .leading)
-                        Text(log.path)
-                            .font(.system(.caption, design: .monospaced))
-                            .lineLimit(1)
-                        Spacer()
-                        Text(log.hitName ?? "未命中")
-                            .foregroundStyle(log.hitName == nil ? Color.orange : Color.secondary)
-                            .lineLimit(1)
-                        Text(String(log.statusCode))
-                            .font(.caption.monospaced())
-                            .frame(width: 36, alignment: .trailing)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 8) {
+                            Text(timeFormatter.string(from: log.timestamp))
+                                .font(.caption.monospaced())
+                                .foregroundStyle(.secondary)
+                                .frame(width: 60, alignment: .leading)
+                            Text(log.method)
+                                .font(.caption.monospaced())
+                                .frame(width: 48, alignment: .leading)
+                            Text(log.path)
+                                .font(.system(.caption, design: .monospaced))
+                                .lineLimit(1)
+                            Spacer()
+                            Text(log.hitName ?? "未命中")
+                                .foregroundStyle(log.hitName == nil ? Color.orange : Color.secondary)
+                                .lineLimit(1)
+                            Text(String(log.statusCode))
+                                .font(.caption.monospaced())
+                                .frame(width: 36, alignment: .trailing)
+                        }
+                        if let hint = log.hint {
+                            Text(hint)
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                                .padding(.leading, 116)
+                        }
                     }
                 }
                 .listStyle(.inset)
                 .frame(minHeight: 120, maxHeight: 160)
             }
         }
+    }
+}
+
+private struct MockConflictSheet: View {
+    let route: MockRoute
+    @ObservedObject var mock: NetworkMockController
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("选择 Mock 来源")
+                .font(.headline)
+            Text("\(route.method) \(route.path)")
+                .font(.system(.body, design: .monospaced))
+                .foregroundStyle(.secondary)
+            
+            Text("同 Method+Path 有多条历史时，可指定当前生效的一条。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            List(route.candidates) { candidate in
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(candidate.sourceName)
+                        Text("HTTP \(candidate.statusCode)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if candidate.sourceId == route.selectedSourceId {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    mock.selectConflictWinner(routeKey: route.routeKey, sourceId: candidate.sourceId)
+                    dismiss()
+                }
+            }
+            
+            HStack {
+                Spacer()
+                Button("关闭") { dismiss() }
+            }
+        }
+        .padding(16)
+        .frame(width: 420, height: 320)
+    }
+}
+
+private struct MockOverrideSheet: View {
+    let route: MockRoute
+    @ObservedObject var mock: NetworkMockController
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var statusText: String = "200"
+    @State private var bodyText: String = "{\n\n}"
+    @State private var contentType: String = "application/json"
+    @State private var errorMessage: String?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("自定义返回")
+                .font(.headline)
+            Text("\(route.method) \(route.path)")
+                .font(.system(.body, design: .monospaced))
+                .foregroundStyle(.secondary)
+            Text("仅影响 Mock 回放，不会修改网络历史中的真实响应。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            HStack {
+                Text("状态码")
+                TextField("200", text: $statusText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 80)
+                Text("Content-Type")
+                TextField("application/json", text: $contentType)
+                    .textFieldStyle(.roundedBorder)
+            }
+            
+            Text("Body")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            TextEditor(text: $bodyText)
+                .font(.system(.body, design: .monospaced))
+                .border(Color.secondary.opacity(0.3))
+            
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+            
+            HStack {
+                if mock.override(for: route.routeKey) != nil {
+                    Button("清除自定义", role: .destructive) {
+                        mock.clearOverride(routeKey: route.routeKey)
+                        dismiss()
+                    }
+                }
+                Spacer()
+                Button("取消") { dismiss() }
+                Button("保存") { save() }
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(16)
+        .frame(width: 520, height: 420)
+        .onAppear(perform: loadInitial)
+    }
+    
+    private func loadInitial() {
+        if let existing = mock.override(for: route.routeKey) {
+            statusText = String(existing.statusCode)
+            bodyText = existing.bodyText
+            contentType = existing.contentType
+            return
+        }
+        if let active = route.activeCandidate,
+           let text = String(data: active.body, encoding: .utf8) {
+            statusText = String(active.statusCode)
+            bodyText = text
+            contentType = active.contentType
+        }
+    }
+    
+    private func save() {
+        guard let code = Int(statusText.trimmingCharacters(in: .whitespacesAndNewlines)),
+              (100...599).contains(code) else {
+            errorMessage = "状态码无效"
+            return
+        }
+        let type = contentType.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard type.isEmpty == false else {
+            errorMessage = "Content-Type 不能为空"
+            return
+        }
+        mock.saveOverride(
+            routeKey: route.routeKey,
+            override: MockRouteOverride(
+                statusCode: code,
+                bodyText: bodyText,
+                contentType: type
+            )
+        )
+        dismiss()
     }
 }

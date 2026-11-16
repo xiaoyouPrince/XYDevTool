@@ -1,6 +1,6 @@
 # 网络工具本地 Mock 服务 — PRD v1
 
-> **状态**：P0 已实现  
+> **状态**：P0 / P1 已实现  
 > **模块**：Network / Mock Server  
 > **最后更新**：2026-11-16  
 > **依赖数据**：请求历史树 `historyRoots`（`HistoryNode` 的 method / url / response）
@@ -167,9 +167,9 @@
 | 阶段 | 内容 |
 |------|------|
 | **P0 MVP** | 启停、端口、IP/URL、Method+Path、剥离 meta、404、简易日志、关窗停服、冲突取最后一条 |
-| **P1** | 路由列表明细、冲突明细、逐条启用、复制 curl、更清晰的无效路由提示 |
+| **P1** | 路由行菜单（复制路径 / 完整 URL / curl）、冲突明细与指定胜出、逐条启用、未命中 Method 提示、轻量「自定义返回」Override（不改历史） |
 | **P2** | query 匹配可选、仅本机 `127.0.0.1`、延迟、CORS 开关细化 |
-| **P3** | 独立 Mock 编辑（不改历史）、Mock 集导入导出 |
+| **P3** | 完整 Mock 资产（批量编辑、导入导出 Mock 集） |
 
 ---
 
@@ -211,3 +211,4 @@
 |------|------|
 | 2026-11-16 | 初版：确认 Method+Path、剥离 meta、默认全部有 response 的历史；划定 P0–P3 |
 | 2026-11-16 | P0 落地：`FEATURES/Network/Mock/*` + `PanelMockView`；Help/README 已同步 |
+| 2026-11-16 | P1：路由菜单（路径/URL/curl）、冲突指定胜出、逐条启用、Method 提示、自定义返回 Override |

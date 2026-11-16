@@ -8,7 +8,7 @@
 |------|------|------|
 | [history-grouping-v1.md](./history-grouping-v1.md) | 请求历史多层分组（v1） | 已实现 |
 | [history-appkit-migration.md](./history-appkit-migration.md) | 历史列表 AppKit（NSOutlineView）迁移 | **已完成** |
-| [mock-server-v1.md](./mock-server-v1.md) | 基于历史数据的本地 Mock HTTP 服务 | **P0 已实现** |
+| [mock-server-v1.md](./mock-server-v1.md) | 基于历史数据的本地 Mock HTTP 服务 | **P0 / P1 已实现** |
 
 ## 相关代码（实现时对照）
 
@@ -36,3 +36,4 @@
 | 2026-06-08 | history-appkit-migration.md | 补全 AppKitViews 文件结构；修正迁移前/后描述 |
 | 2026-11-16 | mock-server-v1.md | 新增 Mock 服务 PRD；确认 Method+Path / 剥离 meta / 默认全量有 response 历史 |
 | 2026-11-16 | mock-server-v1.md | P0 实现完成（启停、路由、剥离 meta、日志、关窗停服） |
+| 2026-11-16 | mock-server-v1.md | P1：菜单复制、冲突治理、逐条启用、自定义返回、Method 提示 |

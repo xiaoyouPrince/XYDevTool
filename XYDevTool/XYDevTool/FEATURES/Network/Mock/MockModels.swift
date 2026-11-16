@@ -5,17 +5,41 @@
 
 import Foundation
 
-struct MockRoute: Identifiable, Equatable {
-    var id: String { "\(method) \(path)" }
-    let method: String
-    let path: String
-    let sourceName: String
+struct MockRouteCandidate: Identifiable, Equatable {
+    var id: String { sourceId }
     let sourceId: String
+    let sourceName: String
     let statusCode: Int
     let body: Data
     let contentType: String
-    let isConflict: Bool
-    let overwrittenNames: [String]
+}
+
+struct MockRoute: Identifiable, Equatable {
+    var id: String { routeKey }
+    var routeKey: String { "\(method) \(path)" }
+    
+    let method: String
+    let path: String
+    let candidates: [MockRouteCandidate]
+    var selectedSourceId: String
+    var isEnabled: Bool
+    var hasCustomOverride: Bool
+    
+    var isConflict: Bool { candidates.count > 1 }
+    
+    var activeCandidate: MockRouteCandidate? {
+        candidates.first(where: { $0.sourceId == selectedSourceId }) ?? candidates.last
+    }
+    
+    var sourceName: String {
+        activeCandidate?.sourceName ?? "(unnamed)"
+    }
+    
+    var overwrittenNames: [String] {
+        candidates
+            .map(\.sourceName)
+            .filter { $0 != sourceName }
+    }
 }
 
 struct MockAccessLog: Identifiable, Equatable {
@@ -25,6 +49,8 @@ struct MockAccessLog: Identifiable, Equatable {
     let path: String
     let statusCode: Int
     let hitName: String?
+    /// 未命中时的补充说明，例如同 path 存在其它 Method
+    let hint: String?
     
     init(
         id: UUID = UUID(),
@@ -32,7 +58,8 @@ struct MockAccessLog: Identifiable, Equatable {
         method: String,
         path: String,
         statusCode: Int,
-        hitName: String?
+        hitName: String?,
+        hint: String? = nil
     ) {
         self.id = id
         self.timestamp = timestamp
@@ -40,6 +67,7 @@ struct MockAccessLog: Identifiable, Equatable {
         self.path = path
         self.statusCode = statusCode
         self.hitName = hitName
+        self.hint = hint
     }
 }
 
@@ -49,9 +77,31 @@ struct MockAssembledResponse: Equatable {
     let body: Data
 }
 
+struct MockRouteOverride: Codable, Equatable {
+    var statusCode: Int
+    var bodyText: String
+    var contentType: String
+}
+
+struct MockPreferences: Codable, Equatable {
+    var disabledKeys: [String]
+    var preferredSourceIds: [String: String]
+    var overrides: [String: MockRouteOverride]
+    
+    static let empty = MockPreferences(disabledKeys: [], preferredSourceIds: [:], overrides: [:])
+    
+    var disabledKeySet: Set<String> {
+        Set(disabledKeys)
+    }
+}
+
 enum MockRouteTable {
-    static func build(from roots: [HistoryNode]) -> [MockRoute] {
-        var provisional: [String: (route: MockRoute, names: [String])] = [:]
+    static func build(
+        from roots: [HistoryNode],
+        preferences: MockPreferences
+    ) -> [MockRoute] {
+        var provisional: [String: [MockRouteCandidate]] = [:]
+        var order: [String] = []
         
         for node in HistoryTree.allRequestNodes(in: roots) {
             guard let responseText = node.response?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -68,43 +118,47 @@ enum MockRouteTable {
             let assembled = MockResponseAssembler.assemble(from: responseText)
             let name = node.name?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty ?? "(unnamed)"
             let key = "\(method) \(path)"
-            
-            var names = provisional[key]?.names ?? []
-            if let existing = provisional[key]?.route.sourceName {
-                names.append(existing)
-            }
-            
-            let route = MockRoute(
-                method: method,
-                path: path,
-                sourceName: name,
+            let candidate = MockRouteCandidate(
                 sourceId: node.id ?? UUID().uuidString,
+                sourceName: name,
                 statusCode: assembled.statusCode,
                 body: assembled.body,
-                contentType: assembled.contentType,
-                isConflict: false,
-                overwrittenNames: []
+                contentType: assembled.contentType
             )
-            provisional[key] = (route, names)
+            
+            if provisional[key] == nil {
+                order.append(key)
+                provisional[key] = [candidate]
+            } else {
+                provisional[key]?.append(candidate)
+            }
         }
         
-        return provisional.values.map { entry in
-            var route = entry.route
-            let overwritten = entry.names.filter { $0 != route.sourceName }
-            if overwritten.isEmpty == false {
-                route = MockRoute(
-                    method: route.method,
-                    path: route.path,
-                    sourceName: route.sourceName,
-                    sourceId: route.sourceId,
-                    statusCode: route.statusCode,
-                    body: route.body,
-                    contentType: route.contentType,
-                    isConflict: true,
-                    overwrittenNames: overwritten
-                )
+        let disabled = preferences.disabledKeySet
+        return order.compactMap { key -> MockRoute? in
+            guard let candidates = provisional[key], candidates.isEmpty == false else { return nil }
+            let parts = key.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2 else { return nil }
+            let method = String(parts[0])
+            let path = String(parts[1])
+            
+            let preferred = preferences.preferredSourceIds[key]
+            let selectedId: String
+            if let preferred,
+               candidates.contains(where: { $0.sourceId == preferred }) {
+                selectedId = preferred
+            } else {
+                selectedId = candidates.last!.sourceId
             }
-            return route
+            
+            return MockRoute(
+                method: method,
+                path: path,
+                candidates: candidates,
+                selectedSourceId: selectedId,
+                isEnabled: disabled.contains(key) == false,
+                hasCustomOverride: preferences.overrides[key] != nil
+            )
         }
         .sorted { lhs, rhs in
             if lhs.path == rhs.path {
