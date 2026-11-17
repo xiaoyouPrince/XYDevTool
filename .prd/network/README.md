@@ -10,6 +10,7 @@
 | [history-appkit-migration.md](./history-appkit-migration.md) | 历史列表 AppKit（NSOutlineView）迁移 | **已完成** |
 | [mock-server-v1.md](./mock-server-v1.md) | 基于历史数据的本地 Mock HTTP 服务 | **P0～P3 已实现** |
 | [api-docs-v1.md](./api-docs-v1.md) | 从历史样本生成接口 Markdown 文档 | **v1 已实现** |
+| [export-bundle-v1.md](./export-bundle-v1.md) | 网络配置/Mock/文档统一导出包 | **v1 已实现** |
 
 ## 相关代码（实现时对照）
 
@@ -41,3 +42,4 @@
 | 2026-11-16 | mock-server-v1.md | P2：Query 匹配、仅本机、延迟、CORS |
 | 2026-11-16 | mock-server-v1.md | P3：资产批量编辑与导入导出 |
 | 2026-11-17 | api-docs-v1.md | 新增接口文档生成 PRD（方案 A） |
+| 2026-11-17 | export-bundle-v1.md | 统一导出包：config / mock / docs 分类目录 |

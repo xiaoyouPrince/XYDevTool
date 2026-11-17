@@ -150,6 +150,7 @@
 		E1D000132F92000000CB8F13 /* PanelAPIDocView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D000032F92000000CB8F03 /* PanelAPIDocView.swift */; };
 		E1D000142F92000000CB8F14 /* AnnotatedJSONRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D000042F92000000CB8F04 /* AnnotatedJSONRenderer.swift */; };
 		E1D000152F92000000CB8F15 /* NetworkAuxiliaryWindows.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D000052F92000000CB8F05 /* NetworkAuxiliaryWindows.swift */; };
+		E1E000112F93000000CB9011 /* NetworkExportBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E000012F93000000CB9001 /* NetworkExportBundle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -304,6 +305,7 @@
 		E1D000032F92000000CB8F03 /* PanelAPIDocView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelAPIDocView.swift; sourceTree = "<group>"; };
 		E1D000042F92000000CB8F04 /* AnnotatedJSONRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotatedJSONRenderer.swift; sourceTree = "<group>"; };
 		E1D000052F92000000CB8F05 /* NetworkAuxiliaryWindows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAuxiliaryWindows.swift; sourceTree = "<group>"; };
+		E1E000012F93000000CB9001 /* NetworkExportBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkExportBundle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -614,6 +616,14 @@
 			path = Docs;
 			sourceTree = "<group>";
 		};
+		E1E000002F93000000CB9000 /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				E1E000012F93000000CB9001 /* NetworkExportBundle.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
 		B4EC92D1295602F9005FC62E /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -694,6 +704,7 @@
 				B4DA907B2C2C4375000A6667 /* NetworkDataModel.swift */,
 				E1M000002F91000000CB8E00 /* Mock */,
 				E1D000002F92000000CB8F00 /* Docs */,
+				E1E000002F93000000CB9000 /* Export */,
 				B4A1B00B2F90123400CB8A0B /* AppKitViews */,
 				B4DA90782C2C2CF7000A6667 /* SwiftUIViews */,
 				B4EC92D1295602F9005FC62E /* View */,
@@ -1014,6 +1025,7 @@
 				E1D000122F92000000CB8F12 /* APIDocMarkdownGenerator.swift in Sources */,
 				E1D000132F92000000CB8F13 /* PanelAPIDocView.swift in Sources */,
 				E1D000152F92000000CB8F15 /* NetworkAuxiliaryWindows.swift in Sources */,
+				E1E000112F93000000CB9011 /* NetworkExportBundle.swift in Sources */,
 				E1A100112F90150000CB8A11 /* HelpTopic.swift in Sources */,
 				E1A100122F90150000CB8A12 /* HelpDocumentStore.swift in Sources */,
 				E1A100132F90150000CB8A13 /* HelpView.swift in Sources */,

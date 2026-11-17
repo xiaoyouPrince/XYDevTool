@@ -2,7 +2,7 @@
 //  NetworkAuxiliaryWindows.swift
 //  XYDevTool
 //
-//  文档 / Mock 使用独立可缩放窗口，避免盖住网络主窗的固定 sheet。
+//  设置 / 文档 / Mock 使用独立可缩放窗口，避免盖住网络主窗的固定 sheet。
 //
 
 import AppKit
@@ -11,14 +11,45 @@ import SwiftUI
 final class NetworkAuxiliaryWindows: NSObject, NSWindowDelegate {
     private weak var dataModel: NetworkDataModel?
     
+    private var settingsWindow: NSWindow?
     private var mockWindow: NSWindow?
     private var apiDocWindow: NSWindow?
+    private var settingsHosting: NSViewController?
     private var mockHosting: NSViewController?
     private var apiDocHosting: NSViewController?
     
     init(dataModel: NetworkDataModel) {
         self.dataModel = dataModel
         super.init()
+    }
+    
+    func showSettings() {
+        guard let dataModel else { return }
+        if let settingsWindow {
+            settingsWindow.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+        
+        let hosting = NSHostingController(
+            rootView: SettingsView()
+                .environmentObject(dataModel)
+                .environment(dataModel.editor)
+                .environment(dataModel.historyListUI)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        )
+        let window = makeWindow(
+            title: "网络设置",
+            size: NSSize(width: 520, height: 560),
+            minSize: NSSize(width: 420, height: 360)
+        )
+        window.contentViewController = hosting
+        window.delegate = self
+        settingsHosting = hosting
+        settingsWindow = window
+        positionRelativeToNetworkWindow(window)
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     func showMock() {
@@ -74,19 +105,26 @@ final class NetworkAuxiliaryWindows: NSObject, NSWindowDelegate {
     }
     
     func closeAll() {
+        settingsWindow?.delegate = nil
         mockWindow?.delegate = nil
         apiDocWindow?.delegate = nil
+        settingsWindow?.close()
         mockWindow?.close()
         apiDocWindow?.close()
+        settingsWindow = nil
         mockWindow = nil
         apiDocWindow = nil
+        settingsHosting = nil
         mockHosting = nil
         apiDocHosting = nil
     }
     
     func windowWillClose(_ notification: Notification) {
         guard let window = notification.object as? NSWindow else { return }
-        if window === mockWindow {
+        if window === settingsWindow {
+            settingsWindow = nil
+            settingsHosting = nil
+        } else if window === mockWindow {
             mockWindow = nil
             mockHosting = nil
         } else if window === apiDocWindow {

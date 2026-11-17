@@ -30,7 +30,8 @@ description: >-
 | 变量/脚本/导入导出 | `SwiftUIViews/PanelSettingsView.swift` |
 | Mock 服务 | `FEATURES/Network/Mock/` + `PanelMockView` / `PanelMockAssetsView`（独立窗） |
 | 接口文档 | `FEATURES/Network/Docs/` + `PanelAPIDocView.swift`（独立窗） |
-| 文档/Mock 开窗 | `SwiftUIViews/NetworkAuxiliaryWindows.swift` |
+| 设置/文档/Mock 开窗 | `SwiftUIViews/NetworkAuxiliaryWindows.swift` |
+| 统一导出包 | `FEATURES/Network/Export/NetworkExportBundle.swift` |
 | 打开窗口 | `ViewController.swift` → `openNetworkWindow()` |
 | 历史路径协议 | `Protocols/BaseDataProtocol.swift` |
 | AppKit 迁移 PRD | `.prd/network/history-appkit-migration.md` |

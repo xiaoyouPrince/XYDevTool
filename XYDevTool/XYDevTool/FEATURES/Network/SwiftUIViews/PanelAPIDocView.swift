@@ -5,7 +5,6 @@
 
 import AppKit
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct PanelAPIDocView: View {
     @EnvironmentObject private var dataModel: NetworkDataModel
@@ -149,17 +148,14 @@ struct PanelAPIDocView: View {
     }
     
     private func exportMarkdown() {
-        let panel = NSSavePanel()
-        panel.title = "导出接口文档"
-        panel.nameFieldStringValue = "api-docs.md"
-        panel.allowedContentTypes = [UTType(filenameExtension: "md") ?? .plainText]
-        panel.canCreateDirectories = true
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        
-        let target = url.pathExtension.isEmpty ? url.appendingPathExtension("md") : url
+        guard markdown.isEmpty == false else { return }
+        guard let parent = NetworkExportBundle.chooseParentFolder(
+            title: "选择导出父目录",
+            prompt: "在此创建导出包"
+        ) else { return }
         do {
-            try markdown.write(to: target, atomically: true, encoding: .utf8)
-            statusMessage = "已导出到 \(target.lastPathComponent)"
+            let root = try NetworkExportBundle.exportDocsOnly(markdown: markdown, toParent: parent)
+            statusMessage = "已导出到 \(root.lastPathComponent)/docs/\(NetworkExportBundle.docsFileName)"
         } catch {
             statusMessage = "导出失败：\(error.localizedDescription)"
         }

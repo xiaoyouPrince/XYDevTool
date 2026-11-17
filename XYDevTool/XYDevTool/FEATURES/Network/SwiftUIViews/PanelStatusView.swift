@@ -20,8 +20,6 @@ private struct PanelStatusBar: View {
     @ObservedObject var dataModel: NetworkDataModel
     @ObservedObject var mock: NetworkMockController
     
-    @State private var showSettings = false
-    
     var body: some View {
         HStack {
             Text(dataModel.status)
@@ -42,7 +40,7 @@ private struct PanelStatusBar: View {
                 Label("Mock", systemImage: "server.rack")
             }
             Button {
-                showSettings = true
+                dataModel.auxiliaryWindows.showSettings()
             } label: {
                 Image(systemName: "gear.circle.fill")
             }
@@ -51,11 +49,6 @@ private struct PanelStatusBar: View {
         .padding(.horizontal)
         .background(NetworkTheme.panelBackground)
         .border(NetworkTheme.panelBorder)
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-                .environmentObject(dataModel)
-                .frame(minWidth: 400, minHeight: 300)
-        }
     }
 }
 

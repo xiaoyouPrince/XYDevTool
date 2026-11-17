@@ -41,15 +41,22 @@ struct SettingsView: View {
             }
             
             HStack {
-                Button("导入配置") {
-                    importConfigs()
+                Button("导入…") {
+                    importBundle()
                 }
-                Button("导出配置") {
-                    exportConfigs()
+                Button("导出全部") {
+                    exportAll()
+                }
+                Button("仅导出配置") {
+                    exportConfigOnly()
                 }
                 Spacer()
                 Button("关闭") {
-                    presentationMode.wrappedValue.dismiss()
+                    if presentationMode.wrappedValue.isPresented {
+                        presentationMode.wrappedValue.dismiss()
+                    } else {
+                        NSApp.keyWindow?.close()
+                    }
                 }
             }
             .padding(.horizontal)
@@ -384,64 +391,79 @@ struct SettingsView: View {
         )
     }
     
-    private func exportConfigs() {
-        guard let folderURL = chooseFolder(title: "选择导出目录", prompt: "导出到此目录") else {
-            logger.event("config_export", result: "cancelled")
+    private func exportAll() {
+        guard let parent = NetworkExportBundle.chooseParentFolder(
+            title: "选择导出父目录",
+            prompt: "在此创建导出包"
+        ) else {
+            logger.event("bundle_export_all", result: "cancelled")
             return
         }
-        let operation = logger.begin("config_export")
+        let operation = logger.begin("bundle_export_all")
         do {
-            try dataModel.exportNetworkConfigs(to: folderURL)
+            let root = try NetworkExportBundle.exportAll(dataModel: dataModel, toParent: parent)
             operation.finish(
                 result: "success",
                 fields: [
+                    "folder": root.lastPathComponent,
                     "requestCount": String(dataModel.historyListUI.requestCount),
                     "variableCount": String(dataModel.variables.count),
-                    "preScriptCount": String(dataModel.globalPreScripts.count),
-                    "postScriptCount": String(dataModel.globalPostScripts.count)
+                    "mockAssetCount": String(dataModel.mockController.assets.count)
                 ]
             )
-            showAlert(msg: "导出成功：\(dataModel.exportFileNamesDescription())")
+            showAlert(msg: "导出成功：\(root.lastPathComponent)\n（含 config / mock / docs）")
         } catch {
-            operation.finish(result: "failure", fields: ["stage": "write_files"])
+            operation.finish(result: "failure", fields: ["stage": "write_bundle"])
             showAlert(msg: "导出失败：\(error.localizedDescription)")
         }
     }
     
-    private func importConfigs() {
-        guard let folderURL = chooseFolder(title: "选择导入目录", prompt: "从此目录导入") else {
-            logger.event("config_import", result: "cancelled")
+    private func exportConfigOnly() {
+        guard let parent = NetworkExportBundle.chooseParentFolder(
+            title: "选择导出父目录",
+            prompt: "在此创建导出包"
+        ) else {
+            logger.event("bundle_export_config", result: "cancelled")
             return
         }
-        let operation = logger.begin("config_import")
+        let operation = logger.begin("bundle_export_config")
         do {
-            try dataModel.importNetworkConfigs(from: folderURL)
+            let root = try NetworkExportBundle.exportConfigOnly(dataModel: dataModel, toParent: parent)
             operation.finish(
                 result: "success",
                 fields: [
-                    "requestCount": String(dataModel.historyListUI.requestCount),
-                    "variableCount": String(dataModel.variables.count),
-                    "preScriptCount": String(dataModel.globalPreScripts.count),
-                    "postScriptCount": String(dataModel.globalPostScripts.count)
+                    "folder": root.lastPathComponent,
+                    "requestCount": String(dataModel.historyListUI.requestCount)
                 ]
             )
-            showAlert(msg: "导入成功，已更新历史记录、变量和全局脚本（含前置/后置）")
+            showAlert(msg: "已导出配置包：\(root.lastPathComponent)")
         } catch {
-            operation.finish(result: "failure", fields: ["stage": "read_files"])
-            showAlert(msg: "导入失败：\(error.localizedDescription)")
+            operation.finish(result: "failure", fields: ["stage": "write_bundle"])
+            showAlert(msg: "导出失败：\(error.localizedDescription)")
         }
     }
     
-    private func chooseFolder(title: String, prompt: String) -> URL? {
-        let panel = NSOpenPanel()
-        panel.title = title
-        panel.prompt = prompt
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.canCreateDirectories = true
-        panel.directoryURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
-        return panel.runModal() == .OK ? panel.url : nil
+    private func importBundle() {
+        guard let folderURL = NetworkExportBundle.chooseImportFolder() else {
+            logger.event("bundle_import", result: "cancelled")
+            return
+        }
+        let operation = logger.begin("bundle_import")
+        do {
+            let result = try NetworkExportBundle.importBundle(from: folderURL, into: dataModel)
+            operation.finish(
+                result: "success",
+                fields: [
+                    "config": result.importedConfig ? "1" : "0",
+                    "mock": result.importedMock ? "1" : "0",
+                    "requestCount": String(dataModel.historyListUI.requestCount)
+                ]
+            )
+            showAlert(msg: result.message)
+        } catch {
+            operation.finish(result: "failure", fields: ["stage": "read_bundle"])
+            showAlert(msg: "导入失败：\(error.localizedDescription)")
+        }
     }
 }
 #Preview {

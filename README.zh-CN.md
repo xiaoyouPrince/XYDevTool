@@ -82,7 +82,7 @@ AppIcon 生成器
 
 **配置管理**
 
-- 导出 / 导入选择的是目录，包含四份 JSON：`network_history.json`、`network_variables.json`、`network_global_scripts.json`（后置）、`network_global_pre_scripts.json`（前置；导入时可选，缺失则清空前置库）
+- 导出在所选父目录下自建 `XYDevTool-Network-时间戳/` 包，内含 `config/`（历史/变量/脚本）、`mock/`（资产）、`docs/`（接口文档）；设置可「导出全部」或「仅导出配置」。导入选包根目录（兼容旧版扁平四文件目录）；docs 仅归档不回写
 
 **说明**
 

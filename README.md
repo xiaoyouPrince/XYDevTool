@@ -82,7 +82,7 @@ A lightweight, local HTTP client for day-to-day API debugging: history / variabl
 
 **Config backup**
 
-- Export / import a folder with four JSON files: `network_history.json`, `network_variables.json`, `network_global_scripts.json` (post), `network_global_pre_scripts.json` (pre; optional on import—missing clears the pre-script library)
+- Exports create a timestamped `XYDevTool-Network-…/` bundle under a chosen parent folder, with `config/` (history/variables/scripts), `mock/` (assets), and `docs/` (API markdown). Settings can export all or config-only. Import a bundle root (legacy flat four-file folders still work); docs are archive-only on import
 
 **Notes**
 

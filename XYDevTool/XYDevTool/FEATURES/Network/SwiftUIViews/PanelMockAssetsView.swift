@@ -46,7 +46,7 @@ struct PanelMockAssetsView: View {
                 }
             }
             
-            Text("资产独立于网络历史，可批量编辑、导入导出。命中时优先于历史回放。")
+            Text("资产独立于网络历史。导出为统一包 mock/ 目录；导入支持导出包或旧版单文件 JSON。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
@@ -179,15 +179,13 @@ struct PanelMockAssetsView: View {
     }
     
     private func exportAssets() {
-        let panel = NSSavePanel()
-        panel.title = "导出 Mock 资产"
-        panel.nameFieldStringValue = "network_mock_assets.json"
-        panel.allowedContentTypes = [.json]
-        panel.canCreateDirectories = true
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let parent = NetworkExportBundle.chooseParentFolder(
+            title: "选择导出父目录",
+            prompt: "在此创建导出包"
+        ) else { return }
         do {
-            try mock.exportAssets(to: url)
-            statusMessage = "已导出到 \(url.lastPathComponent)"
+            let root = try NetworkExportBundle.exportMockOnly(mock: mock, toParent: parent)
+            statusMessage = "已导出到 \(root.lastPathComponent)/mock/"
         } catch {
             statusMessage = "导出失败：\(error.localizedDescription)"
         }
@@ -195,13 +193,17 @@ struct PanelMockAssetsView: View {
     
     private func chooseImportFile() {
         let panel = NSOpenPanel()
-        panel.title = "导入 Mock 资产"
-        panel.allowedContentTypes = [.json]
+        panel.title = "导入 Mock 资产（导出包目录或 JSON 文件）"
         panel.canChooseFiles = true
-        panel.canChooseDirectories = false
+        panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
+        panel.prompt = "导入"
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        pendingImportURL = url
+        guard let resolved = NetworkExportBundle.resolvedMockAssetsFile(from: url) else {
+            statusMessage = "导入失败：未找到 network_mock_assets.json（可选导出包或旧版单文件）"
+            return
+        }
+        pendingImportURL = resolved
         confirmReplaceImport = true
     }
     
