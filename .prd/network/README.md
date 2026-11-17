@@ -8,7 +8,7 @@
 |------|------|------|
 | [history-grouping-v1.md](./history-grouping-v1.md) | 请求历史多层分组（v1） | 已实现 |
 | [history-appkit-migration.md](./history-appkit-migration.md) | 历史列表 AppKit（NSOutlineView）迁移 | **已完成** |
-| [mock-server-v1.md](./mock-server-v1.md) | 基于历史数据的本地 Mock HTTP 服务 | **P0 / P1 / P2 已实现** |
+| [mock-server-v1.md](./mock-server-v1.md) | 基于历史数据的本地 Mock HTTP 服务 | **P0～P3 已实现** |
 
 ## 相关代码（实现时对照）
 
@@ -38,3 +38,4 @@
 | 2026-11-16 | mock-server-v1.md | P0 实现完成（启停、路由、剥离 meta、日志、关窗停服） |
 | 2026-11-16 | mock-server-v1.md | P1：菜单复制、冲突治理、逐条启用、自定义返回、Method 提示 |
 | 2026-11-16 | mock-server-v1.md | P2：Query 匹配、仅本机、延迟、CORS |
+| 2026-11-16 | mock-server-v1.md | P3：资产批量编辑与导入导出 |

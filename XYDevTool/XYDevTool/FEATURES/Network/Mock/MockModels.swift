@@ -26,6 +26,10 @@ struct MockRoute: Identifiable, Equatable {
     var selectedSourceId: String
     var isEnabled: Bool
     var hasCustomOverride: Bool
+    /// 是否有独立 Mock 资产覆盖此路由
+    var hasAsset: Bool
+    /// 仅由资产产生、历史中无对应请求
+    var isAssetOnly: Bool
     
     var isConflict: Bool { candidates.count > 1 }
     
@@ -49,6 +53,65 @@ struct MockRoute: Identifiable, Equatable {
             .map(\.sourceName)
             .filter { $0 != sourceName }
     }
+}
+
+/// 独立于网络历史的 Mock 资产条目（可导入导出、批量编辑）。
+struct MockAsset: Identifiable, Codable, Equatable {
+    var id: UUID
+    var name: String
+    var method: String
+    var path: String
+    var query: String?
+    var enabled: Bool
+    var statusCode: Int
+    var contentType: String
+    var bodyText: String
+    
+    init(
+        id: UUID = UUID(),
+        name: String,
+        method: String,
+        path: String,
+        query: String? = nil,
+        enabled: Bool = true,
+        statusCode: Int = 200,
+        contentType: String = "application/json",
+        bodyText: String = "{\n\n}"
+    ) {
+        self.id = id
+        self.name = name
+        self.method = method.uppercased()
+        self.path = path.hasPrefix("/") ? path : "/" + path
+        self.query = query?.nilIfEmpty
+        self.enabled = enabled
+        self.statusCode = statusCode
+        self.contentType = contentType
+        self.bodyText = bodyText
+    }
+    
+    func routeKey(matchQuery: Bool) -> String {
+        MockRouteTable.routeKey(
+            method: method,
+            path: path,
+            query: matchQuery ? query : nil
+        )
+    }
+}
+
+struct MockAssetBundle: Codable, Equatable {
+    var version: Int
+    var exportedAt: String
+    var settings: MockAssetBundleSettings?
+    var assets: [MockAsset]
+    
+    static let currentVersion = 1
+}
+
+struct MockAssetBundleSettings: Codable, Equatable {
+    var matchQuery: Bool?
+    var localhostOnly: Bool?
+    var delayMS: Int?
+    var corsEnabled: Bool?
 }
 
 struct MockAccessLog: Identifiable, Equatable {
@@ -96,6 +159,7 @@ struct MockPreferences: Codable, Equatable {
     var disabledKeys: [String]
     var preferredSourceIds: [String: String]
     var overrides: [String: MockRouteOverride]
+    var assets: [MockAsset]
     /// 匹配时是否包含 query（默认关闭，仅 Method+Path）
     var matchQuery: Bool
     /// 仅监听 127.0.0.1，不暴露局域网
@@ -109,6 +173,7 @@ struct MockPreferences: Codable, Equatable {
         disabledKeys: [],
         preferredSourceIds: [:],
         overrides: [:],
+        assets: [],
         matchQuery: false,
         localhostOnly: false,
         delayMS: 0,
@@ -123,6 +188,7 @@ struct MockPreferences: Codable, Equatable {
         case disabledKeys
         case preferredSourceIds
         case overrides
+        case assets
         case matchQuery
         case localhostOnly
         case delayMS
@@ -133,6 +199,7 @@ struct MockPreferences: Codable, Equatable {
         disabledKeys: [String],
         preferredSourceIds: [String: String],
         overrides: [String: MockRouteOverride],
+        assets: [MockAsset],
         matchQuery: Bool,
         localhostOnly: Bool,
         delayMS: Int,
@@ -141,6 +208,7 @@ struct MockPreferences: Codable, Equatable {
         self.disabledKeys = disabledKeys
         self.preferredSourceIds = preferredSourceIds
         self.overrides = overrides
+        self.assets = assets
         self.matchQuery = matchQuery
         self.localhostOnly = localhostOnly
         self.delayMS = delayMS
@@ -152,6 +220,7 @@ struct MockPreferences: Codable, Equatable {
         disabledKeys = try container.decodeIfPresent([String].self, forKey: .disabledKeys) ?? []
         preferredSourceIds = try container.decodeIfPresent([String: String].self, forKey: .preferredSourceIds) ?? [:]
         overrides = try container.decodeIfPresent([String: MockRouteOverride].self, forKey: .overrides) ?? [:]
+        assets = try container.decodeIfPresent([MockAsset].self, forKey: .assets) ?? []
         matchQuery = try container.decodeIfPresent(Bool.self, forKey: .matchQuery) ?? false
         localhostOnly = try container.decodeIfPresent(Bool.self, forKey: .localhostOnly) ?? false
         delayMS = try container.decodeIfPresent(Int.self, forKey: .delayMS) ?? 0
@@ -200,7 +269,7 @@ enum MockRouteTable {
         }
         
         let disabled = preferences.disabledKeySet
-        return order.compactMap { key -> MockRoute? in
+        var routes = order.compactMap { key -> MockRoute? in
             guard let candidates = provisional[key], candidates.isEmpty == false else { return nil }
             guard let parsed = parseRouteKey(key) else { return nil }
             
@@ -213,6 +282,10 @@ enum MockRouteTable {
                 selectedId = candidates.last!.sourceId
             }
             
+            let asset = preferences.assets.first {
+                $0.routeKey(matchQuery: preferences.matchQuery) == key
+            }
+            
             return MockRoute(
                 method: parsed.method,
                 path: parsed.path,
@@ -221,10 +294,40 @@ enum MockRouteTable {
                 candidates: candidates,
                 selectedSourceId: selectedId,
                 isEnabled: disabled.contains(key) == false,
-                hasCustomOverride: preferences.overrides[key] != nil
+                hasCustomOverride: preferences.overrides[key] != nil,
+                hasAsset: asset != nil,
+                isAssetOnly: false
             )
         }
-        .sorted { lhs, rhs in
+        
+        let existingKeys = Set(routes.map(\.routeKey))
+        for asset in preferences.assets {
+            let key = asset.routeKey(matchQuery: preferences.matchQuery)
+            if existingKeys.contains(key) { continue }
+            let candidate = MockRouteCandidate(
+                sourceId: asset.id.uuidString,
+                sourceName: asset.name,
+                statusCode: asset.statusCode,
+                body: Data(asset.bodyText.utf8),
+                contentType: asset.contentType
+            )
+            routes.append(
+                MockRoute(
+                    method: asset.method,
+                    path: asset.path,
+                    query: preferences.matchQuery ? asset.query : nil,
+                    routeKey: key,
+                    candidates: [candidate],
+                    selectedSourceId: candidate.sourceId,
+                    isEnabled: asset.enabled && disabled.contains(key) == false,
+                    hasCustomOverride: preferences.overrides[key] != nil,
+                    hasAsset: true,
+                    isAssetOnly: true
+                )
+            )
+        }
+        
+        return routes.sorted { lhs, rhs in
             if lhs.path == rhs.path {
                 if lhs.method == rhs.method {
                     return (lhs.query ?? "") < (rhs.query ?? "")
@@ -317,7 +420,7 @@ enum MockRouteTable {
     }
 }
 
-private extension String {
+fileprivate extension String {
     var nilIfEmpty: String? {
         isEmpty ? nil : self
     }

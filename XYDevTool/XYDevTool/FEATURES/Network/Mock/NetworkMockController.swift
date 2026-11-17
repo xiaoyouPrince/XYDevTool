@@ -41,6 +41,7 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     var localhostOnly: Bool { preferences.localhostOnly }
     var delayMS: Int { preferences.delayMS }
     var corsEnabled: Bool { preferences.corsEnabled }
+    var assets: [MockAsset] { preferences.assets }
     
     override init() {
         super.init()
@@ -159,6 +160,11 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     // MARK: - Route actions
     
     func setRouteEnabled(_ route: MockRoute, enabled: Bool) {
+        if route.isAssetOnly, var asset = asset(forRouteKey: route.routeKey) {
+            asset.enabled = enabled
+            upsertAsset(asset)
+            return
+        }
         var disabled = preferences.disabledKeySet
         if enabled {
             disabled.remove(route.routeKey)
@@ -178,6 +184,25 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     
     func saveOverride(routeKey: String, override: MockRouteOverride) {
         preferences.overrides[routeKey] = override
+        // 同步写入/更新资产，便于批量管理与导出
+        if let parsed = MockRouteTable.parseRouteKey(routeKey) {
+            upsertAsset(
+                MockAsset(
+                    id: asset(forRouteKey: routeKey)?.id ?? UUID(),
+                    name: asset(forRouteKey: routeKey)?.name
+                        ?? routes.first(where: { $0.routeKey == routeKey })?.sourceName
+                        ?? "\(parsed.method) \(parsed.path)",
+                    method: parsed.method,
+                    path: parsed.path,
+                    query: parsed.query,
+                    enabled: true,
+                    statusCode: override.statusCode,
+                    contentType: override.contentType,
+                    bodyText: override.bodyText
+                )
+            )
+            return
+        }
         persistPreferences()
         reloadRoutes(from: latestRoots)
     }
@@ -190,6 +215,172 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     
     func override(for routeKey: String) -> MockRouteOverride? {
         preferences.overrides[routeKey]
+    }
+    
+    // MARK: - Assets (P3)
+    
+    func asset(forRouteKey key: String) -> MockAsset? {
+        preferences.assets.first { $0.routeKey(matchQuery: preferences.matchQuery) == key }
+    }
+    
+    func upsertAsset(_ asset: MockAsset) {
+        let key = asset.routeKey(matchQuery: preferences.matchQuery)
+        if let index = preferences.assets.firstIndex(where: {
+            $0.id == asset.id || $0.routeKey(matchQuery: preferences.matchQuery) == key
+        }) {
+            preferences.assets[index] = asset
+        } else {
+            preferences.assets.append(asset)
+        }
+        // 与旧 override 对齐，避免两套数据打架
+        preferences.overrides[key] = MockRouteOverride(
+            statusCode: asset.statusCode,
+            bodyText: asset.bodyText,
+            contentType: asset.contentType
+        )
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func deleteAsset(id: UUID) {
+        guard let asset = preferences.assets.first(where: { $0.id == id }) else { return }
+        let key = asset.routeKey(matchQuery: preferences.matchQuery)
+        preferences.assets.removeAll { $0.id == id }
+        preferences.overrides.removeValue(forKey: key)
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func replaceAssets(_ assets: [MockAsset]) {
+        preferences.assets = assets
+        // 重建 overrides 映射
+        var nextOverrides: [String: MockRouteOverride] = [:]
+        for asset in assets {
+            let key = asset.routeKey(matchQuery: preferences.matchQuery)
+            nextOverrides[key] = MockRouteOverride(
+                statusCode: asset.statusCode,
+                bodyText: asset.bodyText,
+                contentType: asset.contentType
+            )
+        }
+        preferences.overrides = nextOverrides
+        persistPreferences()
+        reloadRoutes(from: latestRoots)
+    }
+    
+    func addAsset(from route: MockRoute) {
+        let response = resolvedResponse(for: route)
+        let bodyText = String(data: response.body, encoding: .utf8) ?? "{}"
+        upsertAsset(
+            MockAsset(
+                name: route.sourceName,
+                method: route.method,
+                path: route.path,
+                query: route.query,
+                enabled: true,
+                statusCode: response.statusCode,
+                contentType: response.contentType,
+                bodyText: bodyText
+            )
+        )
+    }
+    
+    func makeAssetBundle() -> MockAssetBundle {
+        let formatter = ISO8601DateFormatter()
+        return MockAssetBundle(
+            version: MockAssetBundle.currentVersion,
+            exportedAt: formatter.string(from: Date()),
+            settings: MockAssetBundleSettings(
+                matchQuery: preferences.matchQuery,
+                localhostOnly: preferences.localhostOnly,
+                delayMS: preferences.delayMS,
+                corsEnabled: preferences.corsEnabled
+            ),
+            assets: preferences.assets
+        )
+    }
+    
+    func exportAssets(to fileURL: URL) throws {
+        let bundle = makeAssetBundle()
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(bundle)
+        try data.write(to: fileURL, options: .atomic)
+        logger.event(
+            "mock.assets_export",
+            result: "success",
+            fields: ["count": String(bundle.assets.count)]
+        )
+    }
+    
+    enum AssetImportMode {
+        case replace
+        case merge
+    }
+    
+    func importAssets(from fileURL: URL, mode: AssetImportMode, applySettings: Bool) throws {
+        let data = try Data(contentsOf: fileURL)
+        let decoder = JSONDecoder()
+        let bundle = try decoder.decode(MockAssetBundle.self, from: data)
+        guard bundle.version <= MockAssetBundle.currentVersion else {
+            throw VariableResolveError(message: "不支持的 Mock 资产版本：\(bundle.version)")
+        }
+        
+        switch mode {
+        case .replace:
+            preferences.assets = bundle.assets
+        case .merge:
+            for asset in bundle.assets {
+                if let index = preferences.assets.firstIndex(where: {
+                    $0.id == asset.id
+                        || $0.routeKey(matchQuery: preferences.matchQuery)
+                        == asset.routeKey(matchQuery: preferences.matchQuery)
+                }) {
+                    preferences.assets[index] = asset
+                } else {
+                    preferences.assets.append(asset)
+                }
+            }
+        }
+        
+        if applySettings, let settings = bundle.settings {
+            if let matchQuery = settings.matchQuery {
+                preferences.matchQuery = matchQuery
+            }
+            if let localhostOnly = settings.localhostOnly {
+                preferences.localhostOnly = localhostOnly
+            }
+            if let delayMS = settings.delayMS {
+                preferences.delayMS = max(0, min(delayMS, 30_000))
+            }
+            if let corsEnabled = settings.corsEnabled {
+                preferences.corsEnabled = corsEnabled
+            }
+        }
+        
+        // sync overrides
+        var nextOverrides = preferences.overrides
+        for asset in preferences.assets {
+            let key = asset.routeKey(matchQuery: preferences.matchQuery)
+            nextOverrides[key] = MockRouteOverride(
+                statusCode: asset.statusCode,
+                bodyText: asset.bodyText,
+                contentType: asset.contentType
+            )
+        }
+        preferences.overrides = nextOverrides
+        persistPreferences()
+        refreshLocalIPs()
+        reloadRoutes(from: latestRoots)
+        pushRuntimeSettings()
+        logger.event(
+            "mock.assets_import",
+            result: "success",
+            fields: [
+                "count": String(bundle.assets.count),
+                "mode": mode == .replace ? "replace" : "merge"
+            ]
+        )
     }
     
     func copyToPasteboard(_ string: String) {
@@ -239,11 +430,20 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         return DispatchQueue.main.sync {
             if let route = self.routeMap[key], route.isEnabled {
                 let response = self.resolvedResponse(for: route)
+                let hitLabel: String
+                if route.hasAsset || self.asset(forRouteKey: route.routeKey) != nil {
+                    let assetName = self.asset(forRouteKey: route.routeKey)?.name ?? route.sourceName
+                    hitLabel = "\(assetName) (资产)"
+                } else if route.hasCustomOverride {
+                    hitLabel = "\(route.sourceName) (自定义)"
+                } else {
+                    hitLabel = route.sourceName
+                }
                 self.appendLog(
                     method: request.method,
                     path: logPath,
                     statusCode: response.statusCode,
-                    hitName: route.hasCustomOverride ? "\(route.sourceName) (自定义)" : route.sourceName,
+                    hitName: hitLabel,
                     hint: nil
                 )
                 self.logger.event(
@@ -290,6 +490,10 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     }
     
     private func resolvedResponse(for route: MockRoute) -> (statusCode: Int, contentType: String, body: Data) {
+        if let asset = asset(forRouteKey: route.routeKey), asset.enabled {
+            let data = asset.bodyText.data(using: .utf8) ?? Data()
+            return (asset.statusCode, asset.contentType, data)
+        }
         if let override = preferences.overrides[route.routeKey] {
             let data = override.bodyText.data(using: .utf8) ?? Data()
             return (override.statusCode, override.contentType, data)

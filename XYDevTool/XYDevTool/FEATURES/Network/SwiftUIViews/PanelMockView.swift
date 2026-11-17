@@ -11,6 +11,7 @@ struct PanelMockView: View {
     
     @State private var conflictRoute: MockRoute?
     @State private var overrideRoute: MockRoute?
+    @State private var showAssets = false
     
     private let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -39,12 +40,26 @@ struct PanelMockView: View {
         .sheet(item: $overrideRoute) { route in
             MockOverrideSheet(route: route, mock: mock)
         }
+        .sheet(isPresented: $showAssets) {
+            PanelMockAssetsView(mock: mock)
+        }
     }
     
     private var header: some View {
         HStack {
             Text("Mock 服务")
                 .font(.title2.bold())
+            Button("资产…") {
+                showAssets = true
+            }
+            if mock.assets.isEmpty == false {
+                Text("\(mock.assets.count)")
+                    .font(.caption2)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.blue.opacity(0.15))
+                    .clipShape(Capsule())
+            }
             Spacer()
             Text(mock.statusText)
                 .foregroundStyle(mock.isRunning ? Color.green : Color.secondary)
@@ -205,9 +220,15 @@ struct PanelMockView: View {
                             Button("自定义返回…") {
                                 overrideRoute = route
                             }
-                            if route.hasCustomOverride {
+                            Button("保存为资产") {
+                                mock.addAsset(from: route)
+                            }
+                            if route.hasCustomOverride || route.hasAsset {
                                 Button("清除自定义返回", role: .destructive) {
                                     mock.clearOverride(routeKey: route.routeKey)
+                                    if let asset = mock.asset(forRouteKey: route.routeKey) {
+                                        mock.deleteAsset(id: asset.id)
+                                    }
                                 }
                             }
                         }
@@ -243,7 +264,11 @@ struct PanelMockView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             
-            if route.hasCustomOverride {
+            if route.hasAsset || route.isAssetOnly {
+                Text(route.isAssetOnly ? "仅资产" : "资产")
+                    .font(.caption2)
+                    .foregroundStyle(.blue)
+            } else if route.hasCustomOverride {
                 Text("自定义")
                     .font(.caption2)
                     .foregroundStyle(.blue)

@@ -1,6 +1,6 @@
 # 网络工具本地 Mock 服务 — PRD v1
 
-> **状态**：P0 / P1 / P2 已实现  
+> **状态**：P0 / P1 / P2 / P3 已实现  
 > **模块**：Network / Mock Server  
 > **最后更新**：2026-11-16  
 > **依赖数据**：请求历史树 `historyRoots`（`HistoryNode` 的 method / url / response）
@@ -213,3 +213,4 @@
 | 2026-11-16 | P0 落地：`FEATURES/Network/Mock/*` + `PanelMockView`；Help/README 已同步 |
 | 2026-11-16 | P1：路由菜单（路径/URL/curl）、冲突指定胜出、逐条启用、Method 提示、自定义返回 Override |
 | 2026-11-16 | P2：匹配 Query、仅本机、延迟、CORS 开关 |
+| 2026-11-16 | P3：Mock 资产批量编辑、JSON 导入导出、资产优先命中 |

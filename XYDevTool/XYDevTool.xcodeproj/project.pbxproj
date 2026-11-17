@@ -144,6 +144,7 @@
 		E1M000132F91000000CB8E13 /* MockHTTPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000032F91000000CB8E03 /* MockHTTPServer.swift */; };
 		E1M000142F91000000CB8E14 /* NetworkMockController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000042F91000000CB8E04 /* NetworkMockController.swift */; };
 		E1M000152F91000000CB8E15 /* PanelMockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000052F91000000CB8E05 /* PanelMockView.swift */; };
+		E1M000162F91000000CB8E16 /* PanelMockAssetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000062F91000000CB8E06 /* PanelMockAssetsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -292,6 +293,7 @@
 		E1M000032F91000000CB8E03 /* MockHTTPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHTTPServer.swift; sourceTree = "<group>"; };
 		E1M000042F91000000CB8E04 /* NetworkMockController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMockController.swift; sourceTree = "<group>"; };
 		E1M000052F91000000CB8E05 /* PanelMockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMockView.swift; sourceTree = "<group>"; };
+		E1M000062F91000000CB8E06 /* PanelMockAssetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMockAssetsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -569,6 +571,7 @@
 				B4DA90812C2C4C31000A6667 /* PanelResponceView.swift */,
 				B4DA90832C2C4C46000A6667 /* PanelStatusView.swift */,
 				E1M000052F91000000CB8E05 /* PanelMockView.swift */,
+				E1M000062F91000000CB8E06 /* PanelMockAssetsView.swift */,
 				B418953F2C66742100C8CC86 /* CustomTextEditor.swift */,
 				B41895772C667C5400C8CC86 /* VDividerView.swift */,
 				B41895792C667E1B00C8CC86 /* HDividerView.swift */,
@@ -981,6 +984,7 @@
 				E1M000132F91000000CB8E13 /* MockHTTPServer.swift in Sources */,
 				E1M000142F91000000CB8E14 /* NetworkMockController.swift in Sources */,
 				E1M000152F91000000CB8E15 /* PanelMockView.swift in Sources */,
+				E1M000162F91000000CB8E16 /* PanelMockAssetsView.swift in Sources */,
 				E1A100112F90150000CB8A11 /* HelpTopic.swift in Sources */,
 				E1A100122F90150000CB8A12 /* HelpDocumentStore.swift in Sources */,
 				E1A100132F90150000CB8A13 /* HelpView.swift in Sources */,
