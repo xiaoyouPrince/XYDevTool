@@ -282,9 +282,10 @@ final class MockHTTPServer {
         extraHeaders: [String] = []
     ) {
         let reason = Self.reasonPhrase(for: status)
+        let resolvedType = Self.contentTypeWithCharset(contentType)
         var lines = [
             "HTTP/1.1 \(status) \(reason)",
-            "Content-Type: \(contentType)",
+            "Content-Type: \(resolvedType)",
             "Content-Length: \(body.count)",
             "Connection: close"
         ]
@@ -333,5 +334,24 @@ final class MockHTTPServer {
         case 503: return "Service Unavailable"
         default: return "OK"
         }
+    }
+    
+    /// 手机浏览器对无 charset 的 JSON/文本常按系统默认编码解读，导致中文乱码。
+    private static func contentTypeWithCharset(_ contentType: String) -> String {
+        let trimmed = contentType.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.isEmpty == false else {
+            return "application/json; charset=utf-8"
+        }
+        let lower = trimmed.lowercased()
+        if lower.contains("charset=") {
+            return trimmed
+        }
+        if lower.hasPrefix("application/json")
+            || lower.hasPrefix("text/")
+            || lower.hasPrefix("application/javascript")
+            || lower.hasPrefix("application/xml") {
+            return "\(trimmed); charset=utf-8"
+        }
+        return trimmed
     }
 }
