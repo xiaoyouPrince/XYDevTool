@@ -28,7 +28,9 @@ description: >-
 | Header/Body 编辑 | `SwiftUIViews/PanelRequestView.swift` |
 | 响应展示 | `SwiftUIViews/PanelResponceView.swift` |
 | 变量/脚本/导入导出 | `SwiftUIViews/PanelSettingsView.swift` |
-| Mock 服务 | `FEATURES/Network/Mock/` + `PanelMockView` / `PanelMockAssetsView` |
+| Mock 服务 | `FEATURES/Network/Mock/` + `PanelMockView` / `PanelMockAssetsView`（独立窗） |
+| 接口文档 | `FEATURES/Network/Docs/` + `PanelAPIDocView.swift`（独立窗） |
+| 文档/Mock 开窗 | `SwiftUIViews/NetworkAuxiliaryWindows.swift` |
 | 打开窗口 | `ViewController.swift` → `openNetworkWindow()` |
 | 历史路径协议 | `Protocols/BaseDataProtocol.swift` |
 | AppKit 迁移 PRD | `.prd/network/history-appkit-migration.md` |

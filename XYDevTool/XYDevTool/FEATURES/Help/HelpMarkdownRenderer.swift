@@ -84,6 +84,31 @@ enum HelpMarkdownRenderer {
                 a:hover { text-decoration: underline; }
                 hr { border: none; border-top: 1px solid var(--border); margin: 1.4em 0; }
                 strong { font-weight: 650; }
+                details {
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 0 12px 8px;
+                    margin: 0.85em 0 1em;
+                    background: var(--surface);
+                }
+                details > summary {
+                    cursor: pointer;
+                    font-weight: 600;
+                    padding: 10px 4px;
+                    list-style: none;
+                    color: var(--text);
+                }
+                details > summary::-webkit-details-marker { display: none; }
+                details > summary::before {
+                    content: "▶";
+                    display: inline-block;
+                    width: 1.1em;
+                    color: var(--secondary);
+                    font-size: 0.75em;
+                }
+                details[open] > summary::before { content: "▼"; }
+                details > :not(summary) { margin-left: 4px; }
+                details pre { margin-top: 0.35em; }
             </style>
         </head>
         <body>\(bodyHTML)</body>
@@ -105,12 +130,20 @@ enum HelpMarkdownRenderer {
         case table(headers: [String], rows: [[String]])
         case code(text: String)
         case thematicBreak
+        case details(summary: String, open: Bool, children: [Block])
     }
     
     private static func parseBlocks(_ markdown: String) -> [Block] {
-        let lines = markdown.components(separatedBy: "\n")
+        parseBlocks(lines: markdown.components(separatedBy: "\n"), start: 0, stopAtDetailsClose: false).blocks
+    }
+    
+    private static func parseBlocks(
+        lines: [String],
+        start: Int,
+        stopAtDetailsClose: Bool
+    ) -> (blocks: [Block], nextIndex: Int) {
         var blocks: [Block] = []
-        var index = 0
+        var index = start
         
         while index < lines.count {
             let line = lines[index]
@@ -118,6 +151,55 @@ enum HelpMarkdownRenderer {
             
             if trimmed.isEmpty {
                 index += 1
+                continue
+            }
+            
+            if stopAtDetailsClose, trimmed.hasPrefix("</details>") {
+                return (blocks, index)
+            }
+            
+            if trimmed.hasPrefix("<details") {
+                let open = trimmed.contains("open")
+                index += 1
+                var summary = "详情"
+                while index < lines.count {
+                    let current = lines[index].trimmingCharacters(in: .whitespaces)
+                    if current.isEmpty {
+                        index += 1
+                        continue
+                    }
+                    if current.hasPrefix("<summary>"), current.hasSuffix("</summary>"), current.count > 19 {
+                        summary = String(current.dropFirst(9).dropLast(10)).trimmingCharacters(in: .whitespaces)
+                        index += 1
+                        break
+                    }
+                    if current.hasPrefix("<summary>") {
+                        var text = String(current.dropFirst(9))
+                        index += 1
+                        while index < lines.count, lines[index].trimmingCharacters(in: .whitespaces).hasSuffix("</summary>") == false {
+                            text += " " + lines[index].trimmingCharacters(in: .whitespaces)
+                            index += 1
+                        }
+                        if index < lines.count {
+                            let closing = lines[index].trimmingCharacters(in: .whitespaces)
+                            if let range = closing.range(of: "</summary>") {
+                                text += " " + closing[..<range.lowerBound]
+                            }
+                            index += 1
+                        }
+                        summary = text
+                            .replacingOccurrences(of: "</summary>", with: "")
+                            .trimmingCharacters(in: .whitespaces)
+                        break
+                    }
+                    break
+                }
+                let nested = parseBlocks(lines: lines, start: index, stopAtDetailsClose: true)
+                index = nested.nextIndex
+                if index < lines.count, lines[index].trimmingCharacters(in: .whitespaces).hasPrefix("</details>") {
+                    index += 1
+                }
+                blocks.append(.details(summary: summary, open: open, children: nested.blocks))
                 continue
             }
             
@@ -195,6 +277,7 @@ enum HelpMarkdownRenderer {
                 let next = lines[index].trimmingCharacters(in: .whitespaces)
                 if next.isEmpty || next.hasPrefix("#") || next.hasPrefix("```")
                     || next.hasPrefix("- ") || next.hasPrefix("* ")
+                    || next.hasPrefix("<details") || next.hasPrefix("</details>")
                     || isTableRow(next) {
                     break
                 }
@@ -207,7 +290,7 @@ enum HelpMarkdownRenderer {
             blocks.append(.paragraph(text: paragraphLines.joined(separator: " ")))
         }
         
-        return blocks
+        return (blocks, index)
     }
     
     private static func renderBlock(_ block: Block) -> String {
@@ -231,6 +314,10 @@ enum HelpMarkdownRenderer {
             return "<pre><code>\(escapeHTML(text))</code></pre>"
         case .thematicBreak:
             return "<hr>"
+        case .details(let summary, let open, let children):
+            let openAttr = open ? " open" : ""
+            let inner = children.map(renderBlock).joined(separator: "\n")
+            return "<details\(openAttr)><summary>\(inlineHTML(summary))</summary>\n\(inner)\n</details>"
         }
     }
     

@@ -29,7 +29,7 @@ struct PanelMockView: View {
             Spacer(minLength: 0)
         }
         .padding(16)
-        .frame(minWidth: 600, minHeight: 520)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             mock.refreshLocalIPs()
             mock.reloadRoutes(from: dataModel.historyRoots)

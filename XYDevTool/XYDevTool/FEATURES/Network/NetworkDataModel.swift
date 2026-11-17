@@ -144,6 +144,8 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
     
     let editor = NetworkEditorStore()
     let mockController = NetworkMockController()
+    /// 文档 / Mock 独立窗口（与主窗共用本 dataModel）
+    private(set) lazy var auxiliaryWindows: NetworkAuxiliaryWindows = NetworkAuxiliaryWindows(dataModel: self)
     var historyRoots: [HistoryNode] = []
     private(set) var selectedId: String?
     @Published var status: String = "Ready"
@@ -189,6 +191,9 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
         editor.onLockChanged = { [weak self] in self?.syncLockToSelectedRequest() }
         editor.onScriptsChanged = { [weak self] in self?.syncCurrentScriptSelection() }
         editor.onPreScriptChanged = { [weak self] in self?.syncCurrentPreScriptSelection() }
+        mockController.onHostWindowWillClose = { [weak self] in
+            self?.auxiliaryWindows.closeAll()
+        }
         loadHistoryFromDisk()
         refreshHistoryListUI()
         loadVariables()

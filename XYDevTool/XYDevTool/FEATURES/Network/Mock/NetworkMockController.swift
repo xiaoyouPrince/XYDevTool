@@ -24,6 +24,9 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     private let maxLogs = 50
     private let preferencesKey = "xydev.network.mockPreferences"
     
+    /// 网络主窗关闭时回调（用于一并关掉文档/Mock 附属窗）
+    var onHostWindowWillClose: (() -> Void)?
+    
     var conflictCount: Int {
         routes.filter(\.isConflict).count
     }
@@ -414,6 +417,7 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     // MARK: - NSWindowDelegate
     
     func windowWillClose(_ notification: Notification) {
+        onHostWindowWillClose?()
         stop()
     }
     

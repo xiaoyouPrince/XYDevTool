@@ -21,7 +21,6 @@ private struct PanelStatusBar: View {
     @ObservedObject var mock: NetworkMockController
     
     @State private var showSettings = false
-    @State private var showMock = false
     
     var body: some View {
         HStack {
@@ -33,7 +32,12 @@ private struct PanelStatusBar: View {
                     .foregroundStyle(.green)
             }
             Button {
-                showMock = true
+                dataModel.auxiliaryWindows.showAPIDoc()
+            } label: {
+                Label("文档", systemImage: "doc.text")
+            }
+            Button {
+                dataModel.auxiliaryWindows.showMock()
             } label: {
                 Label("Mock", systemImage: "server.rack")
             }
@@ -51,10 +55,6 @@ private struct PanelStatusBar: View {
             SettingsView()
                 .environmentObject(dataModel)
                 .frame(minWidth: 400, minHeight: 300)
-        }
-        .sheet(isPresented: $showMock) {
-            PanelMockView(mock: mock)
-                .environmentObject(dataModel)
         }
     }
 }
