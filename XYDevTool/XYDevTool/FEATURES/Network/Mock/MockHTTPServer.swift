@@ -28,6 +28,8 @@ final class MockHTTPServer {
         let method: String
         let path: String
         let query: String?
+        let headers: [String: String]
+        let body: Data
         
         var pathAndQuery: String {
             if let query, query.isEmpty == false {
@@ -43,7 +45,11 @@ final class MockHTTPServer {
         var matchQuery: Bool
     }
     
-    typealias Handler = (_ request: RequestInfo) -> (status: Int, contentType: String, body: Data, hitName: String?)
+    /// 异步 handler：上游透传等耗时操作在回调里完成后再 `respond`。
+    typealias Handler = (
+        _ request: RequestInfo,
+        _ respond: @escaping (_ status: Int, _ contentType: String, _ body: Data, _ hitName: String?) -> Void
+    ) -> Void
     
     private let queue = DispatchQueue(label: "com.xydevtool.network.mock.server")
     private var listener: NWListener?
@@ -174,22 +180,7 @@ final class MockHTTPServer {
                 nextBuffer.append(data)
             }
             
-            if let headerEnd = nextBuffer.range(of: Data("\r\n\r\n".utf8)) {
-                let headerData = nextBuffer.subdata(in: nextBuffer.startIndex..<headerEnd.lowerBound)
-                self.handleRequest(headerData: headerData, connection: connection)
-                return
-            }
-            
-            if isComplete {
-                if nextBuffer.isEmpty == false {
-                    self.handleRequest(headerData: nextBuffer, connection: connection)
-                } else {
-                    connection.cancel()
-                }
-                return
-            }
-            
-            if nextBuffer.count > 1024 * 1024 {
+            if nextBuffer.count > 8 * 1024 * 1024 {
                 self.send(
                     status: 413,
                     contentType: "application/json",
@@ -199,13 +190,118 @@ final class MockHTTPServer {
                 return
             }
             
-            self.receive(on: connection, buffer: nextBuffer)
+            guard let headerEnd = nextBuffer.range(of: Data("\r\n\r\n".utf8)) else {
+                if isComplete {
+                    if nextBuffer.isEmpty == false {
+                        self.finishRequest(raw: nextBuffer, connection: connection)
+                    } else {
+                        connection.cancel()
+                    }
+                } else {
+                    self.receive(on: connection, buffer: nextBuffer)
+                }
+                return
+            }
+            
+            let headerData = nextBuffer.subdata(in: nextBuffer.startIndex..<headerEnd.lowerBound)
+            let afterHeaders = nextBuffer.subdata(in: headerEnd.upperBound..<nextBuffer.endIndex)
+            let contentLength = Self.contentLength(fromHeaderData: headerData) ?? 0
+            
+            if afterHeaders.count >= contentLength {
+                let body = afterHeaders.prefix(contentLength)
+                self.finishRequest(headerData: headerData, body: Data(body), connection: connection)
+                return
+            }
+            
+            if isComplete {
+                self.finishRequest(headerData: headerData, body: afterHeaders, connection: connection)
+                return
+            }
+            
+            self.receiveBody(
+                on: connection,
+                headerData: headerData,
+                bodySoFar: afterHeaders,
+                expectedLength: contentLength
+            )
         }
     }
     
-    private func handleRequest(headerData: Data, connection: NWConnection) {
-        guard let headerText = String(data: headerData, encoding: .utf8),
-              let requestLine = headerText.split(separator: "\r\n", maxSplits: 1).first else {
+    private func receiveBody(
+        on connection: NWConnection,
+        headerData: Data,
+        bodySoFar: Data,
+        expectedLength: Int
+    ) {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { [weak self] data, _, isComplete, error in
+            guard let self else { return }
+            if let error {
+                connection.cancel()
+                _ = error
+                return
+            }
+            
+            var body = bodySoFar
+            if let data, data.isEmpty == false {
+                body.append(data)
+            }
+            
+            if body.count > 8 * 1024 * 1024 {
+                self.send(
+                    status: 413,
+                    contentType: "application/json",
+                    body: Data(#"{"error":"request_too_large"}"#.utf8),
+                    on: connection
+                )
+                return
+            }
+            
+            if body.count >= expectedLength {
+                self.finishRequest(
+                    headerData: headerData,
+                    body: Data(body.prefix(expectedLength)),
+                    connection: connection
+                )
+                return
+            }
+            
+            if isComplete {
+                self.finishRequest(headerData: headerData, body: body, connection: connection)
+                return
+            }
+            
+            self.receiveBody(
+                on: connection,
+                headerData: headerData,
+                bodySoFar: body,
+                expectedLength: expectedLength
+            )
+        }
+    }
+    
+    private func finishRequest(raw: Data, connection: NWConnection) {
+        if let headerEnd = raw.range(of: Data("\r\n\r\n".utf8)) {
+            let headerData = raw.subdata(in: raw.startIndex..<headerEnd.lowerBound)
+            let body = raw.subdata(in: headerEnd.upperBound..<raw.endIndex)
+            finishRequest(headerData: headerData, body: body, connection: connection)
+        } else {
+            finishRequest(headerData: raw, body: Data(), connection: connection)
+        }
+    }
+    
+    private func finishRequest(headerData: Data, body: Data, connection: NWConnection) {
+        guard let headerText = String(data: headerData, encoding: .utf8) else {
+            send(
+                status: 400,
+                contentType: "application/json",
+                body: Data(#"{"error":"bad_request"}"#.utf8),
+                on: connection
+            )
+            return
+        }
+        
+        let lines = headerText.components(separatedBy: "\r\n")
+        guard let requestLine = lines.first else {
             send(
                 status: 400,
                 contentType: "application/json",
@@ -229,13 +325,14 @@ final class MockHTTPServer {
         let method = parts[0].uppercased()
         let target = parts[1]
         let path = Self.pathOnly(from: target)
-        let query = runtime.matchQuery ? Self.queryOnly(from: target) : nil
+        let query = Self.queryOnly(from: target)
+        let headers = Self.parseHeaders(Array(lines.dropFirst()))
         
         if method == "OPTIONS" {
             var extra: [String] = []
             if runtime.corsEnabled {
                 extra = [
-                    "Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS",
+                    "Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS",
                     "Access-Control-Allow-Headers: *"
                 ]
             }
@@ -249,29 +346,37 @@ final class MockHTTPServer {
             return
         }
         
-        let response: (status: Int, contentType: String, body: Data, hitName: String?)
-        if let handler {
-            response = handler(RequestInfo(method: method, path: path, query: query))
-        } else {
-            response = (
-                503,
-                "application/json",
-                Data(#"{"error":"server_unavailable"}"#.utf8),
-                nil
-            )
-        }
-        
-        let delayMS = max(0, runtime.delayMS)
-        if delayMS > 0 {
-            Thread.sleep(forTimeInterval: Double(delayMS) / 1000.0)
-        }
-        
-        send(
-            status: response.status,
-            contentType: response.contentType,
-            body: response.body,
-            on: connection
+        let info = RequestInfo(
+            method: method,
+            path: path,
+            query: runtime.matchQuery ? query : nil,
+            headers: headers,
+            body: body
         )
+        
+        let respond: (Int, String, Data, String?) -> Void = { [weak self] status, contentType, responseBody, _ in
+            guard let self else { return }
+            let delayMS = max(0, self.runtime.delayMS)
+            let work = {
+                self.send(
+                    status: status,
+                    contentType: contentType,
+                    body: responseBody,
+                    on: connection
+                )
+            }
+            if delayMS > 0 {
+                self.queue.asyncAfter(deadline: .now() + .milliseconds(delayMS), execute: work)
+            } else {
+                self.queue.async(execute: work)
+            }
+        }
+        
+        if let handler {
+            handler(info, respond)
+        } else {
+            respond(503, "application/json", Data(#"{"error":"server_unavailable"}"#.utf8), nil)
+        }
     }
     
     private func send(
@@ -322,6 +427,30 @@ final class MockHTTPServer {
         return MockRouteTable.normalizedQuery(from: target)
     }
     
+    private static func parseHeaders(_ lines: [String]) -> [String: String] {
+        var headers: [String: String] = [:]
+        for line in lines {
+            guard let separator = line.firstIndex(of: ":") else { continue }
+            let name = String(line[..<separator]).trimmingCharacters(in: .whitespaces)
+            let value = String(line[line.index(after: separator)...]).trimmingCharacters(in: .whitespaces)
+            guard name.isEmpty == false else { continue }
+            headers[name] = value
+        }
+        return headers
+    }
+    
+    private static func contentLength(fromHeaderData data: Data) -> Int? {
+        guard let text = String(data: data, encoding: .utf8) else { return nil }
+        for line in text.components(separatedBy: "\r\n") {
+            let parts = line.split(separator: ":", maxSplits: 1).map {
+                $0.trimmingCharacters(in: .whitespaces)
+            }
+            guard parts.count == 2, parts[0].lowercased() == "content-length" else { continue }
+            return Int(parts[1])
+        }
+        return nil
+    }
+    
     private static func reasonPhrase(for status: Int) -> String {
         switch status {
         case 200: return "OK"
@@ -336,7 +465,6 @@ final class MockHTTPServer {
         }
     }
     
-    /// 手机浏览器对无 charset 的 JSON/文本常按系统默认编码解读，导致中文乱码。
     private static func contentTypeWithCharset(_ contentType: String) -> String {
         let trimmed = contentType.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.isEmpty == false else {

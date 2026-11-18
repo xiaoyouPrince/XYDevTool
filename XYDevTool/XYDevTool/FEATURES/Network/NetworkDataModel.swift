@@ -194,6 +194,16 @@ class NetworkDataModel: ObservableObject, BaseDataProtocol {
         mockController.onHostWindowWillClose = { [weak self] in
             self?.auxiliaryWindows.closeAll()
         }
+        mockController.onPassthroughCapture = { [weak self] capture in
+            self?.upsertPassthroughCapture(capture)
+        }
+        mockController.variableValuesProvider = { [weak self] in
+            guard let self else { return [:] }
+            return Dictionary(uniqueKeysWithValues: self.variables.map { ($0.key, $0.value) })
+        }
+        mockController.onExtractVariables = { [weak self] updates in
+            self?.applyExtractedVariables(updates)
+        }
         loadHistoryFromDisk()
         refreshHistoryListUI()
         loadVariables()
@@ -929,6 +939,100 @@ extension NetworkDataModel {
         if currentHistory?.name == item.name {
             currentHistory = node
         }
+    }
+    
+    /// Mock 透传留存：同 Method+Path 更新，否则写入「透传捕获」分组。
+    func upsertPassthroughCapture(_ capture: MockPassthroughCapture) {
+        let matchQuery = mockController.matchQuery
+        let existing = findRequestNode(
+            method: capture.method,
+            path: capture.path,
+            query: matchQuery ? capture.query : nil
+        )
+        
+        let request = XYRequest()
+        let upstream = mockController.upstreamBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let base = upstream.isEmpty ? "http://mock.local" : upstream
+        if let url = try? MockUpstreamClient.buildURL(
+            base: base,
+            path: capture.path,
+            query: capture.query
+        ) {
+            request.url = url.absoluteString
+        } else {
+            request.url = capture.path
+        }
+        request.method = capture.method
+        if let headerData = try? JSONSerialization.data(
+            withJSONObject: capture.requestHeaders,
+            options: [.prettyPrinted, .sortedKeys]
+        ) {
+            request.header = String(data: headerData, encoding: .utf8)
+        }
+        request.body = String(data: capture.requestBody, encoding: .utf8) ?? ""
+        
+        let item = XYItem()
+        item.name = existing?.name ?? "透传 \(capture.method) \(capture.path)"
+        item.isLock = existing?.isLock ?? false
+        item.request = request
+        item.response = capture.responseText
+        item.selectedPostScriptIDs = existing?.selectedPostScriptIDs
+        item.selectedPreScriptID = existing?.selectedPreScriptID
+        
+        if let existing {
+            existing.update(with: item)
+            persistHistory()
+            mockController.reloadRoutes(from: historyRoots)
+            return
+        }
+        
+        let node = HistoryNode.fromXYItem(item)
+        commitHistoryMutation { roots in
+            let groupId = self.ensurePassthroughCaptureGroup(in: &roots)
+            _ = HistoryTree.insertNode(node, parentId: groupId, at: Int.max, in: &roots)
+        }
+        mockController.reloadRoutes(from: historyRoots)
+    }
+    
+    private func applyExtractedVariables(_ updates: [String: String]) {
+        guard updates.isEmpty == false else { return }
+        for (key, value) in updates {
+            if let index = variables.firstIndex(where: { $0.key == key }) {
+                variables[index].value = value
+            } else {
+                variables.append(NetworkVariable(key: key, value: value))
+            }
+        }
+    }
+    
+    private func findRequestNode(method: String, path: String, query: String?) -> HistoryNode? {
+        let targetKey = MockRouteTable.routeKey(method: method, path: path, query: query)
+        for node in HistoryTree.allRequestNodes(in: historyRoots) {
+            guard let url = node.request?.url else { continue }
+            let nodeMethod = (node.request?.method ?? "GET").uppercased()
+            let nodePath = MockRouteTable.normalizedPath(from: url) ?? "/"
+            let nodeQuery = mockController.matchQuery
+                ? MockRouteTable.normalizedQuery(from: url)
+                : nil
+            let key = MockRouteTable.routeKey(method: nodeMethod, path: nodePath, query: nodeQuery)
+            if key == targetKey {
+                return node
+            }
+        }
+        return nil
+    }
+    
+    private static let passthroughGroupName = "透传捕获"
+    
+    private func ensurePassthroughCaptureGroup(in roots: inout [HistoryNode]) -> String {
+        if let existing = roots.first(where: {
+            $0.isGroup && ($0.name ?? "") == Self.passthroughGroupName
+        }), let id = existing.id {
+            return id
+        }
+        let group = HistoryNode.newGroup(name: Self.passthroughGroupName)
+        roots.insert(group, at: 0)
+        return group.id!
     }
 }
 

@@ -143,6 +143,7 @@
 		E1M000122F91000000CB8E12 /* MockResponseAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000022F91000000CB8E02 /* MockResponseAssembler.swift */; };
 		E1M000132F91000000CB8E13 /* MockHTTPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000032F91000000CB8E03 /* MockHTTPServer.swift */; };
 		E1M000142F91000000CB8E14 /* NetworkMockController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000042F91000000CB8E04 /* NetworkMockController.swift */; };
+		E1M000172F91000000CB8E17 /* MockUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000072F91000000CB8E07 /* MockUpstreamClient.swift */; };
 		E1M000152F91000000CB8E15 /* PanelMockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000052F91000000CB8E05 /* PanelMockView.swift */; };
 		E1M000162F91000000CB8E16 /* PanelMockAssetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1M000062F91000000CB8E06 /* PanelMockAssetsView.swift */; };
 		E1D000112F92000000CB8F11 /* JSONSchemaInferrer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D000012F92000000CB8F01 /* JSONSchemaInferrer.swift */; };
@@ -298,6 +299,7 @@
 		E1M000022F91000000CB8E02 /* MockResponseAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockResponseAssembler.swift; sourceTree = "<group>"; };
 		E1M000032F91000000CB8E03 /* MockHTTPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHTTPServer.swift; sourceTree = "<group>"; };
 		E1M000042F91000000CB8E04 /* NetworkMockController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMockController.swift; sourceTree = "<group>"; };
+		E1M000072F91000000CB8E07 /* MockUpstreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUpstreamClient.swift; sourceTree = "<group>"; };
 		E1M000052F91000000CB8E05 /* PanelMockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMockView.swift; sourceTree = "<group>"; };
 		E1M000062F91000000CB8E06 /* PanelMockAssetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelMockAssetsView.swift; sourceTree = "<group>"; };
 		E1D000012F92000000CB8F01 /* JSONSchemaInferrer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSchemaInferrer.swift; sourceTree = "<group>"; };
@@ -601,6 +603,7 @@
 				E1M000012F91000000CB8E01 /* MockModels.swift */,
 				E1M000022F91000000CB8E02 /* MockResponseAssembler.swift */,
 				E1M000032F91000000CB8E03 /* MockHTTPServer.swift */,
+				E1M000072F91000000CB8E07 /* MockUpstreamClient.swift */,
 				E1M000042F91000000CB8E04 /* NetworkMockController.swift */,
 			);
 			path = Mock;
@@ -1018,6 +1021,7 @@
 				E1M000122F91000000CB8E12 /* MockResponseAssembler.swift in Sources */,
 				E1M000132F91000000CB8E13 /* MockHTTPServer.swift in Sources */,
 				E1M000142F91000000CB8E14 /* NetworkMockController.swift in Sources */,
+				E1M000172F91000000CB8E17 /* MockUpstreamClient.swift in Sources */,
 				E1M000152F91000000CB8E15 /* PanelMockView.swift in Sources */,
 				E1M000162F91000000CB8E16 /* PanelMockAssetsView.swift in Sources */,
 				E1D000112F92000000CB8F11 /* JSONSchemaInferrer.swift in Sources */,

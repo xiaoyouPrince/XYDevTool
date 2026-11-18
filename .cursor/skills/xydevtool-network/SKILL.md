@@ -28,7 +28,8 @@ description: >-
 | Header/Body 编辑 | `SwiftUIViews/PanelRequestView.swift` |
 | 响应展示 | `SwiftUIViews/PanelResponceView.swift` |
 | 变量/脚本/导入导出 | `SwiftUIViews/PanelSettingsView.swift` |
-| Mock 服务 | `FEATURES/Network/Mock/` + `PanelMockView` / `PanelMockAssetsView`（独立窗） |
+| Mock 服务 | `FEATURES/Network/Mock/` + `PanelMockView` / `PanelMockAssetsView`（独立窗；含透传） |
+| Mock 透传 | `MockUpstreamClient.swift` + `MockPreferences` 透传字段；历史 upsert 在 `NetworkDataModel` |
 | 接口文档 | `FEATURES/Network/Docs/` + `PanelAPIDocView.swift`（独立窗） |
 | 设置/文档/Mock 开窗 | `SwiftUIViews/NetworkAuxiliaryWindows.swift` |
 | 统一导出包 | `FEATURES/Network/Export/NetworkExportBundle.swift` |

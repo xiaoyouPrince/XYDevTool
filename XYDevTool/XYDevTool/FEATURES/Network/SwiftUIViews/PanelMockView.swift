@@ -12,6 +12,9 @@ struct PanelMockView: View {
     @State private var conflictRoute: MockRoute?
     @State private var overrideRoute: MockRoute?
     @State private var showAssets = false
+    @State private var showPassthroughExtras = false
+    @State private var editingExtractRule: MockExtractRule?
+    @State private var headerTemplateDraft = ""
     
     private let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -23,6 +26,7 @@ struct PanelMockView: View {
         VStack(alignment: .leading, spacing: 14) {
             header
             configRow
+            passthroughSection
             warning
             routeSummary
             logSection
@@ -167,11 +171,201 @@ struct PanelMockView: View {
         }
     }
     
+    private var passthroughSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Toggle("透传", isOn: Binding(
+                    get: { mock.passthroughEnabled },
+                    set: { mock.setPassthroughEnabled($0) }
+                ))
+                .toggleStyle(.checkbox)
+                .help("开启后：未命中路由将转发到上游并写入历史；已命中默认仍走缓存，可在路由行改为透传")
+                
+                Text("上游")
+                    .foregroundStyle(.secondary)
+                TextField(
+                    "https://api.example.com",
+                    text: Binding(
+                        get: { mock.upstreamBaseURL },
+                        set: { mock.setUpstreamBaseURL($0) }
+                    )
+                )
+                .textFieldStyle(.roundedBorder)
+                .frame(minWidth: 220)
+                
+                HStack(spacing: 4) {
+                    Text("超时")
+                    TextField(
+                        "20000",
+                        text: Binding(
+                            get: { String(mock.passthroughTimeoutMS) },
+                            set: { mock.setPassthroughTimeoutMS(Int($0) ?? 20_000) }
+                        )
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 72)
+                    Text("ms")
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                Button(showPassthroughExtras ? "收起高级" : "高级…") {
+                    showPassthroughExtras.toggle()
+                    if showPassthroughExtras {
+                        headerTemplateDraft = mock.outboundHeaderTemplates
+                            .map { "\($0.key)=\($0.value)" }
+                            .sorted()
+                            .joined(separator: "\n")
+                    }
+                }
+                .font(.caption)
+            }
+            .font(.caption)
+            
+            HStack(spacing: 12) {
+                Text("命中策略")
+                    .foregroundStyle(.secondary)
+                Picker("", selection: Binding(
+                    get: { mock.globalHitMode },
+                    set: { mock.setGlobalHitMode($0) }
+                )) {
+                    ForEach(MockRouteMode.allCases) { mode in
+                        Text(mode == .cache ? "全部缓存" : "全部透传").tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 220)
+                
+                Text(mock.hitPolicySummary)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                
+                if mock.routeModeOverrideCount > 0 {
+                    Button("清除逐条覆盖") {
+                        mock.clearRouteModeOverrides()
+                    }
+                    .font(.caption)
+                }
+                
+                Spacer()
+            }
+            .font(.caption)
+            .help("切换后手机无需改 host：已命中路由统一走缓存或透传；未命中仍由上方「透传」开关决定")
+            
+            if showPassthroughExtras {
+                HStack(spacing: 16) {
+                    Toggle("写回历史", isOn: Binding(
+                        get: { mock.passthroughWriteBack },
+                        set: { mock.setPassthroughWriteBack($0) }
+                    ))
+                    .toggleStyle(.checkbox)
+                    
+                    Toggle("非 2xx 也留存", isOn: Binding(
+                        get: { mock.passthroughSaveNon2xx },
+                        set: { mock.setPassthroughSaveNon2xx($0) }
+                    ))
+                    .toggleStyle(.checkbox)
+                    
+                    Spacer()
+                }
+                .font(.caption)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("出站 Header 模板（每行 Name={{var}}，透传时覆盖/追加）")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextEditor(text: $headerTemplateDraft)
+                        .font(.system(.caption, design: .monospaced))
+                        .frame(height: 56)
+                        .border(Color.secondary.opacity(0.25))
+                    Button("应用 Header 模板") {
+                        applyHeaderTemplates()
+                    }
+                    .font(.caption)
+                }
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("响应抽变量")
+                            .font(.caption.weight(.semibold))
+                        Spacer()
+                        Button("新增规则") {
+                            editingExtractRule = MockExtractRule(jsonPath: "data.token", variableKey: "token")
+                        }
+                        .font(.caption)
+                    }
+                    if mock.extractRules.isEmpty {
+                        Text("例如登录响应 data.token → 变量 token，供出站 Header 使用。")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(mock.extractRules) { rule in
+                            HStack {
+                                Toggle("", isOn: Binding(
+                                    get: { rule.enabled },
+                                    set: {
+                                        var next = rule
+                                        next.enabled = $0
+                                        mock.upsertExtractRule(next)
+                                    }
+                                ))
+                                .labelsHidden()
+                                .toggleStyle(.checkbox)
+                                Text("\(rule.jsonPath) → \(rule.variableKey)")
+                                    .font(.caption.monospaced())
+                                if rule.routeKey.isEmpty == false {
+                                    Text("(\(rule.routeKey))")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button("编辑") { editingExtractRule = rule }
+                                    .font(.caption2)
+                                Button("删除", role: .destructive) {
+                                    mock.deleteExtractRule(id: rule.id)
+                                }
+                                .font(.caption2)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(8)
+        .background(Color.secondary.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .sheet(item: $editingExtractRule) { rule in
+            ExtractRuleEditorSheet(rule: rule) { saved in
+                mock.upsertExtractRule(saved)
+                editingExtractRule = nil
+            } onCancel: {
+                editingExtractRule = nil
+            }
+        }
+    }
+    
+    private func applyHeaderTemplates() {
+        var map: [String: String] = [:]
+        for line in headerTemplateDraft.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard trimmed.isEmpty == false,
+                  let eq = trimmed.firstIndex(of: "=") else { continue }
+            let name = String(trimmed[..<eq]).trimmingCharacters(in: .whitespaces)
+            let value = String(trimmed[trimmed.index(after: eq)...]).trimmingCharacters(in: .whitespaces)
+            guard name.isEmpty == false else { continue }
+            map[name] = value
+        }
+        mock.setOutboundHeaderTemplates(map)
+    }
+    
     private var warning: some View {
         Label(
-            mock.localhostOnly
-                ? "仅本机模式：只有本机可访问。右键路由可复制或自定义返回。"
-                : "调试用途：开启后会向局域网暴露当前历史中的接口响应数据。右键路由可复制或自定义返回。",
+            mock.passthroughEnabled
+                ? "透传开启：未命中将转发到上游真实环境并写入「透传捕获」历史；请确认上游地址无误。"
+                : (mock.localhostOnly
+                    ? "仅本机模式：只有本机可访问。右键路由可复制或自定义返回。"
+                    : "调试用途：开启后会向局域网暴露当前历史中的接口响应数据。右键路由可复制或自定义返回。"),
             systemImage: "exclamationmark.triangle"
         )
         .font(.caption)
@@ -195,7 +389,11 @@ struct PanelMockView: View {
             }
             
             if mock.routes.isEmpty {
-                Text("暂无可用路由。请先对接口 Submit 并保存带响应的历史记录。")
+                Text(
+                    mock.passthroughEnabled
+                        ? "暂无缓存路由。开启透传后，客户端请求会自动录制到历史。"
+                        : "暂无可用路由。请先对接口 Submit，或开启透传从真实上游录制。"
+                )
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -210,6 +408,13 @@ struct PanelMockView: View {
                             }
                             Button("复制 curl") {
                                 mock.copyCurl(for: route)
+                            }
+                            Divider()
+                            Button("模式：缓存") {
+                                mock.setRouteMode(route, mode: .cache)
+                            }
+                            Button("模式：透传") {
+                                mock.setRouteMode(route, mode: .passthrough)
                             }
                             Divider()
                             if route.isConflict {
@@ -257,6 +462,18 @@ struct PanelMockView: View {
                 .font(.system(.body, design: .monospaced))
                 .lineLimit(1)
                 .foregroundStyle(route.isEnabled ? Color.primary : Color.secondary)
+            
+            Picker("", selection: Binding(
+                get: { mock.routeMode(for: route) },
+                set: { mock.setRouteMode(route, mode: $0) }
+            )) {
+                ForEach(MockRouteMode.allCases) { mode in
+                    Text(mode.label).tag(mode)
+                }
+            }
+            .labelsHidden()
+            .frame(width: 72)
+            .disabled(route.isEnabled == false)
             
             Spacer()
             
@@ -478,5 +695,40 @@ private struct MockOverrideSheet: View {
             )
         )
         dismiss()
+    }
+}
+
+private struct ExtractRuleEditorSheet: View {
+    @State var rule: MockExtractRule
+    let onSave: (MockExtractRule) -> Void
+    let onCancel: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("响应抽变量")
+                .font(.headline)
+            TextField("JSON 路径（如 data.token）", text: $rule.jsonPath)
+                .textFieldStyle(.roundedBorder)
+            TextField("变量名", text: $rule.variableKey)
+                .textFieldStyle(.roundedBorder)
+            TextField("限定 routeKey（可空=全部）", text: $rule.routeKey)
+                .textFieldStyle(.roundedBorder)
+            Toggle("启用", isOn: $rule.enabled)
+                .toggleStyle(.checkbox)
+            HStack {
+                Spacer()
+                Button("取消", action: onCancel)
+                Button("保存") {
+                    onSave(rule)
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(
+                    rule.jsonPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || rule.variableKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+            }
+        }
+        .padding(16)
+        .frame(width: 420)
     }
 }

@@ -26,6 +26,12 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     
     /// 网络主窗关闭时回调（用于一并关掉文档/Mock 附属窗）
     var onHostWindowWillClose: (() -> Void)?
+    /// 透传成功后写入历史
+    var onPassthroughCapture: ((MockPassthroughCapture) -> Void)?
+    /// 出站 Header 模板变量（P2）
+    var variableValuesProvider: (() -> [String: String])?
+    /// 抽变量写回（P2）
+    var onExtractVariables: (([String: String]) -> Void)?
     
     var conflictCount: Int {
         routes.filter(\.isConflict).count
@@ -45,6 +51,23 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     var delayMS: Int { preferences.delayMS }
     var corsEnabled: Bool { preferences.corsEnabled }
     var assets: [MockAsset] { preferences.assets }
+    var passthroughEnabled: Bool { preferences.passthroughEnabled }
+    var upstreamBaseURL: String { preferences.upstreamBaseURL }
+    var passthroughTimeoutMS: Int { preferences.passthroughTimeoutMS }
+    var passthroughWriteBack: Bool { preferences.passthroughWriteBack }
+    var passthroughSaveNon2xx: Bool { preferences.passthroughSaveNon2xx }
+    var globalHitMode: MockRouteMode { preferences.resolvedGlobalHitMode }
+    var routeModeOverrideCount: Int { preferences.routeModeOverrideCount }
+    var extractRules: [MockExtractRule] { preferences.extractRules }
+    var outboundHeaderTemplates: [String: String] { preferences.outboundHeaderTemplates }
+    
+    var hitPolicySummary: String {
+        let base = "命中默认：\(globalHitMode.label)"
+        if routeModeOverrideCount > 0 {
+            return "\(base)（\(routeModeOverrideCount) 条逐条覆盖）"
+        }
+        return base
+    }
     
     override init() {
         super.init()
@@ -88,13 +111,8 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
                 port: port,
                 localhostOnly: preferences.localhostOnly,
                 settings: currentRuntimeSettings()
-            ) { [weak self] request in
-                self?.handle(request: request) ?? (
-                    503,
-                    "application/json",
-                    Data(#"{"error":"server_unavailable"}"#.utf8),
-                    nil
-                )
+            ) { [weak self] request, respond in
+                self?.handle(request: request, respond: respond)
             }
             isRunning = true
             refreshStatusText()
@@ -104,7 +122,8 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
                 fields: [
                     "port": String(port),
                     "routes": String(enabledRouteCount),
-                    "localhostOnly": preferences.localhostOnly ? "1" : "0"
+                    "localhostOnly": preferences.localhostOnly ? "1" : "0",
+                    "passthrough": preferences.passthroughEnabled ? "1" : "0"
                 ]
             )
         } catch {
@@ -158,6 +177,100 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         preferences.corsEnabled = enabled
         persistPreferences()
         pushRuntimeSettings()
+    }
+    
+    func setPassthroughEnabled(_ enabled: Bool) {
+        preferences.passthroughEnabled = enabled
+        persistPreferences()
+        refreshStatusText()
+        objectWillChange.send()
+    }
+    
+    func setUpstreamBaseURL(_ url: String) {
+        preferences.upstreamBaseURL = url.trimmingCharacters(in: .whitespacesAndNewlines)
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func setPassthroughTimeoutMS(_ value: Int) {
+        preferences.passthroughTimeoutMS = max(1_000, min(value, 120_000))
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func setPassthroughWriteBack(_ enabled: Bool) {
+        preferences.passthroughWriteBack = enabled
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func setPassthroughSaveNon2xx(_ enabled: Bool) {
+        preferences.passthroughSaveNon2xx = enabled
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func setRouteMode(_ route: MockRoute, mode: MockRouteMode) {
+        // 与全局一致则清掉覆盖，避免「假覆盖」计数膨胀
+        if mode == preferences.resolvedGlobalHitMode {
+            preferences.routeModes.removeValue(forKey: route.routeKey)
+        } else {
+            preferences.routeModes[route.routeKey] = mode.rawValue
+        }
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func routeMode(for route: MockRoute) -> MockRouteMode {
+        preferences.mode(for: route.routeKey)
+    }
+    
+    /// 全局命中策略：已命中路由默认走缓存或透传；并清除逐条覆盖。
+    func setGlobalHitMode(_ mode: MockRouteMode) {
+        preferences.globalHitMode = mode.rawValue
+        preferences.routeModes = [:]
+        if mode == .passthrough {
+            preferences.passthroughEnabled = true
+        }
+        persistPreferences()
+        refreshStatusText()
+        objectWillChange.send()
+    }
+    
+    func setAllRoutesCache() {
+        setGlobalHitMode(.cache)
+    }
+    
+    func setAllRoutesPassthrough() {
+        setGlobalHitMode(.passthrough)
+    }
+    
+    func clearRouteModeOverrides() {
+        preferences.routeModes = [:]
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func upsertExtractRule(_ rule: MockExtractRule) {
+        if let index = preferences.extractRules.firstIndex(where: { $0.id == rule.id }) {
+            preferences.extractRules[index] = rule
+        } else {
+            preferences.extractRules.append(rule)
+        }
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func deleteExtractRule(id: UUID) {
+        preferences.extractRules.removeAll { $0.id == id }
+        persistPreferences()
+        objectWillChange.send()
+    }
+    
+    func setOutboundHeaderTemplates(_ templates: [String: String]) {
+        preferences.outboundHeaderTemplates = templates
+        persistPreferences()
+        objectWillChange.send()
     }
     
     // MARK: - Route actions
@@ -423,7 +536,10 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
     
     // MARK: - Private
     
-    private func handle(request: MockHTTPServer.RequestInfo) -> (Int, String, Data, String?) {
+    private func handle(
+        request: MockHTTPServer.RequestInfo,
+        respond: @escaping (Int, String, Data, String?) -> Void
+    ) {
         let key = MockRouteTable.routeKey(
             method: request.method,
             path: request.path,
@@ -431,17 +547,21 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
         )
         let logPath = request.pathAndQuery
         
-        return DispatchQueue.main.sync {
+        let decision: (shouldPassthrough: Bool, route: MockRoute?, cacheLabel: String?) = DispatchQueue.main.sync {
             if let route = self.routeMap[key], route.isEnabled {
+                let mode = self.preferences.mode(for: route.routeKey)
+                if mode == .passthrough {
+                    return (true, route, nil)
+                }
                 let response = self.resolvedResponse(for: route)
                 let hitLabel: String
                 if route.hasAsset || self.asset(forRouteKey: route.routeKey) != nil {
                     let assetName = self.asset(forRouteKey: route.routeKey)?.name ?? route.sourceName
-                    hitLabel = "\(assetName) (资产)"
+                    hitLabel = "\(assetName) (缓存)"
                 } else if route.hasCustomOverride {
-                    hitLabel = "\(route.sourceName) (自定义)"
+                    hitLabel = "\(route.sourceName) (缓存·自定义)"
                 } else {
-                    hitLabel = route.sourceName
+                    hitLabel = "\(route.sourceName) (缓存)"
                 }
                 self.appendLog(
                     method: request.method,
@@ -455,11 +575,18 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
                     fields: [
                         "method": request.method,
                         "path": logPath,
-                        "name": route.sourceName,
+                        "mode": "cache",
                         "status": String(response.statusCode)
                     ]
                 )
-                return (response.statusCode, response.contentType, response.body, route.sourceName)
+                respond(response.statusCode, response.contentType, response.body, hitLabel)
+                return (false, route, hitLabel)
+            }
+            
+            let canPassthrough = self.preferences.passthroughEnabled
+                && self.preferences.upstreamBaseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+            if canPassthrough {
+                return (true, nil, nil)
             }
             
             let hint = self.missHint(method: request.method, path: request.path, query: request.query)
@@ -474,7 +601,8 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
             if let hint {
                 bodyObject["hint"] = hint
             }
-            let body = (try? JSONSerialization.data(withJSONObject: bodyObject)) ?? Data(#"{"error":"mock_not_found"}"#.utf8)
+            let body = (try? JSONSerialization.data(withJSONObject: bodyObject))
+                ?? Data(#"{"error":"mock_not_found"}"#.utf8)
             self.appendLog(
                 method: request.method,
                 path: logPath,
@@ -489,8 +617,121 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
                     "path": logPath
                 ]
             )
-            return (404, "application/json", body, nil)
+            respond(404, "application/json", body, nil)
+            return (false, nil, nil)
         }
+        
+        guard decision.shouldPassthrough else { return }
+        
+        let variables = variableValuesProvider?() ?? [:]
+        let templates = preferences.outboundHeaderTemplates
+        let timeout = TimeInterval(preferences.passthroughTimeoutMS) / 1000.0
+        let upstream = preferences.upstreamBaseURL
+        let writeBack = preferences.passthroughWriteBack
+        let saveNon2xx = preferences.passthroughSaveNon2xx
+        let isMiss = decision.route == nil
+        
+        MockUpstreamClient.forward(
+            request: request,
+            upstreamBaseURL: upstream,
+            timeout: timeout,
+            headerTemplates: templates,
+            variables: variables
+        ) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let upstreamResult):
+                let label = isMiss ? "透传(新)" : "透传"
+                DispatchQueue.main.async {
+                    self.appendLog(
+                        method: request.method,
+                        path: logPath,
+                        statusCode: upstreamResult.statusCode,
+                        hitName: label,
+                        hint: nil
+                    )
+                    self.logger.event(
+                        "mock.passthrough",
+                        result: "success",
+                        fields: [
+                            "method": request.method,
+                            "path": logPath,
+                            "status": String(upstreamResult.statusCode),
+                            "miss": isMiss ? "1" : "0"
+                        ]
+                    )
+                    self.applyExtractRules(
+                        routeKey: key,
+                        responseBody: upstreamResult.body
+                    )
+                    let shouldWrite = writeBack
+                        && (saveNon2xx || (200..<300).contains(upstreamResult.statusCode))
+                    if shouldWrite {
+                        let capture = MockPassthroughCapture(
+                            method: request.method,
+                            path: request.path,
+                            query: request.query,
+                            requestHeaders: request.headers,
+                            requestBody: request.body,
+                            responseText: upstreamResult.storageResponseText,
+                            statusCode: upstreamResult.statusCode
+                        )
+                        self.onPassthroughCapture?(capture)
+                    }
+                }
+                respond(
+                    upstreamResult.statusCode,
+                    upstreamResult.contentType,
+                    upstreamResult.body,
+                    label
+                )
+            case .failure(let error):
+                let message = error.localizedDescription
+                let body = (try? JSONSerialization.data(withJSONObject: [
+                    "error": "upstream_error",
+                    "message": message
+                ])) ?? Data(#"{"error":"upstream_error"}"#.utf8)
+                DispatchQueue.main.async {
+                    self.appendLog(
+                        method: request.method,
+                        path: logPath,
+                        statusCode: 502,
+                        hitName: nil,
+                        hint: message
+                    )
+                    self.logger.event(
+                        "mock.passthrough",
+                        result: "failure",
+                        fields: [
+                            "method": request.method,
+                            "path": logPath,
+                            "error": message
+                        ]
+                    )
+                    self.lastError = "透传失败：\(message)"
+                }
+                respond(502, "application/json", body, nil)
+            }
+        }
+    }
+    
+    private func applyExtractRules(routeKey: String, responseBody: Data) {
+        guard preferences.extractRules.isEmpty == false,
+              let json = try? JSONSerialization.jsonObject(with: responseBody) else {
+            return
+        }
+        var updates: [String: String] = [:]
+        for rule in preferences.extractRules where rule.enabled {
+            if rule.routeKey.isEmpty == false, rule.routeKey != routeKey {
+                continue
+            }
+            let value = MockUpstreamClient.value(atPath: rule.jsonPath, in: json)
+            if let string = MockUpstreamClient.stringValue(value) {
+                updates[rule.variableKey] = string
+            }
+        }
+        guard updates.isEmpty == false else { return }
+        onExtractVariables?(updates)
     }
     
     private func resolvedResponse(for route: MockRoute) -> (statusCode: Int, contentType: String, body: Data) {
@@ -564,6 +805,10 @@ final class NetworkMockController: NSObject, ObservableObject, NSWindowDelegate 
             return
         }
         var parts = ["Mock 运行中 · \(enabledRouteCount)/\(routes.count) 条路由"]
+        parts.append("命中\(preferences.resolvedGlobalHitMode.label)")
+        if preferences.passthroughEnabled {
+            parts.append("未命中可透传")
+        }
         if preferences.localhostOnly {
             parts.append("仅本机")
         }

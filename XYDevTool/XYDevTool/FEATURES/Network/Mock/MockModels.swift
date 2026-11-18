@@ -155,6 +155,45 @@ struct MockRouteOverride: Codable, Equatable {
     var contentType: String
 }
 
+enum MockRouteMode: String, Codable, CaseIterable, Identifiable {
+    case cache
+    case passthrough
+    
+    var id: String { rawValue }
+    
+    var label: String {
+        switch self {
+        case .cache: return "缓存"
+        case .passthrough: return "透传"
+        }
+    }
+}
+
+/// 从透传/缓存响应 JSON 提取变量（P2）
+struct MockExtractRule: Identifiable, Codable, Equatable {
+    var id: UUID
+    var enabled: Bool
+    /// 为空表示对所有响应生效；否则仅匹配该 routeKey
+    var routeKey: String
+    /// 点分路径，如 `data.token`
+    var jsonPath: String
+    var variableKey: String
+    
+    init(
+        id: UUID = UUID(),
+        enabled: Bool = true,
+        routeKey: String = "",
+        jsonPath: String,
+        variableKey: String
+    ) {
+        self.id = id
+        self.enabled = enabled
+        self.routeKey = routeKey
+        self.jsonPath = jsonPath
+        self.variableKey = variableKey
+    }
+}
+
 struct MockPreferences: Codable, Equatable {
     var disabledKeys: [String]
     var preferredSourceIds: [String: String]
@@ -168,6 +207,24 @@ struct MockPreferences: Codable, Equatable {
     var delayMS: Int
     /// 是否返回 CORS 头
     var corsEnabled: Bool
+    /// 未命中时是否允许透传
+    var passthroughEnabled: Bool
+    /// 上游 Base URL，如 https://api.example.com
+    var upstreamBaseURL: String
+    /// 透传超时（毫秒）
+    var passthroughTimeoutMS: Int
+    /// 透传成功后是否写回历史
+    var passthroughWriteBack: Bool
+    /// 非 2xx 是否仍写回历史
+    var passthroughSaveNon2xx: Bool
+    /// 已命中路由的全局默认模式（无逐条覆盖时生效）
+    var globalHitMode: String
+    /// routeKey → cache|passthrough（逐条覆盖全局）
+    var routeModes: [String: String]
+    /// 响应抽变量规则
+    var extractRules: [MockExtractRule]
+    /// 出站 Header 模板：Header 名 → 含 `{{var}}` 的模板
+    var outboundHeaderTemplates: [String: String]
     
     static let empty = MockPreferences(
         disabledKeys: [],
@@ -177,11 +234,35 @@ struct MockPreferences: Codable, Equatable {
         matchQuery: false,
         localhostOnly: false,
         delayMS: 0,
-        corsEnabled: true
+        corsEnabled: true,
+        passthroughEnabled: false,
+        upstreamBaseURL: "",
+        passthroughTimeoutMS: 20_000,
+        passthroughWriteBack: true,
+        passthroughSaveNon2xx: true,
+        globalHitMode: MockRouteMode.cache.rawValue,
+        routeModes: [:],
+        extractRules: [],
+        outboundHeaderTemplates: [:]
     )
     
     var disabledKeySet: Set<String> {
         Set(disabledKeys)
+    }
+    
+    var resolvedGlobalHitMode: MockRouteMode {
+        MockRouteMode(rawValue: globalHitMode) ?? .cache
+    }
+    
+    var routeModeOverrideCount: Int {
+        routeModes.count
+    }
+    
+    func mode(for routeKey: String) -> MockRouteMode {
+        if let raw = routeModes[routeKey], let mode = MockRouteMode(rawValue: raw) {
+            return mode
+        }
+        return resolvedGlobalHitMode
     }
     
     enum CodingKeys: String, CodingKey {
@@ -193,6 +274,15 @@ struct MockPreferences: Codable, Equatable {
         case localhostOnly
         case delayMS
         case corsEnabled
+        case passthroughEnabled
+        case upstreamBaseURL
+        case passthroughTimeoutMS
+        case passthroughWriteBack
+        case passthroughSaveNon2xx
+        case globalHitMode
+        case routeModes
+        case extractRules
+        case outboundHeaderTemplates
     }
     
     init(
@@ -203,7 +293,16 @@ struct MockPreferences: Codable, Equatable {
         matchQuery: Bool,
         localhostOnly: Bool,
         delayMS: Int,
-        corsEnabled: Bool
+        corsEnabled: Bool,
+        passthroughEnabled: Bool,
+        upstreamBaseURL: String,
+        passthroughTimeoutMS: Int,
+        passthroughWriteBack: Bool,
+        passthroughSaveNon2xx: Bool,
+        globalHitMode: String,
+        routeModes: [String: String],
+        extractRules: [MockExtractRule],
+        outboundHeaderTemplates: [String: String]
     ) {
         self.disabledKeys = disabledKeys
         self.preferredSourceIds = preferredSourceIds
@@ -213,6 +312,15 @@ struct MockPreferences: Codable, Equatable {
         self.localhostOnly = localhostOnly
         self.delayMS = delayMS
         self.corsEnabled = corsEnabled
+        self.passthroughEnabled = passthroughEnabled
+        self.upstreamBaseURL = upstreamBaseURL
+        self.passthroughTimeoutMS = passthroughTimeoutMS
+        self.passthroughWriteBack = passthroughWriteBack
+        self.passthroughSaveNon2xx = passthroughSaveNon2xx
+        self.globalHitMode = globalHitMode
+        self.routeModes = routeModes
+        self.extractRules = extractRules
+        self.outboundHeaderTemplates = outboundHeaderTemplates
     }
     
     init(from decoder: Decoder) throws {
@@ -225,7 +333,27 @@ struct MockPreferences: Codable, Equatable {
         localhostOnly = try container.decodeIfPresent(Bool.self, forKey: .localhostOnly) ?? false
         delayMS = try container.decodeIfPresent(Int.self, forKey: .delayMS) ?? 0
         corsEnabled = try container.decodeIfPresent(Bool.self, forKey: .corsEnabled) ?? true
+        passthroughEnabled = try container.decodeIfPresent(Bool.self, forKey: .passthroughEnabled) ?? false
+        upstreamBaseURL = try container.decodeIfPresent(String.self, forKey: .upstreamBaseURL) ?? ""
+        passthroughTimeoutMS = try container.decodeIfPresent(Int.self, forKey: .passthroughTimeoutMS) ?? 20_000
+        passthroughWriteBack = try container.decodeIfPresent(Bool.self, forKey: .passthroughWriteBack) ?? true
+        passthroughSaveNon2xx = try container.decodeIfPresent(Bool.self, forKey: .passthroughSaveNon2xx) ?? true
+        globalHitMode = try container.decodeIfPresent(String.self, forKey: .globalHitMode)
+            ?? MockRouteMode.cache.rawValue
+        routeModes = try container.decodeIfPresent([String: String].self, forKey: .routeModes) ?? [:]
+        extractRules = try container.decodeIfPresent([MockExtractRule].self, forKey: .extractRules) ?? []
+        outboundHeaderTemplates = try container.decodeIfPresent([String: String].self, forKey: .outboundHeaderTemplates) ?? [:]
     }
+}
+
+struct MockPassthroughCapture: Equatable {
+    let method: String
+    let path: String
+    let query: String?
+    let requestHeaders: [String: String]
+    let requestBody: Data
+    let responseText: String
+    let statusCode: Int
 }
 
 enum MockRouteTable {
