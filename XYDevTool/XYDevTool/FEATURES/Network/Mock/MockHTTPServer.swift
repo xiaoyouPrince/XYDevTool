@@ -346,10 +346,11 @@ final class MockHTTPServer {
             return
         }
         
+        // 始终保留真实 query，供透传转发上游；是否参与路由匹配由 handler 侧 matchQuery 决定。
         let info = RequestInfo(
             method: method,
             path: path,
-            query: runtime.matchQuery ? query : nil,
+            query: query,
             headers: headers,
             body: body
         )
